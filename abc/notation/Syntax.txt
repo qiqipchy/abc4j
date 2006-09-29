@@ -1,0 +1,117 @@
+package abc.notation;
+import scanner.Set;
+
+public class Syntax
+{
+  public static Set FIRST_END_OF_LINE = new Set(AbcTokenType.LINE_FEED).union(AbcTokenType.SPACE)
+      .union(AbcTokenType.COMMENT);
+  public static Set FIRST_PART_SPEC = new Set(AbcTokenType.PART).union(AbcTokenType.PARENTHESIS_OPEN);
+  public static Set FIRST_PARTS = FIRST_PART_SPEC;
+
+  public static Set FIRST_NOTE_LENGTH_STRICT = new Set(AbcTokenType.NUMBER);
+
+  public static Set FIRST_TEMPO = new Set(AbcTokenType.NUMBER).union(AbcTokenType.C_TEMPO).union(FIRST_NOTE_LENGTH_STRICT);
+
+  public static Set FIRST_METER_FRACTION = new Set(AbcTokenType.NUMBER);
+  public static Set FIRST_METER = FIRST_METER_FRACTION.union(AbcTokenType.C_METER);
+
+  public Set FIRST_GLOBAL_ACCIDENTAL = FIRST_KEY_ACCIDENTAL;
+  public static Set FIRST_MODE = new Set(AbcTokenType.MODE);
+  public static Set FIRST_MODE_SPEC = FIRST_MODE;//.union(AbcTokenType.SPACE);
+  public static Set FIRST_KEY_ACCIDENTAL = new Set(AbcTokenType.KEY_ACCIDENTAL);
+  public static Set FIRST_KEYNOTE = new Set(AbcTokenType.BASE_NOTE);
+  public static Set FIRST_KEYSPEC = FIRST_KEYNOTE;
+  public static Set FIRST_KEY = FIRST_KEYSPEC.union(AbcTokenType.KEY_HP);
+
+  public static final Set FIRST_FIELD_KEY = new Set(AbcTokenType.FIELD_KEY);
+  public static final Set FIRST_FIELD_TRANSCRNOTES = new Set(AbcTokenType.FIELD_TRANSCRNOTES);
+  public static final Set FIRST_FIELD_SOURCE = new Set(AbcTokenType.FIELD_SOURCE);
+  public static final Set FIRST_FIELD_RHYTHM = new Set(AbcTokenType.FIELD_RHYTHM);
+  public static final Set FIRST_FIELD_TEMPO = new Set(AbcTokenType.FIELD_TEMPO);
+  public static final Set FIRST_FIELD_PARTS = new Set(AbcTokenType.FIELD_PARTS);
+  public static final Set FIRST_FIELD_ORIGIN = new Set(AbcTokenType.FIELD_ORIGIN);
+  public static final Set FIRST_FIELD_NOTES = new Set(AbcTokenType.FIELD_NOTES);
+  public static final Set FIRST_FIELD_METER = new Set(AbcTokenType.FIELD_METER);
+  public static final Set FIRST_FIELD_DEFAULT_LENGTH = new Set(AbcTokenType.FIELD_DEFAULT_LENGTH);
+  public static final Set FIRST_FIELD_INFORMATION = new Set(AbcTokenType.FIELD_INFORMATION);
+  public static final Set FIRST_FIELD_HISTORY = new Set(AbcTokenType.FIELD_HISTORY);
+  public static final Set FIRST_FIELD_GROUP = new Set(AbcTokenType.FIELD_GROUP);
+  public static final Set FIRST_FIELD_ELEMSKIP = new Set(AbcTokenType.FIELD_ELEMSKIP);
+  public static final Set FIRST_FIELD_DISCOGRAPHY = new Set(AbcTokenType.FIELD_DISCOGRAPHY);
+  public static final Set FIRST_FIELD_COMPOSER = new Set(AbcTokenType.FIELD_COMPOSER);
+  public static final Set FIRST_FIELD_BOOK = new Set(AbcTokenType.FIELD_BOOK);
+  public static final Set FIRST_FIELD_AREA = new Set(AbcTokenType.FIELD_AREA);
+  public static final Set FIRST_OTHER_FIELDS = FIRST_FIELD_AREA.union(FIRST_FIELD_BOOK).union(FIRST_FIELD_COMPOSER)
+                                                            .union(FIRST_FIELD_DISCOGRAPHY).union(FIRST_FIELD_ELEMSKIP)
+                                                            .union(FIRST_FIELD_GROUP).union(FIRST_FIELD_HISTORY)
+                                                            .union(FIRST_FIELD_INFORMATION).union(FIRST_FIELD_DEFAULT_LENGTH)
+                                                            .union(FIRST_FIELD_METER).union(FIRST_FIELD_NOTES).union(FIRST_FIELD_ORIGIN)
+                                                            .union(FIRST_FIELD_PARTS).union(FIRST_FIELD_RHYTHM).union(FIRST_FIELD_SOURCE)
+                                                            .union(FIRST_FIELD_TEMPO).union(FIRST_FIELD_TRANSCRNOTES);;
+  public static final Set FIRST_FIELD_TITLE = new Set(AbcTokenType.FIELD_TITLE);
+  public static final Set FIRST_FIELD_NUMBER = new Set(AbcTokenType.FIELD_NUMBER);
+  public static Set FIRST_ABCHEADER = FIRST_FIELD_NUMBER;
+
+  //==========================================================================
+  public static Set FIRST_TEXT_CHAR = new Set(AbcTokenType.TEXT);
+  public static Set FIRST_TEXT = FIRST_TEXT_CHAR;
+  public static Set FIRST_LINE_FEED = new Set(AbcTokenType.LINE_FEED);
+  public static Set FIRST_NO_LINE_BREAK = new Set(AbcTokenType.NO_LINE_BREAK);
+  public static Set FIRST_LINE_BREAK = new Set(AbcTokenType.LINE_BREAK);
+  public static Set FIRST_COMMENT = new Set(AbcTokenType.COMMENT);
+  public static Set FIRST_SPACE = new Set(AbcTokenType.SPACE);
+  public static Set FIRST_TEX_COMMAND = new Set(AbcTokenType.TEX_COMMAND);
+
+  public static Set FIRST_USER_DEFINED = new Set(AbcTokenType.USER_DEFINED);
+
+  public static Set FIRST_FIELD_WORDS = new Set(AbcTokenType.FIELD_WORDS);
+  public static Set FIRST_FIELD_PART = new Set(AbcTokenType.FIELD_PARTS);
+  public static Set FIRST_TUNE_FIELD = FIRST_FIELD_ELEMSKIP.union(FIRST_FIELD_KEY).union(FIRST_FIELD_DEFAULT_LENGTH)
+      .union(FIRST_FIELD_METER).union(FIRST_FIELD_PART).union(FIRST_FIELD_TEMPO).union(FIRST_FIELD_TITLE).union(FIRST_FIELD_WORDS);
+  public static Set FIRST_MID_TUNE_FIELD = FIRST_TUNE_FIELD;
+  public static Set FIRST_END_SLUR = new Set(AbcTokenType.END_SLUR);
+  public static Set FIRST_BEGIN_SLUR = new Set(AbcTokenType.BEGIN_SLUR);
+  public static Set FIRST_NTH_REPEAT = new Set(AbcTokenType.NTH_REPEAT);
+  public static Set FIRST_BARLINE = new Set(AbcTokenType.BARLINE);
+
+  public static Set FIRST_CHORD_TYPE = new Set(AbcTokenType.CHORD_TYPE);
+  public Set FIRST_FORMAL_CHORD = FIRST_BASE_NOTE;
+  public static Set FIRST_GUITAR_CHORD = new Set(AbcTokenType.GUITAR_CHORD);
+
+  public static Set FIRST_GRACE_NOTES = new Set(AbcTokenType.GRACING_BEGIN);
+  public static Set FIRST_GRACINGS = new Set(AbcTokenType.GRACING);
+  public static Set FIRST_TIE = new Set(AbcTokenType.TIE);
+  public static Set FIRST_BROKEN_RHYTHM = new Set(AbcTokenType.BROKEN_RHYTHM);
+  public static Set FIRST_REST = new Set(AbcTokenType.REST);
+  public static Set FIRST_BASE_NOTE = new Set(AbcTokenType.BASE_NOTE);
+  public static Set FIRST_ACCIDENTAL = new Set(AbcTokenType.ACCIDENTAL);
+  public static Set FIRST_NOTE_LENGTH = new Set(AbcTokenType.NUMBER).union(AbcTokenType.FRACTION);
+  public static Set FIRST_OCTAVE = new Set(AbcTokenType.OCTAVE);
+  public static Set FIRST_PITCH = FIRST_ACCIDENTAL.union(FIRST_BASE_NOTE);
+  public static Set FIRST_NOTE_OR_REST = FIRST_PITCH.union(FIRST_REST);
+  public static Set FIRST_NOTE = FIRST_NOTE_OR_REST;
+  public static Set FIRST_MULTI_NOTE = new Set(AbcTokenType.MULTI_NOTE_BEGIN);
+  public static Set FIRST_NOTE_STEM = FIRST_GUITAR_CHORD.union(FIRST_GRACE_NOTES).union(FIRST_GRACINGS).union(FIRST_NOTE).union(FIRST_MULTI_NOTE);
+  public static Set FIRST_NOTE_ELEMENT = FIRST_NOTE_STEM;
+
+  public static Set FIRST_TUPLET_SPEC = new Set(AbcTokenType.TUPLET_SPEC);
+  public static Set FIRST_TUPLET_ELEMENT = FIRST_TUPLET_SPEC;
+
+  public static Set FIRST_LINE_ENDER = new Set(AbcTokenType.COMMENT).union(AbcTokenType.LINE_FEED).union(AbcTokenType.LINE_BREAK)
+      .union(AbcTokenType.NO_LINE_BREAK);
+  public static Set FIRST_ELEMENT = FIRST_NOTE_ELEMENT.union(FIRST_TUPLET_ELEMENT).union(AbcTokenType.BARLINE)
+      .union(AbcTokenType.NTH_REPEAT).union(AbcTokenType.BEGIN_SLUR).union(AbcTokenType.END_SLUR).union(AbcTokenType.SPACE)
+      /*.union(AbcTokenType.USER_DEFINED)*/;
+  public static Set FIRST_ABC_LINE = FIRST_ELEMENT.union(FIRST_MID_TUNE_FIELD).union(FIRST_COMMENT).union(FIRST_TEX_COMMAND);
+  public static Set FIRST_ABC_MUSIC = FIRST_ABC_LINE;
+
+  //==========================================================================
+  static Set FIRST_ABCTUNE = FIRST_ABCHEADER;
+
+  public static Set FIRST_FILE_FIELDS = //new Set(AbcTokenType.FIELD_FIELPART)
+      new Set(AbcTokenType.FIELD_BOOK).union(AbcTokenType.FIELD_GROUP).union(AbcTokenType.FIELD_HISTORY)
+      .union(AbcTokenType.FIELD_INFORMATION).union(AbcTokenType.FIELD_METER).union(AbcTokenType.FIELD_ORIGIN)
+      .union(AbcTokenType.FIELD_RHYTHM);
+  public static Set FIRST_ABC_FILE = FIRST_ABCTUNE.union(FIRST_COMMENT)
+      .union(FIRST_LINE_FEED).union(FIRST_TEX_COMMAND).union(FIRST_FILE_FIELDS);
+}

@@ -1,0 +1,44 @@
+
+C:\MyStuff\JABC\perf>C:\j2sdk1.4.2_05\bin\java -classpath .\abc4j.jar;. PerfMeas
+urements "C:/MyStuff/partitions/ABC/Reels.abc" 10
+Parsing C:/MyStuff/partitions/ABC/Reels.abc 10 times :
+===============PARSING TUNES HEADERS ONLY
+Parsing 0 took 2740 millisecs
+Parsing 1 took 1650 millisecs
+Parsing 2 took 1540 millisecs
+Parsing 3 took 1590 millisecs
+Parsing 4 took 1590 millisecs
+Parsing 5 took 1710 millisecs
+Parsing 6 took 1700 millisecs
+Parsing 7 took 1870 millisecs
+Parsing 8 took 1810 millisecs
+Parsing 9 took 1920 millisecs
+Average parsing time : 1812 millisecs
+===============PARSING WHOLE FILE
+Parsing 0 took 108430 millisecs
+Parsing 1 took 96280 millisecs
+Parsing 2 took 85520 millisecs
+Parsing 3 took 86290 millisecs
+Parsing 4 took 86230 millisecs
+Parsing 5 took 86340 millisecs
+Parsing 6 took 86400 millisecs
+Parsing 7 took 86510 millisecs
+Parsing 8 took 86450 millisecs
+Parsing 9 took 90130 millisecs
+Average parsing time : 89858 millisecs
+===============CREATING A TUNE BOOK
+TuneBook 0 took 1430 millisecs
+TuneBook 1 took 1210 millisecs
+TuneBook 2 took 1370 millisecs
+TuneBook 3 took 1210 millisecs
+TuneBook 4 took 1210 millisecs
+TuneBook 5 took 1370 millisecs
+TuneBook 6 took 1210 millisecs
+TuneBook 7 took 1210 millisecs
+TuneBook 8 took 1370 millisecs
+TuneBook 9 took 1160 millisecs
+Average parsing time : 1275 millisecs
+
+C:\MyStuff\JABC\perf>
+
+

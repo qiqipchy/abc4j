@@ -1,0 +1,1529 @@
+package abc.parser;
+
+import scanner.NoSuchTokenException;
+import scanner.PreDefinedTransition;
+import scanner.State;
+import scanner.Scanner;
+import scanner.*;
+import scanner.Token;
+import abc.parser.automata.*;
+
+import abc.notation.*;
+
+import java.io.File;
+import java.io.StringReader;
+import java.io.Reader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.util.Vector;
+//import java.util.ArrayList;
+
+/** Abstract class from which all abc notation parsers inherit. */
+public class AbcParserAbstract// implements ScannerListenerInterface
+{
+  protected static Set FIRST_END_OF_LINE = new Set(AbcTokenType.LINE_FEED).union(AbcTokenType.SPACE)
+      .union(AbcTokenType.COMMENT);
+  protected static Set FIRST_PART_SPEC = new Set(AbcTokenType.PART).union(AbcTokenType.PARENTHESIS_OPEN);
+  protected static Set FIRST_PARTS = FIRST_PART_SPEC;
+
+  protected static Set FIRST_NOTE_LENGTH_STRICT = new Set(AbcTokenType.NUMBER);
+
+  protected static Set FIRST_TEMPO = new Set(AbcTokenType.NUMBER).union(AbcTokenType.C_TEMPO).union(FIRST_NOTE_LENGTH_STRICT);
+
+  protected static Set FIRST_METER_FRACTION = new Set(AbcTokenType.NUMBER);
+  protected static Set FIRST_METER = FIRST_METER_FRACTION.union(AbcTokenType.C_METER);
+
+  protected Set FIRST_GLOBAL_ACCIDENTAL = FIRST_KEY_ACCIDENTAL;
+  protected static Set FIRST_MODE = new Set(AbcTokenType.MODE);
+  protected static Set FIRST_MODE_SPEC = FIRST_MODE;//.union(AbcTokenType.SPACE);
+  protected static Set FIRST_KEY_ACCIDENTAL = new Set(AbcTokenType.KEY_ACCIDENTAL);
+  protected static Set FIRST_KEYNOTE = new Set(AbcTokenType.BASE_NOTE);
+  protected static Set FIRST_KEYSPEC = FIRST_KEYNOTE;
+  protected static Set FIRST_KEY = FIRST_KEYSPEC.union(AbcTokenType.KEY_HP);
+
+  protected static final Set FIRST_FIELD_KEY = new Set(AbcTokenType.FIELD_KEY);
+  protected static final Set FIRST_FIELD_TRANSCRNOTES = new Set(AbcTokenType.FIELD_TRANSCRNOTES);
+  protected static final Set FIRST_FIELD_SOURCE = new Set(AbcTokenType.FIELD_SOURCE);
+  protected static final Set FIRST_FIELD_RHYTHM = new Set(AbcTokenType.FIELD_RHYTHM);
+  protected static final Set FIRST_FIELD_TEMPO = new Set(AbcTokenType.FIELD_TEMPO);
+  protected static final Set FIRST_FIELD_PARTS = new Set(AbcTokenType.FIELD_PARTS);
+  protected static final Set FIRST_FIELD_ORIGIN = new Set(AbcTokenType.FIELD_ORIGIN);
+  protected static final Set FIRST_FIELD_NOTES = new Set(AbcTokenType.FIELD_NOTES);
+  protected static final Set FIRST_FIELD_METER = new Set(AbcTokenType.FIELD_METER);
+  protected static final Set FIRST_FIELD_DEFAULT_LENGTH = new Set(AbcTokenType.FIELD_DEFAULT_LENGTH);
+  protected static final Set FIRST_FIELD_INFORMATION = new Set(AbcTokenType.FIELD_INFORMATION);
+  protected static final Set FIRST_FIELD_HISTORY = new Set(AbcTokenType.FIELD_HISTORY);
+  protected static final Set FIRST_FIELD_GROUP = new Set(AbcTokenType.FIELD_GROUP);
+  protected static final Set FIRST_FIELD_ELEMSKIP = new Set(AbcTokenType.FIELD_ELEMSKIP);
+  protected static final Set FIRST_FIELD_DISCOGRAPHY = new Set(AbcTokenType.FIELD_DISCOGRAPHY);
+  protected static final Set FIRST_FIELD_COMPOSER = new Set(AbcTokenType.FIELD_COMPOSER);
+  protected static final Set FIRST_FIELD_BOOK = new Set(AbcTokenType.FIELD_BOOK);
+  protected static final Set FIRST_FIELD_AREA = new Set(AbcTokenType.FIELD_AREA);
+  protected static Set FIRST_COMMENT = new Set(AbcTokenType.COMMENT);
+  protected static final Set FIRST_OTHER_FIELDS = FIRST_FIELD_AREA.union(FIRST_FIELD_BOOK).union(FIRST_FIELD_COMPOSER)
+                                                            .union(FIRST_FIELD_DISCOGRAPHY).union(FIRST_FIELD_ELEMSKIP)
+                                                            .union(FIRST_FIELD_GROUP).union(FIRST_FIELD_HISTORY)
+                                                            .union(FIRST_FIELD_INFORMATION).union(FIRST_FIELD_DEFAULT_LENGTH)
+                                                            .union(FIRST_FIELD_METER).union(FIRST_FIELD_NOTES).union(FIRST_FIELD_ORIGIN)
+                                                            .union(FIRST_FIELD_PARTS).union(FIRST_FIELD_RHYTHM).union(FIRST_FIELD_SOURCE)
+                                                            .union(FIRST_FIELD_TEMPO).union(FIRST_FIELD_TRANSCRNOTES).union(FIRST_COMMENT);
+    protected static final Set FIRST_FIELD_TITLE = new Set(AbcTokenType.FIELD_TITLE);
+    protected static final Set FIRST_FIELD_NUMBER = new Set(AbcTokenType.FIELD_NUMBER);
+    protected static Set FIRST_ABCHEADER = FIRST_FIELD_NUMBER;
+
+    //==========================================================================
+    protected static Set FIRST_TEXT_CHAR = new Set(AbcTokenType.TEXT);
+    protected static Set FIRST_TEXT = FIRST_TEXT_CHAR;
+    protected static Set FIRST_LINE_FEED = new Set(AbcTokenType.LINE_FEED);
+    protected static Set FIRST_NO_LINE_BREAK = new Set(AbcTokenType.NO_LINE_BREAK);
+    protected static Set FIRST_LINE_BREAK = new Set(AbcTokenType.LINE_BREAK);
+
+    protected static Set FIRST_SPACE = new Set(AbcTokenType.SPACE);
+    protected static Set FIRST_TEX_COMMAND = new Set(AbcTokenType.TEX_COMMAND);
+
+    protected static Set FIRST_USER_DEFINED = new Set(AbcTokenType.USER_DEFINED);
+
+    protected static Set FIRST_FIELD_WORDS = new Set(AbcTokenType.FIELD_WORDS);
+    protected static Set FIRST_FIELD_PART = new Set(AbcTokenType.FIELD_PARTS);
+    protected static Set FIRST_TUNE_FIELD = FIRST_FIELD_ELEMSKIP.union(FIRST_FIELD_KEY).union(FIRST_FIELD_DEFAULT_LENGTH)
+        .union(FIRST_FIELD_METER).union(FIRST_FIELD_PART).union(FIRST_FIELD_TEMPO).union(FIRST_FIELD_TITLE).union(FIRST_FIELD_WORDS);
+    protected static Set FIRST_MID_TUNE_FIELD = FIRST_TUNE_FIELD;
+    protected static Set FIRST_END_SLUR = new Set(AbcTokenType.END_SLUR);
+    protected static Set FIRST_BEGIN_SLUR = new Set(AbcTokenType.BEGIN_SLUR);
+    protected static Set FIRST_NTH_REPEAT = new Set(AbcTokenType.NTH_REPEAT);
+    protected static Set FIRST_BARLINE = new Set(AbcTokenType.BARLINE);
+
+    protected static Set FIRST_CHORD_TYPE = new Set(AbcTokenType.CHORD_TYPE);
+    protected Set FIRST_FORMAL_CHORD = FIRST_BASE_NOTE;
+    protected static Set FIRST_GUITAR_CHORD = new Set(AbcTokenType.GUITAR_CHORD);
+
+    protected static Set FIRST_GRACE_NOTES = new Set(AbcTokenType.GRACING_BEGIN);
+    protected static Set FIRST_GRACINGS = new Set(AbcTokenType.GRACING);
+    protected static Set FIRST_TIE = new Set(AbcTokenType.TIE);
+    protected static Set FIRST_BROKEN_RHYTHM = new Set(AbcTokenType.BROKEN_RHYTHM);
+    protected static Set FIRST_REST = new Set(AbcTokenType.REST);
+    protected static Set FIRST_BASE_NOTE = new Set(AbcTokenType.BASE_NOTE);
+    protected static Set FIRST_ACCIDENTAL = new Set(AbcTokenType.ACCIDENTAL);
+    protected static Set FIRST_NOTE_LENGTH = new Set(AbcTokenType.NUMBER).union(AbcTokenType.FRACTION);
+    protected static Set FIRST_OCTAVE = new Set(AbcTokenType.OCTAVE);
+    protected static Set FIRST_PITCH = FIRST_ACCIDENTAL.union(FIRST_BASE_NOTE);
+    protected static Set FIRST_NOTE_OR_REST = FIRST_PITCH.union(FIRST_REST);
+    protected static Set FIRST_NOTE = FIRST_NOTE_OR_REST;
+    protected static Set FIRST_MULTI_NOTE = new Set(AbcTokenType.MULTI_NOTE_BEGIN);
+    protected static Set FIRST_NOTE_STEM = FIRST_GUITAR_CHORD.union(FIRST_GRACE_NOTES).union(FIRST_GRACINGS).union(FIRST_NOTE).union(FIRST_MULTI_NOTE);
+    protected static Set FIRST_NOTE_ELEMENT = FIRST_NOTE_STEM;
+
+    protected static Set FIRST_TUPLET_SPEC = new Set(AbcTokenType.TUPLET_SPEC);
+    protected static Set FIRST_TUPLET_ELEMENT = FIRST_TUPLET_SPEC;
+
+    protected static Set FIRST_LINE_ENDER = new Set(AbcTokenType.COMMENT).union(AbcTokenType.LINE_FEED).union(AbcTokenType.LINE_BREAK)
+        .union(AbcTokenType.NO_LINE_BREAK);
+    protected static Set FIRST_ELEMENT = FIRST_NOTE_ELEMENT.union(FIRST_TUPLET_ELEMENT).union(AbcTokenType.BARLINE)
+        .union(AbcTokenType.NTH_REPEAT).union(AbcTokenType.BEGIN_SLUR).union(AbcTokenType.END_SLUR).union(AbcTokenType.SPACE)
+        /*.union(AbcTokenType.USER_DEFINED)*/;
+    protected static Set FIRST_ABC_LINE = FIRST_ELEMENT.union(FIRST_MID_TUNE_FIELD)/*.union(FIRST_COMMENT)*/.union(FIRST_TEX_COMMAND);
+    protected static Set FIRST_ABC_MUSIC = FIRST_ABC_LINE;
+
+    //==========================================================================
+    protected static Set FIRST_ABCTUNE = FIRST_ABCHEADER;
+    /** The scanner used for parsing. */
+    protected Scanner m_scanner;
+
+    protected ScannerListenerInterface m_scannerListener = null;
+
+    /** Listeners of this parser. */
+    protected Vector m_listeners;
+    /** the current token used by this parser. */
+    protected Token token = null;
+    /** */
+    protected int m_tokenType = -1;
+    /** The broken rhythm inherited from the previous note. */
+    private byte brokenRhythm = 0;
+    /** The current default note length. */
+    private short m_defaultNoteLength = Note.EIGHTH;
+    /** The score of the current part. */
+    private Tune.Score m_score = null;
+    /** The tune resulting of the last parsing. */
+    private Tune m_tune = null;
+    /** */
+    private boolean headerOnly = false;
+
+    private Set typesForAutomata = null;
+
+    /** Constructs a new tune parser. */
+    public AbcParserAbstract()
+    {
+      m_scanner = new Scanner();
+      m_scannerListener = new ScannerListenerInterface()
+      {
+        //=======================================SCANNER LISTENER BEGIN
+        public void tokenGenerated(TokenEvent evt)
+        {}
+
+        public void invalidCharacter(InvalidCharacterEvent evt)
+        { notifyListenersForInvalidCharacter(evt); }
+
+        public void lineProcessed(String line)
+        { }
+        //=======================================SCANNER LISTENER END
+      };
+      m_scanner.addListener(m_scannerListener);
+      m_listeners = new Vector();
+    }
+
+    /** Returns the scanner internally used for parsing.
+     * @return The scanner internally used for parsing. */
+    public Scanner getScanner()
+    { return m_scanner; }
+
+    /** Adds a listener to catch events thrown by the parser durin tune parsing.
+     * @param listener Object that implements the TuneParserListenerInterface. */
+    public void addListener (TuneParserListenerInterface listener)
+    { m_listeners.addElement(listener); }
+
+    /** Removes a listener from this parser.
+     * @param listener The listener to be removed. */
+    public void removeListener (TuneParserListenerInterface listener)
+    { m_listeners.removeElement(listener); }
+
+    /** Parse the given string and creates a <TT>Tune</TT> object as parsing result.
+     * @param tune The abc tune, as a String, to be parsed.
+     * @return An object representation of the abc notation string. */
+    public Tune parse(String tune)
+    { return parse(new StringReader(tune)); }
+
+    /** Parses the specified stream in ABC notation.
+     * @param charStream Tune stream in ABC notation.
+     * @return A tune representing the ABC notation stream. */
+    public Tune parse(Reader charStream)
+    {
+      try
+      {
+        Set current = new Set();
+        m_scanner.init(charStream);
+        current = FIRST_ABCHEADER.union(FIRST_FIELD_KEY);
+        m_scanner.setFinaleStateAutomata(getAutomataFor(current.getTypes()));
+        notifyListenersForBegin();
+        try
+        {
+          token = m_scanner.nextToken();
+          m_tokenType = token.getType();
+        }
+        catch (NoSuchTokenException e)
+        {
+          //notifyListenersForInvalidToken(null, new CharStreamPosition(0,0,0), AbcTokenType.FIELD_NUMBER);
+          //return new Tune();
+        }
+        parseTune(current);
+      }
+      catch (NoSuchTokenException e)
+      {
+        //System.out.println("CATCHING NO SUCH ELEMENT EXCEPTION");
+        //e.printStackTrace();
+        //Occurs when the last parts of the tune is just invalid characters.
+      }
+      notifyListenersForEnd(m_tune);
+      return m_tune;
+    }
+
+    /** Parses the header of the specified tune notation.
+     * @param tune A tune notation in ABC.
+     * @return A tune representing the ABC notation with header values only. */
+    public Tune parseHeader(String tune)
+    { return parseHeader(new StringReader(tune)); }
+
+    /** Parse the given string and creates a <TT>Tune</TT> object with no score
+     * as parsing result. This purpose of this method method is to provide a
+     * faster parsing when just abc header fields are needed.
+     * @param tune The abc tune, as a String, to be parsed.
+     * @return An object representation with no score of the abc notation
+     * string. */
+    public Tune parseHeader(Reader charStream)
+    {
+      notifyListenersForBegin();
+      try
+      {
+        m_scanner.init(charStream);
+        Set current = FIRST_ABCHEADER.union(FIRST_FIELD_KEY);
+        m_scanner.setFinaleStateAutomata(getAutomataFor(current.getTypes()));
+        try
+        {
+          token = m_scanner.nextToken();
+          m_tokenType = token.getType();
+
+        }
+        catch (NoSuchTokenException e)
+        {
+          //notifyListenersForInvalidToken(null, new CharStreamPosition(0,0,0), AbcTokenType.FIELD_NUMBER);
+          //return new Tune();
+        }
+        parseAbcHeader(current);
+      }
+      catch (NoSuchTokenException e)
+      {
+        //Occurs when the last parts of the tune is just invalid characters.
+        //System.out.println("CATCHING NO SUCH ELEMENT EXCEPTION");
+      }
+      notifyListenersForEnd(m_tune);
+      return m_tune;
+    }
+
+
+    protected Tune parseTune(Set follow)
+    {
+      Set current = FIRST_ABCHEADER.union(FIRST_FIELD_KEY);
+      m_scanner.setFinaleStateAutomata(getAutomataFor(current.getTypes()));
+      parseAbcHeader(current.union(follow));
+      //current.remove(FIRST_FIELD_KEY);
+      //current = current.union(FIRST_ABC_MUSIC);
+      //KeySignature key = parseFieldKey(current.union(follow));
+      //if (key!=null) m_score.addElement(key);
+      parseAbcMusic(current.union(follow));
+      return m_tune;
+    }
+
+    private void parseOtherFields(Set follow) //throws TuneNotationException
+    {
+        //System.out.println("AbcScoreParser - parse()");
+        // CURRENT, for any given rule S contains all terminals accepted by S
+        // as well as the set of all the FIRSTs for all other rules invoked by S.
+        Object returnedObject = null;
+/*        Set current = FIRST_FIELD_AREA.union(FIRST_FIELD_BOOK).union(FIRST_FIELD_COMPOSER)
+            .union(FIRST_FIELD_DISCOGRAPHY).union(FIRST_FIELD_ELEMSKIP).union(FIRST_FIELD_GROUP)
+            .union(FIRST_FIELD_HISTORY).union(FIRST_FIELD_INFORMATION).union(FIRST_FIELD_NOTES)
+            .union(FIRST_FIELD_ORIGIN).union(FIRST_FIELD_RHYTHM).union(FIRST_FIELD_SOURCE)
+            .union(FIRST_FIELD_TRANSCRNOTES).union(FIRST_COMMENT);*/
+        Set current = new Set();
+        if (m_tokenType==(AbcTokenType.FIELD_AREA)) current.remove(FIRST_FIELD_AREA);
+        else if (m_tokenType==(AbcTokenType.FIELD_BOOK)) current.remove(FIRST_FIELD_BOOK);
+        else if (m_tokenType==(AbcTokenType.FIELD_COMPOSER)) current.remove(FIRST_FIELD_COMPOSER);
+        else if (m_tokenType==(AbcTokenType.FIELD_DISCOGRAPHY))
+          current.remove(FIRST_FIELD_DISCOGRAPHY);
+        else if (m_tokenType==(AbcTokenType.FIELD_ELEMSKIP)) current.remove(FIRST_FIELD_ELEMSKIP);
+        else if (m_tokenType==(AbcTokenType.FIELD_GROUP)) current.remove(FIRST_FIELD_GROUP);
+        else if (m_tokenType==(AbcTokenType.FIELD_HISTORY)) current.remove(FIRST_FIELD_HISTORY);
+        else if (m_tokenType==(AbcTokenType.FIELD_INFORMATION)) current.remove(FIRST_FIELD_INFORMATION);
+        else if (m_tokenType==(AbcTokenType.FIELD_DEFAULT_LENGTH)) current.remove(FIRST_FIELD_DEFAULT_LENGTH);
+        else if (m_tokenType==(AbcTokenType.FIELD_METER)) current.remove(FIRST_FIELD_METER);
+        else if (m_tokenType==(AbcTokenType.FIELD_NOTES)) current.remove(FIRST_FIELD_NOTES);
+        else if (m_tokenType==(AbcTokenType.FIELD_ORIGIN)) current.remove(FIRST_FIELD_ORIGIN);
+        else if (m_tokenType==(AbcTokenType.FIELD_RHYTHM)) current.remove(FIRST_FIELD_RHYTHM);
+        else if (m_tokenType==(AbcTokenType.FIELD_SOURCE)) current.remove(FIRST_FIELD_SOURCE);
+        else if (m_tokenType==(AbcTokenType.FIELD_TRANSCRNOTES)) current.remove(FIRST_FIELD_TRANSCRNOTES);
+
+        if (m_tokenType==(AbcTokenType.FIELD_HISTORY))
+          parseFieldHistory(current.union(follow));
+        else
+        if (m_tokenType==(AbcTokenType.FIELD_DEFAULT_LENGTH))
+        {
+          short defaultNoteLength =  parseFieldDefaultLength(current.union(follow));
+          if (defaultNoteLength!=-1)
+            m_defaultNoteLength = defaultNoteLength;
+        }
+        else
+        if (m_tokenType==(AbcTokenType.FIELD_METER))
+        {
+          TimeSignature meter = parseFieldMeter(current.union(follow));
+          if (meter!=null)
+          {
+            m_score.addElement(meter);
+            m_defaultNoteLength = meter.getDefaultNoteLength();
+          }
+        }
+        else
+        if (m_tokenType==(AbcTokenType.FIELD_PARTS))
+        {
+          MultiPart parts = parseFieldParts(current.union(follow));
+          if (parts!=null) m_tune.setMultiPartsDefinition(parts);
+          //System.out.println(parts.getPartsAsRepeatedOnceVector());
+        }
+        else
+        if (m_tokenType==AbcTokenType.FIELD_TEMPO)
+        {
+          Tempo tempo = parseFieldTempo(current.union(follow));
+          if (tempo!=null) m_score.addElement(tempo);
+        }
+        else
+        if (m_tokenType==AbcTokenType.COMMENT)
+        {
+          current.remove(AbcTokenType.COMMENT);
+          parseComment(current.union(follow));
+        }
+        else
+        {
+          AbcTextField field = parseField(m_tokenType, current.union(follow));
+          if (field!=null)
+            if (field.getType() == AbcTextField.AREA) m_tune.setArea(field.getText());
+            else if (field.getType() == AbcTextField.BOOK) m_tune.setBook(field.getText());
+            else if (field.getType() ==  AbcTextField.COMPOSER) m_tune.setComposer(field.getText());
+            else if (field.getType() == AbcTextField.DISCOGRAPHY) m_tune.setDiscography(field.getText());
+            else if (field.getType() == AbcTextField.GROUP) m_tune.setGroup(field.getText());
+            else if (field.getType() == AbcTextField.HISTORY) m_tune.addHistory(field.getText());
+            else if (field.getType() == AbcTextField.INFORMATION) m_tune.setInformation(field.getText());
+            else if (field.getType() == AbcTextField.NOTES) m_tune.setNotes(field.getText());
+            else if (field.getType() == AbcTextField.ORIGIN) m_tune.setOrigin(field.getText());
+            else if (field.getType() == AbcTextField.RHYTHM) m_tune.setRhythm(field.getText());
+            else if (field.getType() == AbcTextField.SOURCE) m_tune.setSource(field.getText());
+            else if (field.getType() == AbcTextField.TRANSCRNOTES) m_tune.addTranscriptionNotes(field.getText());
+        }
+    }
+
+    private AbcTextField parseField(int tokenType, Set follow)
+    {
+        //System.out.println("TuneParser - parseFieldArea(" + token + ")");
+        Set current= FIRST_END_OF_LINE.union(AbcTokenType.TEXT);
+
+        String ret = accept(tokenType, current, follow);
+
+        current.remove(AbcTokenType.TEXT);
+        String text = accept(AbcTokenType.TEXT, current, follow);
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+
+        if (ret!=null && text!=null)
+        {
+          if (tokenType==(AbcTokenType.FIELD_AREA)) return new AbcTextField(AbcTextField.AREA, text);
+          else if (tokenType==(AbcTokenType.FIELD_BOOK)) return new AbcTextField(AbcTextField.BOOK, text);
+          else if (tokenType==(AbcTokenType.FIELD_COMPOSER)) return new AbcTextField(AbcTextField.COMPOSER, text);
+          else if (tokenType==(AbcTokenType.FIELD_DISCOGRAPHY)) return new AbcTextField(AbcTextField.DISCOGRAPHY, text);
+          else if (tokenType==(AbcTokenType.FIELD_ELEMSKIP)) return new AbcTextField(AbcTextField.ELEMSKIP, text);
+          else if (tokenType==(AbcTokenType.FIELD_GROUP)) return new AbcTextField(AbcTextField.GROUP, text);
+          else if (tokenType==(AbcTokenType.FIELD_INFORMATION)) return new AbcTextField(AbcTextField.INFORMATION, text);
+          else if (tokenType==(AbcTokenType.FIELD_NOTES)) return new AbcTextField(AbcTextField.NOTES, text);
+          else if (tokenType==(AbcTokenType.FIELD_ORIGIN)) return new AbcTextField(AbcTextField.ORIGIN, text);
+          else if (tokenType==(AbcTokenType.FIELD_RHYTHM)) return new AbcTextField(AbcTextField.RHYTHM, text);
+          else if (tokenType==(AbcTokenType.FIELD_SOURCE)) return new AbcTextField(AbcTextField.SOURCE, text);
+          else if (tokenType==(AbcTokenType.FIELD_TITLE)) return new AbcTextField(AbcTextField.TITLE, text);
+          else if (tokenType==(AbcTokenType.FIELD_TRANSCRNOTES)) return new AbcTextField(AbcTextField.TRANSCRNOTES, text);
+          return null;
+        }
+        else
+          return null;
+    }
+
+    private short parseFieldDefaultLength(Set follow)
+    {
+        //System.out.println("TuneParser - parseFieldArea(" + token + ")");
+        Set current = FIRST_NOTE_LENGTH_STRICT.union(FIRST_END_OF_LINE);
+
+        accept(AbcTokenType.FIELD_DEFAULT_LENGTH, current, follow);
+
+        current.remove(FIRST_NOTE_LENGTH_STRICT);
+        short noteLength = parseNoteLengthStrict(current.union(follow));
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+
+        return noteLength;
+    }
+
+    private Fraction parseNoteLength(Set follow)
+    {
+      Set current = new Set(AbcTokenType.NUMBER).union(AbcTokenType.FRACTION);
+      byte num = 1;
+      byte denom = 1;
+
+      if (m_tokenType==(AbcTokenType.NUMBER))
+      {
+        String acc = accept(AbcTokenType.NUMBER, current, follow, true);
+        if (acc!=null)
+          num = Byte.parseByte(acc);
+      }
+      if (m_tokenType==(AbcTokenType.FRACTION))
+      {
+        current.remove(AbcTokenType.FRACTION);
+        accept(AbcTokenType.FRACTION, current, follow, true);
+        denom=2; // If only '/' in the notation, means divided by 2.
+        current.remove(AbcTokenType.NUMBER);
+        if (m_tokenType==(AbcTokenType.NUMBER))
+        {
+          String acc = accept(AbcTokenType.NUMBER, current, follow);
+          if (acc!=null)
+            denom = Byte.parseByte(acc);
+        }
+      }
+       return new Fraction(num, denom);
+    }
+
+    private short parseNoteLengthStrict(Set follow)
+    {
+        Set current = new Set(AbcTokenType.NUMBER).union(AbcTokenType.FRACTION);
+        short noteLength = -1;
+        String numString = accept(AbcTokenType.NUMBER, current, follow);
+
+        current.remove(AbcTokenType.FRACTION);
+        accept(AbcTokenType.FRACTION, current, follow);
+
+        current.remove(AbcTokenType.NUMBER);
+        String denomString = accept(AbcTokenType.NUMBER, current, follow);
+        if (numString!=null && denomString!=null)
+        {
+          int num = Integer.parseInt(numString);
+          int denom = Integer.parseInt(denomString);
+          noteLength = Note.convertToNoteLengthStrict(num, denom);
+        }
+        return noteLength;
+    }
+
+    private TimeSignature parseFieldMeter(Set follow)
+    {
+        Set current = FIRST_METER.union(FIRST_END_OF_LINE);
+        TimeSignature meter = null;
+
+        accept(AbcTokenType.FIELD_METER, current, follow);
+
+        current.remove(FIRST_METER);
+        meter = parseMeter(current.union(follow));
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+
+        return meter;
+    }
+
+    private TimeSignature parseMeter(Set follow)
+    {
+      Set current = new Set();
+      TimeSignature meter = null;
+      if (m_tokenType==(AbcTokenType.C_METER))
+      {
+        String C = accept(AbcTokenType.C_METER, current, follow);
+        if (C.equals("C"))
+          meter = new TimeSignature(4,4);
+        else
+          meter = new TimeSignature(2,2);
+      }
+      else
+        meter = parseMeterFraction(current.union(follow));
+      return meter;
+    }
+
+    private TimeSignature parseMeterFraction(Set follow)
+    {
+        Set current = new Set(AbcTokenType.NUMBER).union(AbcTokenType.FRACTION);
+        TimeSignature fraction = null;
+        String numString = accept(AbcTokenType.NUMBER, current, follow);
+
+        current.remove(AbcTokenType.FRACTION);
+        accept(AbcTokenType.FRACTION, current, follow);
+
+        current.remove(AbcTokenType.NUMBER);
+        String denomString = accept(AbcTokenType.NUMBER, current, follow);
+        if (numString!=null && denomString!=null)
+        {
+          int num = Integer.parseInt(numString);
+          int denom = Integer.parseInt(denomString);
+          fraction = new TimeSignature(num, denom);
+        }
+        return fraction;
+    }
+
+    private MultiPart parseFieldParts(Set follow)
+    {
+        Set current = FIRST_PARTS.union(FIRST_END_OF_LINE);
+
+        accept(AbcTokenType.FIELD_PARTS, current, follow);
+
+        current.remove(FIRST_PARTS);
+        MultiPart parts = parseParts(current.union(follow));
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+        return parts;
+    }
+
+    private char parseFieldPart(Set follow)
+    {
+        Set current = FIRST_END_OF_LINE.union(AbcTokenType.PART);
+        accept(AbcTokenType.FIELD_PARTS, current, follow);
+        current.remove(AbcTokenType.PART);
+        String partLabelString = accept(AbcTokenType.PART, current, follow);
+        char partLabel = ' ';
+        if (partLabelString!=null)
+          partLabel = partLabelString.charAt(0);
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+        return partLabel;
+    }
+
+    private MultiPart parseParts(Set follow)
+    {
+      Set current = new Set().union(FIRST_PART_SPEC);
+      MultiPart parts = new MultiPart();
+      do
+      {
+         PartsDefinitionAbstract partSpec = parsePartSpec(current.union(follow));
+         if (partSpec!=null)
+           parts.addPart(partSpec);
+      }
+      while (FIRST_PART_SPEC.contains(m_tokenType));
+      return parts;
+    }
+
+    private PartsDefinitionAbstract parsePartSpec(Set follow)
+    {
+      Set current = FIRST_PART_SPEC.union(AbcTokenType.PART).union(AbcTokenType.PARENTHESIS_OPEN)
+          .union(AbcTokenType.PARENTHESIS_CLOSE).union(AbcTokenType.DIGIT);
+      PartsDefinitionAbstract parts = null;
+      if (m_tokenType==(AbcTokenType.PART))
+      {
+        current.remove(AbcTokenType.PART);
+        char partName = accept(AbcTokenType.PART, current, follow, true).charAt(0);
+        current.remove(AbcTokenType.PARENTHESIS_OPEN);
+        current.remove(AbcTokenType.PARENTHESIS_CLOSE);
+        parts = m_tune.getPart(partName);
+        if (parts==null)
+          parts = m_tune.createPart(partName);
+      }
+      else
+      {
+        current.remove(AbcTokenType.PARENTHESIS_OPEN);
+        accept(AbcTokenType.PARENTHESIS_OPEN, current, follow);
+        parts = new MultiPart();
+        do
+        {
+          PartsDefinitionAbstract partSpec = parsePartSpec(current.union(follow));
+          if (partSpec!=null)
+            ((MultiPart)parts).addPart(partSpec);
+        }
+        while(FIRST_PART_SPEC.contains(m_tokenType));
+        current.remove(FIRST_PART_SPEC);
+        current.remove(AbcTokenType.PARENTHESIS_CLOSE);
+        accept(AbcTokenType.PARENTHESIS_CLOSE, current, follow, true);
+      }
+      if (m_tokenType==(AbcTokenType.DIGIT))
+      {
+        current.remove(AbcTokenType.DIGIT);
+        parts.setNumberOfRepeats(Integer.parseInt(accept(AbcTokenType.DIGIT, current, follow)));
+      }
+      return parts;
+    }
+
+    private Tempo parseFieldTempo(Set follow)
+    {
+      Set current = FIRST_TEMPO.union(FIRST_END_OF_LINE);
+      accept(AbcTokenType.FIELD_TEMPO, current, follow);
+
+      current.remove(FIRST_TEMPO);
+      Tempo tempo = parseTempo(current.union(follow));
+
+      current.remove(FIRST_END_OF_LINE);
+      parseEndOfLine(current.union(follow));
+
+      return tempo;
+    }
+
+    private Tempo parseTempo(Set follow)
+    {
+      Set current = new Set();
+      Tempo tempo = null;
+      int tempoValue = -1;
+      if (m_tokenType==AbcTokenType.C_TEMPO)
+      {
+        current = FIRST_NOTE_LENGTH.union(AbcTokenType.EQUALS).union(AbcTokenType.NUMBER);
+        short refLength = -1;
+        accept(AbcTokenType.C_TEMPO, current, follow);
+        current = new Set(AbcTokenType.EQUALS).union(AbcTokenType.NUMBER);
+        Fraction length = new Fraction(1,1);
+        if (FIRST_NOTE_LENGTH.contains(m_tokenType))
+        {
+          length = parseNoteLength(current.union(follow));
+          if (length!=null)
+            refLength = (short)(m_defaultNoteLength * length.floatValue());
+        }
+        current.remove(AbcTokenType.EQUALS);
+        accept(AbcTokenType.EQUALS, current, follow);
+        current.remove(AbcTokenType.NUMBER);
+        String tempoString = accept(AbcTokenType.NUMBER, current, follow);
+        if (tempoString!=null)
+          tempoValue = new Integer(tempoString).intValue();
+        if (refLength!=-1 && tempoValue!=-1)
+          tempo = new Tempo(refLength, tempoValue);
+      }
+      else
+      {
+        current = new Set(AbcTokenType.FRACTION);
+        String tempoString = accept(AbcTokenType.NUMBER, current, follow, true);
+        if (m_tokenType==AbcTokenType.FRACTION)
+        {
+          //tempo has the form noteLengthStrict = 1*digit
+          String num = tempoString;
+          current = new Set(AbcTokenType.NUMBER).union(AbcTokenType.EQUALS);
+          accept(AbcTokenType.FRACTION, current, follow);
+          String denom = accept(AbcTokenType.NUMBER, current, follow);
+          current.remove(AbcTokenType.EQUALS);
+          accept(AbcTokenType.EQUALS, current, follow);
+          current.remove(AbcTokenType.NUMBER);
+          tempoString = accept(AbcTokenType.NUMBER, current, follow);
+          if (num!=null && denom!=null && tempoString!=null)
+          try
+          { tempo = new Tempo(Note.convertToNoteLengthStrict(new Integer(num).intValue(), new Integer(denom).intValue()), new Integer(tempoString).intValue()); }
+          catch (IllegalArgumentException e)
+          {
+            //Invalid tempo
+          }
+        }
+        else
+        //tempo has the form 1*digit
+        if (tempoString!=null)
+          tempo = new Tempo(m_defaultNoteLength, new Integer(tempoString).intValue());
+      }
+      return tempo;
+    }
+
+
+    private AbcTextField parseFieldHistory(Set follow)
+    {
+        //System.out.println("TuneParser - parseFieldArea(" + token + ")");
+        Set current= FIRST_END_OF_LINE.union(AbcTokenType.TEXT);
+        AbcTextField history = null;
+
+        accept(AbcTokenType.FIELD_HISTORY, current, follow);
+
+        do
+        {
+          String acc = accept(AbcTokenType.TEXT, current, follow);
+          if (acc!=null)
+          {
+            if (history==null)
+              history = new AbcTextField(AbcTextField.HISTORY, acc);
+            else
+            {
+              String text = history.getText().concat(acc);
+              history = new AbcTextField(AbcTextField.HISTORY, text);
+            }
+          }
+          parseEndOfLine(current.union(follow));
+        }
+        while(m_tokenType==(AbcTokenType.TEXT));
+        return history;
+    }
+
+
+
+    private KeySignature parseFieldKey(Set follow)
+    {
+      KeySignature key = null;
+      Set current = FIRST_KEY.union(FIRST_END_OF_LINE);
+      accept(AbcTokenType.FIELD_KEY, current, follow);
+
+      current.remove(FIRST_KEY);
+      key = parseKey(current.union(follow));
+
+      current.remove(FIRST_END_OF_LINE);
+      parseEndOfLine(current.union(follow));
+      return key;
+    }
+
+    private KeySignature parseKey(Set follow)
+    {
+      Set current = new Set();
+      if (m_tokenType==(AbcTokenType.KEY_HP))
+      {
+        accept(AbcTokenType.KEY_HP, current, follow);
+        return null;
+      }
+      else
+        return parseKeySpec(current.union(follow));
+    }
+
+    private KeySignature parseKeySpec(Set follow)
+    {
+        Set current = FIRST_MODE_SPEC.union(AbcTokenType.SPACE).union(FIRST_GLOBAL_ACCIDENTAL);
+        KeySignature key = null;
+        Note note = null;
+        byte modeSpec = KeySignature.MAJOR;
+
+        note = parseKeyNote(current.union(follow));
+        if (FIRST_MODE_SPEC.contains(m_tokenType))
+        {
+          current = new Set(AbcTokenType.SPACE).union(FIRST_GLOBAL_ACCIDENTAL);
+          modeSpec = parseModeSpec(current.union(follow));
+        }
+        if (note!=null && modeSpec!=-1)
+          key = new KeySignature(note.getHeigth(), modeSpec);
+
+        while(m_tokenType==(AbcTokenType.SPACE))
+        {
+          accept(AbcTokenType.SPACE, current, follow, true);
+          if (FIRST_GLOBAL_ACCIDENTAL.contains(m_tokenType))
+          {
+            byte[] ga = parseGlobalAccidental(current.union(follow));
+            if (ga!=null && key!=null)
+              key.setAccidental(ga[0], ga[1]);
+          }
+        }
+        return key;
+    }
+
+    private Note parseKeyNote(Set follow)
+    {
+        Set current= new Set(AbcTokenType.KEY_ACCIDENTAL);
+        Note keyNote = null;
+        String note = null;
+        String accidental = null;
+
+        note = accept(AbcTokenType.BASE_NOTE, current, follow, true);
+
+        if (m_tokenType==(AbcTokenType.KEY_ACCIDENTAL))
+        {
+          current.remove(AbcTokenType.KEY_ACCIDENTAL);
+          accidental = accept(AbcTokenType.KEY_ACCIDENTAL, current, follow);
+        }
+
+        if (note!=null)
+          keyNote = new Note(Note.convertToNoteType(note), KeySignature.convertToAccidentalType(accidental));
+        return keyNote;
+
+
+    }
+
+    private byte parseModeSpec(Set follow)
+    {
+        Set current = FIRST_MODE.union(AbcTokenType.TEXT);
+        byte modeType = KeySignature.MAJOR;
+/*        if (m_tokenType==(AbcTokenType.SPACE))
+           accept(AbcTokenType.SPACE, current, follow);*/
+        current.remove(FIRST_MODE);
+        String stringMode = accept(AbcTokenType.MODE, current, follow, true);
+        modeType = KeySignature.convertToModeType(stringMode);
+
+        if (m_tokenType==(AbcTokenType.TEXT))
+        {
+          current.remove(AbcTokenType.TEXT);
+          accept(AbcTokenType.TEXT, current, follow);
+        }
+        return modeType;
+    }
+
+    private void parseEndOfLine(Set follow)
+    {
+        Set current = new Set(AbcTokenType.SPACE).union(AbcTokenType.COMMENT).union(AbcTokenType.TEXT).union(AbcTokenType.LINE_FEED);
+        while (m_tokenType==(AbcTokenType.SPACE))
+          accept(AbcTokenType.SPACE, current, follow);
+        current.remove(AbcTokenType.SPACE);
+        if (m_tokenType==(AbcTokenType.COMMENT))
+        {
+          current.remove(AbcTokenType.COMMENT);
+          accept(AbcTokenType.COMMENT, current, follow);
+          current.remove(AbcTokenType.TEXT);
+          accept(AbcTokenType.TEXT, current, follow);
+        }
+        else
+        {
+          current.remove(AbcTokenType.COMMENT);
+          current.remove(AbcTokenType.TEXT);
+        }
+        current.remove(AbcTokenType.LINE_FEED);
+        accept(AbcTokenType.LINE_FEED, current, follow);
+    }
+
+    protected Tune parseAbcHeader(Set follow)
+    {
+      m_tune = new Tune();
+      m_score = m_tune.getScore();
+      Set current= FIRST_COMMENT.union(FIRST_FIELD_TITLE).union(FIRST_OTHER_FIELDS).union(FIRST_FIELD_KEY);
+
+      Integer number = parseFieldNumber(current.union(follow));
+      if (number!=null)
+        m_tune.setReferenceNumber(number.intValue());
+
+      while (m_tokenType==(AbcTokenType.COMMENT))
+        parseComment(current.union(follow));
+
+      current.remove(FIRST_COMMENT);
+
+      do
+      {
+        AbcTextField title = parseField(AbcTokenType.FIELD_TITLE, current.union(follow));
+        if (title!=null) m_tune.addTitle(title.getText());
+      }
+      while (m_tokenType==(AbcTokenType.FIELD_TITLE));
+
+      current.remove(FIRST_FIELD_TITLE);
+
+      while (FIRST_OTHER_FIELDS.contains(m_tokenType))
+        parseOtherFields(current.union(follow));
+
+      current.remove(FIRST_FIELD_KEY);
+      current = current.union(FIRST_ABC_MUSIC);
+      KeySignature key = parseFieldKey(current.union(follow));
+      if (key!=null) m_score.addElement(key);
+      return m_tune;
+    }
+
+    private Integer parseFieldNumber(Set follow)
+    {
+        Set current= new Set(AbcTokenType.NUMBER).union(FIRST_END_OF_LINE);
+        Integer number = null;
+
+        accept(AbcTokenType.FIELD_NUMBER, current, follow);
+
+        current.remove(AbcTokenType.NUMBER);
+        String acc= accept(AbcTokenType.NUMBER, current, follow);
+        if (acc!=null)
+          number = new Integer(acc);
+
+        current.remove(FIRST_END_OF_LINE);
+        parseEndOfLine(current.union(follow));
+        return number;
+    }
+
+    private byte[] parseGlobalAccidental(Set follow)
+    {
+      Set current= new Set(AbcTokenType.BASE_NOTE);
+      byte[] globalAccidental = new byte[2];
+
+      String keyAcc = accept(AbcTokenType.KEY_ACCIDENTAL, current, follow);
+      byte accidentalType = KeySignature.convertToAccidentalType(keyAcc);
+
+      current.remove(AbcTokenType.BASE_NOTE);
+      String noteHeigthString = accept(AbcTokenType.BASE_NOTE, current, follow);
+      byte index = 0;
+      byte noteHeigth = Note.convertToNoteType(noteHeigthString);
+
+      globalAccidental[0] = noteHeigth;
+      globalAccidental[1] = accidentalType;
+      return globalAccidental;
+    }
+
+    protected void parseComment(Set follow)
+    {
+      Set current = new Set(AbcTokenType.TEXT).union(AbcTokenType.LINE_FEED)
+          .union(AbcTokenType.LINE_BREAK).union(AbcTokenType.NO_LINE_BREAK);
+      accept(AbcTokenType.COMMENT, current, follow);
+
+      current.remove(AbcTokenType.TEXT);
+      accept(AbcTokenType.TEXT, current, follow);
+
+      current.remove(AbcTokenType.LINE_FEED);
+      current.remove(AbcTokenType.LINE_BREAK);
+      current.remove(AbcTokenType.NO_LINE_BREAK);
+      //String[] endOfLine = {AbcTokenType.LINE_FEED,AbcTokenType.LINE_BREAK,AbcTokenType.NO_LINE_BREAK};
+      if (m_tokenType==(AbcTokenType.LINE_BREAK)) accept(AbcTokenType.LINE_BREAK, current, follow);
+      else if (m_tokenType==(AbcTokenType.NO_LINE_BREAK)) accept(AbcTokenType.NO_LINE_BREAK, current, follow);
+      else accept(AbcTokenType.LINE_FEED, current, follow);
+    }
+
+    //==================================================================================
+
+    private void parseAbcMusic(Set follow)
+    {
+      Set current = new Set().union(FIRST_ABC_LINE);
+      do
+        parseAbcLine(current.union(follow));
+      while (FIRST_ABC_LINE.contains(m_tokenType));
+    }
+
+    private void parseAbcLine(Set follow)
+    {
+      Set current = new Set();
+      if (FIRST_ELEMENT.contains(m_tokenType))
+      {
+        current = FIRST_ELEMENT.union(FIRST_LINE_ENDER);
+        do
+          parseElement(current.union(follow));
+        while (FIRST_ELEMENT.contains(m_tokenType));
+        current.remove(FIRST_ELEMENT);
+        current.remove(FIRST_LINE_ENDER);
+        parseLineEnder(current.union(follow));
+      }
+      else
+        if (FIRST_MID_TUNE_FIELD.contains(m_tokenType))
+          parseMidTuneField(current.union(follow));
+        //else
+        //  parseTexCommand(current.union(follow));
+    }
+
+    private void parseMidTuneField(Set follow)
+    {
+      Set current = new Set();//.union(FIRST_END_OF_LINE);
+      parseTuneField(current.union(follow));
+      //current.remove(FIRST_END_OF_LINE);
+      //parseEndOfLine(current.union(follow));
+    }
+
+    private void parseTuneField(Set follow)
+    {
+      Set current = new Set();
+
+      if (FIRST_FIELD_ELEMSKIP.contains(m_tokenType))
+        parseField(AbcTokenType.FIELD_ELEMSKIP, current.union(follow));
+      else
+      if (FIRST_FIELD_KEY.contains(m_tokenType))
+      {
+        KeySignature key = parseFieldKey(current.union(follow));
+        if (key!=null) m_score.addElement(key);
+      }
+      else
+      if (FIRST_FIELD_DEFAULT_LENGTH.contains(m_tokenType))
+      {
+        short defaultNoteLength = parseFieldDefaultLength(current.union(follow));
+        if (defaultNoteLength!=-1)
+          m_defaultNoteLength = defaultNoteLength;
+      }
+      else
+      if (FIRST_FIELD_METER.contains(m_tokenType))
+      {
+        TimeSignature meter = parseFieldMeter(current.union(follow));
+        if (meter!=null)
+        {
+          m_score.addElement(meter);
+          m_defaultNoteLength = meter.getDefaultNoteLength();
+        }
+      }
+      else
+      if (FIRST_FIELD_PART.contains(m_tokenType))
+      {
+        char partLabel = parseFieldPart(current.union(follow));
+        if (m_tune.getPart(partLabel)!=null)
+          m_score= m_tune.getPart(partLabel).getScore();
+      }
+      else
+      if (FIRST_FIELD_TEMPO.contains(m_tokenType))
+      {
+        Tempo tempo = parseFieldTempo(current.union(follow));
+        if (tempo!=null) m_score.addElement(tempo);
+      }
+      else
+      if (FIRST_FIELD_WORDS.contains(m_tokenType))
+        parseField(AbcTokenType.FIELD_WORDS, current.union(follow));
+      else
+        parseField(AbcTokenType.FIELD_TITLE, current.union(follow));
+    }
+
+    private void parseElement(Set follow)
+    {
+
+      Set current = new Set();
+      if (FIRST_NOTE_ELEMENT.contains(m_tokenType))
+      {
+        NoteAbstract note = parseNoteElement(current.union(follow));
+        m_score.addElement(note);
+      }
+      else
+      if (FIRST_TUPLET_ELEMENT.contains(m_tokenType))
+      {
+        Tuplet tuplet = parseTupletElement(current.union(follow));
+        m_score.addElement(tuplet);
+      }
+      else
+      if (FIRST_BARLINE.contains(m_tokenType))
+      {
+        byte barLineType = BarLine.convertToBarLine(accept(AbcTokenType.BARLINE, current, follow));
+        m_score.addElement(new BarLine(barLineType));
+      }
+      else
+      if (FIRST_NTH_REPEAT.contains(m_tokenType))
+      {
+        byte repeatNumber = convertToRepeatBarLine(accept(AbcTokenType.NTH_REPEAT, current, follow));
+        m_score.addElement(new RepeatBarLine(repeatNumber));
+      }
+      else
+      if (m_tokenType==(AbcTokenType.BEGIN_SLUR))
+        accept(AbcTokenType.BEGIN_SLUR, current, follow);
+      else
+      if (m_tokenType==(AbcTokenType.END_SLUR))
+        accept(AbcTokenType.END_SLUR, current, follow);
+      else
+      if (m_tokenType==(AbcTokenType.SPACE))
+        accept(AbcTokenType.SPACE, current, follow);
+    }
+
+    private Tuplet parseTupletElement(Set follow)
+    {
+      Set current = new Set().union(FIRST_NOTE_ELEMENT);
+      Vector notes = new Vector();
+      byte notesNumber = getNotesNumberInTuplet(accept(AbcTokenType.TUPLET_SPEC, current, follow));
+      do
+      {
+        NoteAbstract note = parseNoteElement(current.union(follow));
+        notes.addElement(note);
+        notesNumber--;
+      }
+      while(FIRST_NOTE_ELEMENT.contains(m_tokenType) && notesNumber>0);
+      return new Tuplet(notes);
+    }
+
+
+    private NoteAbstract parseNoteElement(Set follow)
+    {
+      Set current = new Set().union(FIRST_BROKEN_RHYTHM);
+      CharStreamPosition beginPosition = token.getPosition();
+      NoteAbstract note = parseNoteStem(current.union(follow));
+      if (brokenRhythm!=0) //broken rhtythm herited from previous note
+      {
+        if (note!=null)
+          note.setDotted((byte)(-brokenRhythm));
+        brokenRhythm = 0;
+      }
+      if (m_tokenType==(AbcTokenType.BROKEN_RHYTHM))
+      {
+        current.remove(FIRST_BROKEN_RHYTHM);
+        String brokenRhythmString = accept(AbcTokenType.BROKEN_RHYTHM, current, follow);
+        brokenRhythm = convertBrokenRhythm(brokenRhythmString);
+        if (note!=null)
+          note.setDotted(brokenRhythm);
+      }
+      if (note!=null)
+      {
+        CharStreamPosition endPosition = (CharStreamPosition)(m_scanner.getPosition().clone());
+        ((PositionableInCharStream)note).setBeginPosition(beginPosition);
+        ((PositionableInCharStream)note).setEndPosition(endPosition);
+      }
+      //System.out.println("note : " + note);
+      return note;
+    }
+
+    private NoteAbstract parseNoteStem(Set follow)
+    {
+      Set current = FIRST_GUITAR_CHORD.union(FIRST_GRACE_NOTES).union(FIRST_GRACINGS)
+          .union(FIRST_NOTE).union(FIRST_MULTI_NOTE);
+      NoteAbstract note = null;
+      Note[] graceNotes = null;
+      //CharStreamPosition startPosition = token.getPosition();
+      boolean hasGeneralOrnament = false;
+      boolean up = false;
+      boolean down = false;
+      boolean staccato = false;
+
+      String chordName = null;
+      //======================guitar chord
+      current.remove(FIRST_GUITAR_CHORD);
+      if(FIRST_GUITAR_CHORD.contains(m_tokenType))
+        chordName = parseGuitarChord(current.union(follow));
+      //======================grace notes
+      current.remove(FIRST_GRACE_NOTES);
+      if(FIRST_GRACE_NOTES.contains(m_tokenType))
+      {
+        graceNotes = parseGraceNotes(current.union(follow));
+      }
+      //======================gracings
+      while (m_tokenType==(AbcTokenType.GRACING))
+      {
+        String acc = accept(AbcTokenType.GRACING, current, follow);
+        if (acc!=null)
+          if (acc.equals(".")) staccato = true;
+          else if (acc.equals("~")) hasGeneralOrnament = true;
+          else if (acc.equals("u")) up = true;
+          else if (acc.equals("v")) down = true;
+      }
+      current.remove(FIRST_GRACINGS);
+      current.remove(FIRST_NOTE);
+      current.remove(FIRST_MULTI_NOTE);
+      //======================note or multi note
+      if (m_tokenType==(AbcTokenType.MULTI_NOTE_BEGIN))
+      {
+          Vector notes = parseMultiNote(current.union(follow));
+          note = new PositionableMultiNote(notes);
+      }
+      else
+      {
+        note = parseNote(current.union(follow));
+        if (note!=null)
+        {
+          if (staccato) note.setStaccato(true);
+          if (hasGeneralOrnament) note.setGeneralGracing(true);
+          if (up) note.setBow(Note.UP);
+          if (down) note.setBow(Note.DOWN);
+          if (chordName!=null)
+            note.setChordName(chordName);
+          if (graceNotes!=null)
+            note.setGracingNotes(graceNotes);
+        }
+      }
+      return note;
+    }
+
+    /** @return a Vector containing Note objects */
+    private Vector parseMultiNote(Set follow)
+    {
+      Set current = FIRST_NOTE.union(AbcTokenType.MULTI_NOTE_END);
+      Vector notes = new Vector();
+      accept(AbcTokenType.MULTI_NOTE_BEGIN, current, follow);
+      while (FIRST_NOTE.contains(m_tokenType))
+      {
+        Note note = parseNote(current.union(follow));
+        notes.addElement(note);
+      }
+      current.remove(FIRST_NOTE);
+      current.remove(AbcTokenType.MULTI_NOTE_END);
+      accept(AbcTokenType.MULTI_NOTE_END, current, follow);
+      return notes;
+    }
+
+    private Note[] parseGraceNotes(Set follow)
+    {
+      Set current = FIRST_PITCH.union(AbcTokenType.GRACING_END);
+      accept(AbcTokenType.GRACING_BEGIN, current, follow);
+      Vector gracingNotes = new Vector();
+      while(FIRST_PITCH.contains(m_tokenType))
+      {
+        Note note = parsePitch(current.union(follow));
+        if (note!=null)
+          gracingNotes.addElement(note);
+      }
+      current.remove(FIRST_PITCH);
+      current.remove(AbcTokenType.GRACING_END);
+      accept(AbcTokenType.GRACING_END, current, follow);
+      if (gracingNotes.isEmpty())
+        return null;
+      else
+      {
+        Note[] gracings = new Note[gracingNotes.size()];
+        for (int i=0; i<gracingNotes.size();i++)
+          gracings[i] = (Note)gracingNotes.elementAt(i);
+        //System.arraycopy(gracingNotes.toArray(), 0, gracings,0, gracingNotes.size());
+        return gracings;
+      }
+    }
+
+    private String parseGuitarChord(Set follow)
+    {
+      Set current = new Set().union(AbcTokenType.GUITAR_CHORD).union(AbcTokenType.CHORD_NAME);
+      String chordName = null;
+      accept(AbcTokenType.GUITAR_CHORD, current, follow);
+      current.remove(AbcTokenType.CHORD_NAME);
+      chordName = accept(AbcTokenType.CHORD_NAME, current, follow);
+      current.remove(AbcTokenType.GUITAR_CHORD);
+      accept(AbcTokenType.GUITAR_CHORD, current, follow);
+      return chordName;
+    }
+
+    private Note parseNote(Set follow)
+    {
+      Set current = FIRST_NOTE_LENGTH.union(FIRST_TIE);
+      Note note = null;
+      //CharStreamPosition startPosition = token.getPosition();
+      note = parseNoteOrRest(current.union(follow));
+      current.remove(FIRST_NOTE_LENGTH);
+      if (FIRST_NOTE_LENGTH.contains(m_tokenType))
+      {
+        Fraction length = parseNoteLength(current.union(follow));
+        if (note!=null) note.setLength((short)(m_defaultNoteLength*length.floatValue()));
+      }
+      else
+        if (note!=null) note.setLength(m_defaultNoteLength);
+      current.remove(FIRST_TIE);
+      if (m_tokenType==(AbcTokenType.TIE))
+      {
+        accept(AbcTokenType.TIE, current, follow);
+        if (note!=null) note.setIsTied(true);
+      }
+      //CharStreamPosition endPosition = token.getPosition();
+      return note;
+    }
+
+
+    private Note parseNoteOrRest(Set follow)
+    {
+      Set current = new Set();
+      if (m_tokenType==(AbcTokenType.REST))
+      {
+        return new PositionableNote(Note.convertToNoteType(accept(AbcTokenType.REST, current, follow)), AccidentalType.NONE);
+      }
+      else
+        return parsePitch(current.union(follow));
+    }
+
+    private Note parsePitch(Set follow)
+    {
+      Set current = FIRST_BASE_NOTE.union(FIRST_OCTAVE);
+      Note note = null;
+      byte accidental = AccidentalType.NONE;
+      byte noteHeigth = 0;
+      byte octaveTransposition = 0;
+
+      if (m_tokenType==(AbcTokenType.ACCIDENTAL))
+        accidental = Note.convertToAccidentalType(accept(AbcTokenType.ACCIDENTAL, current, follow));
+      current.remove(FIRST_BASE_NOTE);
+      String heigth = accept(AbcTokenType.BASE_NOTE, current, follow, true);
+      if (heigth!=null) noteHeigth = Note.convertToNoteType(heigth);
+      current.remove(FIRST_OCTAVE);
+      if (FIRST_OCTAVE.contains(m_tokenType))
+      {
+        String octave = accept(AbcTokenType.OCTAVE, current, follow);
+        if (octave!=null) octaveTransposition = convertToOctaveTransposition(octave);
+      }
+
+      if (heigth!=null)
+        note = new PositionableNote(noteHeigth, accidental, octaveTransposition);
+      return note;
+    }
+
+    private void parseLineEnder(Set follow)
+    {
+      Set current = new Set();
+      if (FIRST_COMMENT.contains(m_tokenType))
+        parseComment(current.union(follow));
+      else
+      if (m_tokenType==(AbcTokenType.LINE_FEED))
+        accept(AbcTokenType.LINE_FEED, current, follow);
+      else
+      if (m_tokenType==(AbcTokenType.LINE_BREAK))
+        accept(AbcTokenType.LINE_BREAK, current, follow);
+      else
+      if (m_tokenType==(AbcTokenType.NO_LINE_BREAK))
+        accept(AbcTokenType.NO_LINE_BREAK, current, follow);
+    }
+
+    //==================================================================================
+
+    protected String accept(int tokenType, Set current, Set follow)
+    { return accept(tokenType, current, follow, false); }
+
+    protected String accept(int tokenType, Set current, Set follow, boolean isCurrentOptional)
+    {
+      //System.out.println("AbcHeaderParser - Try to accept " + token + " with " + set);
+      String value2return =null;
+      if (m_tokenType==tokenType)
+      {
+        notifyListenersForValidToken(token);
+        value2return = token.getValue();
+        //System.out.println("AbcHeaderParser - ACCEPTED: " + token.getValue()+ "(" + ParserTools.convertToTypeName(token.getType())+")");
+        if (isCurrentOptional)
+        {
+          Set union = current.union(follow);
+          int[] unionArray = union.getTypes();
+          FinaleStateAutomata fsa = getAutomataFor(unionArray);
+          m_scanner.setFinaleStateAutomata(fsa);
+
+          typesForAutomata = union;
+        }
+        else
+        if (current.size()!=0)
+        {
+          int[] array = current.getTypes();
+          m_scanner.setFinaleStateAutomata(getAutomataFor(array));
+        }
+        else
+        {
+          int[] array = follow.getTypes();
+          m_scanner.setFinaleStateAutomata(getAutomataFor(array));
+        }
+        //if (scanner.hasNext())
+        try
+        {
+          token = m_scanner.nextToken();
+          m_tokenType=token.getType();
+        }
+        catch (NoSuchTokenException e)
+        {
+          token=null;//new Token(null,-1,null);
+          m_tokenType=-1;
+        }
+      }
+      else
+      {
+        //System.out.println(ParserTools.convertToTypeName(tokenType) + " EXPECTED HERE !!!!!!!! @" + scanner.getLineNumber() + ", " + m_scanner.getColumnNumber());
+        if (token!=null)
+          notifyListenersForInvalidToken(token, token.getPosition(), tokenType);
+        else
+          notifyListenersForInvalidToken(null, m_scanner.getPosition(), tokenType);
+
+        skipTo(current, follow, isCurrentOptional);
+      }
+      //System.out.println(m_scanner.getPosition());
+      return value2return;
+    }
+
+    private void skipTo(Set current, Set follow, boolean isCurrentOptionnal)
+    {
+        Set targetSet = null;
+        if (!isCurrentOptionnal && current.size()!=0)
+          targetSet = current;
+        else
+          targetSet = current.union(follow);
+        //System.out.println("Parser - skipTo("+ targetSet + ") from " + token.getValue() );
+        m_scanner.setFinaleStateAutomata(getAutomataFor(targetSet.getTypes()));
+        //===old
+        /*while (!targetSet.contains(token.getType()))
+            token = m_scanner.nextToken();*/
+        try
+        {
+          boolean tokenFound = false;
+          while (!tokenFound)
+          {
+            tokenFound = current.contains(m_tokenType)||follow.contains(m_tokenType);
+            if (!tokenFound)
+            {
+              token = m_scanner.nextToken();
+              m_tokenType=token.getType();
+            }
+          }
+          /*do
+          {
+            token = m_scanner.nextToken();
+            m_tokenType=token.getType();
+          }
+          while (!targetSet.contains(m_tokenType));*/
+        }
+        catch (NoSuchTokenException e)
+        {
+          token=null;
+          m_tokenType=-1;
+        }
+        //System.out.println("AbcHeaderParser - skipedTo : "+ ParserTools.convertToTypeName(token.getType()));
+    }
+
+    private FinaleStateAutomata getAutomataFor(int[] tokenTypes)
+    {
+      FinaleStateAutomata fsa = getAutomataFor(tokenTypes[0]);
+      for (int i=1;i<tokenTypes.length; i++)
+        fsa.union(getAutomataFor(tokenTypes[i]));
+      return fsa;
+    }
+
+    private FinaleStateAutomata getAutomataFor(int tokenType)
+    { return AutomataFactory.getAutomata(tokenType); }
+
+    protected void notifyListenersForBegin()
+    {
+      for (int i=0; i<m_listeners.size();i++)
+        ((TuneParserListenerInterface)m_listeners.elementAt(i)).tuneBegin();
+    }
+
+    protected void notifyListenersForEnd(Tune tune)
+    {
+      for (int i=0; i<m_listeners.size();i++)
+        ((TuneParserListenerInterface)m_listeners.elementAt(i)).tuneEnd(tune);
+    }
+
+    protected void notifyListenersForValidToken(Token token)
+    {
+      TokenEvent evt = new TokenEvent(this, token);
+      for (int i=0; i<m_listeners.size();i++)
+        ((TuneParserListenerInterface)m_listeners.elementAt(i)).validToken(evt);
+    }
+
+    protected void notifyListenersForInvalidToken(Token token, CharStreamPosition position, int expectedTokenType)
+    {
+      InvalidTokenEvent evt = null;
+      if (token!=null)
+        evt = new InvalidTokenEvent(this, token, expectedTokenType);
+      else
+        evt = new InvalidTokenEvent(this, position, expectedTokenType);
+      for (int i=0; i<m_listeners.size();i++)
+        ((TuneParserListenerInterface)m_listeners.elementAt(i)).invalidToken(evt);
+    }
+
+    protected void notifyListenersForInvalidCharacter(InvalidCharacterEvent evt)
+    {
+      //System.out.println("Parser - ivalid char " + evt + " for " + typesForAutomata);
+      for (int i=0; i<m_listeners.size();i++)
+        ((TuneParserListenerInterface)m_listeners.elementAt(i)).invalidCharacter(evt);
+    }
+
+/*    protected static byte convertToKeyAccidentalType(String keyAccidental)
+    {
+      if (keyAccidental==null) return AccidentalType.NATURAL;
+      else if (keyAccidental.equals("#")) return AccidentalType.SHARP;
+      else if (keyAccidental.equals("b")) return AccidentalType.FLAT;
+      else return AccidentalType.NATURAL;
+    }
+
+    //============================================
+/*    protected static byte convertToNoteType(String note)
+    {
+      if (note.equals("A")) return Note.A;
+      else if (note.equals("B")) return Note.B;
+      else if (note.equals("C")) return Note.C;
+      else if (note.equals("D")) return Note.D;
+      else if (note.equals("E")) return Note.E;
+      else if (note.equals("F")) return Note.F;
+      else if (note.equals("G")) return Note.G;
+      else if (note.equals("a")) return Note.a;
+      else if (note.equals("b")) return Note.b;
+      else if (note.equals("c")) return Note.c;
+      else if (note.equals("d")) return Note.d;
+      else if (note.equals("e")) return Note.e;
+      else if (note.equals("f")) return Note.f;
+      else if (note.equals("g")) return Note.g;
+      else if (note.equals("z")) return Note.REST;
+      else return -1;
+    }*/
+
+/*    protected static short convertToNoteLength(Fraction frac)
+    {
+      int num = frac.getNumerator();
+      int denom = frac.getDenominator();
+      if (num==1 && denom==1) return Note.WHOLE;
+      else if (num==1 && denom==2) return Note.HALF;
+      else if (num==1 && denom==4) return Note.QUARTER;
+      else if (num==1 && denom==8) return Note.EIGHTH;
+      else if (num==1 && denom==16) return Note.SIXTEENTH;
+      else if (num==1 && denom==32) return Note.THIRTY_SECOND;
+      else if (num==1 && denom==64) return Note.SIXTY_FOURTH;
+      else return Note.QUARTER;
+    }*/
+
+/*    protected static byte convertToAccidentalType(String accidental)
+    {
+      if (accidental==null) return AccidentalType.NATURAL;
+      else if (accidental.equals("^")) return AccidentalType.SHARP;
+      else if (accidental.equals("^^")) return AccidentalType.SHARP;
+      else if (accidental.equals("_")) return AccidentalType.FLAT;
+      else if (accidental.equals("__")) return AccidentalType.FLAT;
+      else return -1;
+    }*/
+
+/*    protected static byte convertToModeType(String mode)
+    {
+      if ("AEO".equalsIgnoreCase(mode)) return KeySignature.AEOLIAN;
+      else if ("DOR".equalsIgnoreCase(mode)) return KeySignature.DORIAN;
+      else if ("ION".equalsIgnoreCase(mode)) return KeySignature.IONIAN;
+      else if ("LOC".equalsIgnoreCase(mode)) return KeySignature.LOCRIAN;
+      else if ("LYD".equalsIgnoreCase(mode)) return KeySignature.LYDIAN;
+      else if ("MAJ".equalsIgnoreCase(mode)) return KeySignature.MAJOR;
+      else if ("MIN".equalsIgnoreCase(mode) || ("M".equalsIgnoreCase(mode))) return KeySignature.MINOR;
+      else if ("MIX".equalsIgnoreCase(mode)) return KeySignature.MIXOLYDIAN;
+      else if ("PHR".equalsIgnoreCase(mode)) return KeySignature.PHRYGIAN;
+      else return -1;
+    }*/
+
+/*    protected static byte convertToBarLine(String barLine)
+    {
+      if (barLine.equals("|")) return BarLine.SIMPLE;
+      else if (barLine.equals("||")) return BarLine.SIMPLE;
+      else if (barLine.equals("[|")) return BarLine.SIMPLE;
+      else if (barLine.equals("|]")) return BarLine.SIMPLE;
+      else if (barLine.equals(":|")) return BarLine.REPEAT_CLOSE;
+      else if (barLine.equals("|:")) return BarLine.REPEAT_OPEN;
+      else if (barLine.equals("::")) return BarLine.SIMPLE;
+      else return -1;
+    }*/
+
+    protected static byte convertToRepeatBarLine(String barLine)
+    {
+      if (barLine.equals("[1")) return 1;
+      else if (barLine.equals("[2")) return 2;
+      else if (barLine.equals("|1")) return 1;
+      else if (barLine.equals(":|2")) return 2;
+      else return -1;
+    }
+
+    protected static byte convertBrokenRhythm(String brokenRhythm)
+    {
+      byte br = (byte)brokenRhythm.length();
+      if (brokenRhythm.equals("<")) return (byte)-br;
+      else if (brokenRhythm.equals(">")) return (byte)br;
+      else return 0;
+    }
+
+    protected static byte convertToOctaveTransposition(String octave)
+    {
+      if (octave.charAt(0)=='\'')
+        return (byte)octave.length();
+      else if (octave.charAt(0)==',')
+        return (byte)(-octave.length());
+        else return 0;
+    }
+
+    protected static byte getNotesNumberInTuplet(String tuplet)
+    { return (byte)Integer.parseInt(tuplet.substring(1)); }
+
+}
+
