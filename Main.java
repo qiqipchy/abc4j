@@ -14,8 +14,9 @@ import scanner.*;
 
 
 /** A simple user interface to display abc files content and play
- * tunes. 
- * essai de change*/
+ * tunes.  
+ * Main entry point to execute some perf tests or any other 
+ * operation. */
 public class Main //implements TunePlayerListenerInterface
 {
 
