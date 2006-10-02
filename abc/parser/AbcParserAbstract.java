@@ -167,13 +167,13 @@ public class AbcParserAbstract
     private Tune.Score m_score = null;
     /** The tune resulting of the last parsing. */
     private Tune m_tune = null;
-    /** */
+    /**
     private boolean headerOnly = false;
 
     private Set typesForAutomata = null;
 
     private Vector m_setsForAccept = new Vector();
-    private int m_recreationNb= 0;
+    private int m_recreationNb= 0;*/
 
     /** Constructs a new tune parser. */
     public AbcParserAbstract()
@@ -926,7 +926,7 @@ public class AbcParserAbstract
 
       current.remove(AbcTokenType.BASE_NOTE);
       String noteHeigthString = accept(AbcTokenType.BASE_NOTE, current, follow);
-      byte index = 0;
+      //byte index = 0;
       byte noteHeigth = Note.convertToNoteType(noteHeigthString);
 
       globalAccidental[0] = noteHeigth;
@@ -1174,7 +1174,7 @@ public class AbcParserAbstract
     private NoteAbstract parseNoteElement(Set follow)
     {
       Set current = new Set().union(FIRST_BROKEN_RHYTHM);
-      CharStreamPosition beginPosition = m_token.getPosition();
+      //CharStreamPosition beginPosition = m_token.getPosition();
       NoteAbstract note = parseNoteStem(current.createUnion(follow));
       if (brokenRhythm!=0) //broken rhtythm herited from previous note
       {

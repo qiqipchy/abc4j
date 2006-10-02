@@ -2,10 +2,9 @@ package abc.parser.def;
 
 import java.util.Vector;
 
-import abc.parser.AbcTokenType;
 import scanner.AutomataDefinition;
 import scanner.TokenType;
-import scanner.Set;
+import abc.parser.AbcTokenType;
 
 public class DefinitionFactory
 {

@@ -1,10 +1,8 @@
 package abc.parser.def;
 
 import scanner.AutomataDefinition;
-import scanner.State;
-import scanner.Scanner;
 import scanner.IsDigitTransition;
-
+import scanner.State;
 import abc.parser.AbcTokenType;
 
 /** **/
