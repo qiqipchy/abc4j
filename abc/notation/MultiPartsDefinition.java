@@ -33,9 +33,9 @@ public class MultiPartsDefinition extends RepeatedPartAbstract
 
   public  Vector getPartsAsRepeatedOnceVector()
   {
-    int repeatNumber = getNumberOfRepeats();
+    //int repeatNumber = getNumberOfRepeats();
     Vector parts = new Vector();
-    Part currentPart = null;
+    //Part currentPart = null;
     RepeatedPartAbstract c = null;
     for (int i=0; i<getNumberOfRepeats(); i++)
     {

@@ -186,8 +186,8 @@ public class Transition
       //char[] thisOnlyTemp = new char[charsLength];
       //char[] parameterOnlyTemp = new char[parameterLength];
       int commonLength = 0;
-      int thisOnlyLength = 0;
-      int parameterOnlyLength = 0;
+      //int thisOnlyLength = 0;
+      //int parameterOnlyLength = 0;
 
       //Transition returnedTransition = null;
 

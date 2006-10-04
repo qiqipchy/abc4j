@@ -73,7 +73,7 @@ public class State implements Cloneable
      * otherwise. */
     public boolean hasSelfTransitions()
     {
-      boolean hasSelfTransitions = false;
+      //boolean hasSelfTransitions = false;
       for (int i=0; i<transitions.size(); i++)
       {
         if (((Transition)transitions.elementAt(i)).isSelfTransition())
@@ -178,7 +178,7 @@ public class State implements Cloneable
         throw new RuntimeException("BOTH ARE TOKENS ! : " + this.getType() + " and " + state.getType());*/
       State returnedState = (State)clone();
       boolean hasSelfTransition = hasSelfTransitions();
-      boolean parameterSelfTransition = state.hasSelfTransitions();
+      //boolean parameterSelfTransition = state.hasSelfTransitions();
 
       Transition[] targetTransitions = state.getTransitions();
       for (int i = 0; i < targetTransitions.length; i++)

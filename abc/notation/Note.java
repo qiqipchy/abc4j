@@ -142,7 +142,7 @@ public class Note extends NoteAbstract
     int length = m_length;
     if (getDotted()!=0)
     {
-      int dot = getDotted();
+      //int dot = getDotted();
       int dottedLength = length / (getDotted()*2);
       length = length + dottedLength;
     }

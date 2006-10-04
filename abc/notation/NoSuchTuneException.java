@@ -1,7 +1,5 @@
 package abc.notation;
 
-import java.lang.Exception;
-
 /** This exception is thrown when a requested tune hasn't been found. */
 public class NoSuchTuneException extends RuntimeException
 {

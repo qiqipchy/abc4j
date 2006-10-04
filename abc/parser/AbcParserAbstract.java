@@ -18,6 +18,7 @@ import abc.notation.Tempo;
 import abc.notation.TimeSignature;
 import abc.notation.Tune;
 import abc.notation.Tuplet;
+import abc.notation.Words;
 import abc.parser.def.DefinitionFactory;
 import scanner.CharStreamPosition;
 import scanner.FinaleStateAutomata;
@@ -429,6 +430,7 @@ public class AbcParserAbstract
           else if (tokenType.equals(AbcTokenType.FIELD_SOURCE)) return new AbcTextField(AbcTextField.SOURCE, text);
           else if (tokenType.equals(AbcTokenType.FIELD_TITLE)) return new AbcTextField(AbcTextField.TITLE, text);
           else if (tokenType.equals(AbcTokenType.FIELD_TRANSCRNOTES)) return new AbcTextField(AbcTextField.TRANSCRNOTES, text);
+          else if (tokenType.equals(AbcTokenType.FIELD_WORDS)) return new AbcTextField(AbcTextField.WORDS, text);
           return null;
         }
         else
@@ -1040,8 +1042,11 @@ public class AbcParserAbstract
         if (tempo!=null) m_score.addElement(tempo);
       }
       else
-      if (FIRST_FIELD_WORDS.contains(m_tokenType))
-        parseField(AbcTokenType.FIELD_WORDS, follow);
+      if (FIRST_FIELD_WORDS.contains(m_tokenType)) {
+        AbcTextField text = parseField(AbcTokenType.FIELD_WORDS, follow);
+        if (text!=null)
+        	m_score.addElement(new Words(text.getText()));
+      }
       else
         parseField(AbcTokenType.FIELD_TITLE, follow);
     }

@@ -1,7 +1,7 @@
 package abc.notation;
 
-import java.util.*;
-import java.io.File;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /** This class encapsulates all information retrieved from a tune transcribed
  * using abc notation : header and music. */

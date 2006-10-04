@@ -1,12 +1,8 @@
 package scanner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.*;
-
 import java.util.Vector;
 
 /** A scanner is able to separate tokens from an input stream, following states
@@ -19,7 +15,7 @@ public class Scanner
     private CharStreamPosition m_previousPosition = null;
     private CharStreamPosition m_position = null;
     private StringBuffer m_currentLine = null;
-    private boolean m_lastTokenWasContainingEndOfLine = false;
+    //private boolean m_lastTokenWasContainingEndOfLine = false;
     private char[] m_currentChar = null;
 
     /** Creates a new scanner to scan the specified string.
