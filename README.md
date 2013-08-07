@@ -22,7 +22,7 @@ There are currently 8 tests failing in these classes:
 
 This still has to be investigated...
 
-Also the rendered output from `Main` shows a problem (perhaps with the font): the upward note stems seem to be painted a few pixels too far towards the right.
+Also the rendered output from `abc.examples.Main` shows a problem (perhaps with the font): the upward note stems seem to be painted a few pixels too far towards the right.
 
 For `abcynth.PlayerApp` you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
 

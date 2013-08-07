@@ -1,4 +1,4 @@
-// modified by HHR 07-Aug-13
+package abc.examples;// modified by HHR 07-Aug-13
 
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
@@ -35,7 +35,7 @@ import abc.ui.swing.JScoreComponent;
  * Main entry point to execute some perf tests or any other 
  * operation. */
 public class Main  {
-    private static final String DEMO_RESOURCE_NAME = "abcynth/LGtunes.abc";
+    public static final String DEMO_RESOURCE_NAME = "LGtunes.abc";
 
   //static int PARSING_TIMES_NB = 1;
   //static int tunesNb = 0;

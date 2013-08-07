@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 
+import abc.examples.Main;
 import abc.parser.AbcTuneBook;
 import abc.parser.TuneBookParser;
 
@@ -36,7 +37,6 @@ import abc.parser.TuneBookParser;
 public class PlayerApplet extends JApplet
 {
   private static final long serialVersionUID = 2227304461525394613L;
-  private static final String DEMO_RESOURCE_NAME = "LGtunes.abc";
   private PlayerApp m_app = null;
   //private TunePlayer m_player = null;
 
@@ -57,7 +57,7 @@ public class PlayerApplet extends JApplet
     );
     try
     {
-      InputStream is = getClass().getResourceAsStream(DEMO_RESOURCE_NAME);
+      InputStream is = Main.class.getResourceAsStream(Main.DEMO_RESOURCE_NAME);
       System.out.println("get ressource " + is);
       if (is!=null)
       {
