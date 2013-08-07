@@ -1,33 +1,24 @@
-name := "abc4j"
+version in ThisBuild := "0.6.0-SNAPSHOT"
 
-version := "0.6.0-SNAPSHOT"
+organization in ThisBuild := "de.sciss"
 
-organization := "de.sciss"
+scalaVersion in ThisBuild := "2.10.2"  // not used
 
-scalaVersion := "2.10.2"  // not used
+homepage in ThisBuild := Some(url("https://github.com/Sciss/abc4j"))
 
-description := "A Java library for music notation"
+licenses in ThisBuild := Seq("LGPL v3+" -> url("http://www.gnu.org/licenses/lgpl-3.0.txt"))
 
-homepage <<= name { n => Some(url("https://github.com/Sciss/" + n)) }
+crossPaths in ThisBuild := false  // this is just a Java project right now!
 
-licenses := Seq("LGPL v3+" -> url("http://www.gnu.org/licenses/lgpl-3.0.txt"))
+retrieveManaged in ThisBuild := true
 
-crossPaths := false  // this is just a Java project right now!
-
-retrieveManaged := true
-
-// autoScalaLibrary := false  // currently Java only project
-
-libraryDependencies ++= Seq(
-  "org.parboiled" % "parboiled-java" % "0.10.0",  // Note: this was 0.9.9. most recent 1.1.5, but anything newer than 0.10.0 fails to compile
-  "com.novocode" % "junit-interface" % "0.8" % "test"  // cf. http://www.scala-sbt.org/0.12.3/docs/Detailed-Topics/Testing
-)
+autoScalaLibrary in ThisBuild := false  // currently Java only project
 
 // ---- publishing ----
 
-publishMavenStyle := true
+publishMavenStyle in ThisBuild := true
 
-publishTo <<= version { v =>
+publishTo in ThisBuild <<= version { v =>
   Some(if (v endsWith "-SNAPSHOT")
     "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
   else
@@ -37,18 +28,33 @@ publishTo <<= version { v =>
 
 publishArtifact in Test := false
 
-pomIncludeRepository := { _ => false }
+pomIncludeRepository in ThisBuild := { _ => false }
 
-pomExtra <<= name { n =>
+pomExtra in ThisBuild := { val n = "abc4j"
 <scm>
   <url>git@github.com:Sciss/{n}.git</url>
   <connection>scm:git:git@github.com:Sciss/{n}.git</connection>
 </scm>
 <developers>
-   <developer>
-      <id>sciss</id>
-      <name>Hanns Holger Rutz</name>
-      <url>http://www.sciss.de</url>
-   </developer>
+  <developer>
+    <id>lionel.gueganton</id>
+    <name>Lionel Guéganton</name>
+    <url>http://fr.linkedin.com/in/lionelgueganton/fr</url>
+  </developer>
+  <developer>
+    <id>pipemakertjm</id>
+    <name>pipemakertjm</name>
+    <!-- <url>???</url> -->
+  </developer>
+  <developer>
+    <id>iubito</id>
+    <name>Sylvain Machefert</name>
+    <url>http://www.tousauxbalkans.net</url>
+  </developer>
+  <developer>
+    <id>sciss</id>
+    <name>Hanns Holger Rutz</name>
+    <url>http://www.sciss.de</url>
+  </developer>
 </developers>
 }

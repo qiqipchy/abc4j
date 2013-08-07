@@ -8,9 +8,19 @@ Why a fork? (a) I needed to get an easy handle on the source. (b) I am planning 
 
 To contact Hanns Holger Rutz, send a mail to `contact@sciss.de`.
 
-## building etc.
+## linking
 
-To build the project use sbt 0.12. E.g. `sbt test:compile`. To test `sbt test`. To run the demo `sbt run`.
+Use the following artifact:
+
+    "de.sciss" % "abc4j" % v
+
+The current version `v` is `0.6.+`.
+
+## building and running
+
+To build the project use sbt 0.12. E.g. `sbt test:compile`. To test `sbt test`. To run the main demo `sbt abc4j/run`. This creates images files `abc4j_demoJustified.jpg` and `abc4j_demoNotjustified.jpg` in your home or desktop folder. To run the Acynth application, use `sbt abc4j-abcynth/run`. Here you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
+
+To generate the javadoc API: `sbt abc4j/doc`.
 
 There are currently 8 tests failing in these classes:
 
@@ -22,9 +32,7 @@ There are currently 8 tests failing in these classes:
 
 This still has to be investigated...
 
-Also the rendered output from `abc.examples.Main` shows a problem (perhaps with the font): the upward note stems seem to be painted a few pixels too far towards the right.
-
-For `abcynth.PlayerApp` you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
+The applets probably don't have the right class paths at the moment. I cannot check, as Java in the browser is currently not installed on my OS X 10.6 / Java 6 system.
 
 ## overview
 
