@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -25,7 +27,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.Iterator;
 
 import javax.swing.JComponent;
 import javax.swing.JTextPane;
@@ -90,9 +91,7 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
   private ParsingRefresh m_refresher = null;
   /** The tune currently represented in this editor pane. */
   private Tune m_tune = null;
-  //private TuneParser m_tuneParser = null;
-  private int m_idleTimeBeforeRefresh = IDLE_TIME_BEFORE_REFRESH;
-  private boolean m_enableColoring = false;
+    private boolean m_enableColoring = false;
 
   /** Default constructor. */
   public TuneEditorPane()
@@ -191,7 +190,7 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
 				getCaret().setSelectionVisible(true);
 				repaint();
 	  		}
-	  		catch (IllegalArgumentException excpt)
+	  		catch (IllegalArgumentException ignored)
 	  		{}
   		}
   	}
@@ -328,7 +327,7 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
     private DefaultStyledDocument m_document = null;
     private TuneParser m_parser = null;
     private int m_idleTime = 0;
-    private Object m_mutex = new Object();
+    private final Object m_mutex = new Object();
     private AbcNode m_abcRoot = null;
     private boolean isBusy = false;
 
@@ -388,13 +387,14 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
             m_mutex.wait();
             if (!m_forceRefresh)
             {
-              do
+                int m_idleTimeBeforeRefresh = IDLE_TIME_BEFORE_REFRESH;
+                do
               {
                 //System.out.println("Area - compting before parsing : " + m_idleTime);
                 m_mutex.wait(10);
                 m_idleTime+=10;
               }
-              while (m_idleTime<=m_idleTimeBeforeRefresh);
+              while (m_idleTime<= m_idleTimeBeforeRefresh);
             }
             try
             {
@@ -402,7 +402,7 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
             	String tuneNotation = TuneEditorPane.this.getDocument().getText(0, TuneEditorPane.this.getDocument().getLength());
             	if (!tuneNotation.equals(""))
             	{
-            		if (m_forceRefresh==true)
+            		if (m_forceRefresh)
 	            	{
     	          		m_forceRefresh = false;
         	      		//System.out.println("Area - Forcing refresh");
@@ -483,62 +483,60 @@ public class TuneEditorPane extends JTextPane implements AbcTokens//, ActionList
 		m_document.setCharacterAttributes(0, m_document.getLength(), m_defaultStyle, true);
 		
 		int maxStart = 0;
-    	Iterator it = m_abcRoot.getDeepestChilds().iterator();
-    	while (it.hasNext()) {
-    		AbcNode node = (AbcNode) it.next();
-    		String value = node.getValue();
-    		int length = value.length();
-    		int start = node.getCharStreamPosition().getStartIndex();
-    		if (start < maxStart) {
-    			length -= (maxStart - start);
-    			start = maxStart;
-    		}
-    		maxStart += length;
-    		
-    		Style att = m_defaultStyle;
-    		if (node.hasError()) {
-    			att = m_errorStyle;
-    			if (length == 0) {
-    				length = 1;
-    				maxStart++;
-    			}
-    		}
-    		else if (node.isChildOf_or_is(Pitch))
-   				att = m_baseNoteStyle;
-    		else if (node.isChildOf_or_is(NoteLength)
-    				|| node.isChildOf_or_is(_Accidental)
-    				|| node.isChildOf_or_is(Tie))
-				att = m_noteAttrStyle;
-    		else if (node.isChildOf_or_is(Barline)
-    				|| node.isChildOf_or_is(NthRepeat)
-    				|| node.isChildOf_or_is(EndNthRepeat)
-    				|| node.isChildOf_or_is(MeasureRepeat)
-    				|| node.isChildOf_or_is(LineContinuation)
-    				|| node.isChildOf_or_is(HardLineBreak))
-    			att = m_barStyle;
-    		else if (node.isChildOf_or_is(Rest)
-    				|| node.isChildOf_or_is(MultiMeasureRest))
-    			att = m_restStyle;
-    		else if (node.isChildOf_or_is(TexText)
-    				|| node.isChildOf_or_is(ChordOrText))
-    			att = m_textStyle;
-    		else if (node.isChildOf_or_is(Comment))
-    			att = m_commentStyle;
-    		else if (node.isChildOf_or_is(Xcommand))
-    			att = m_xcommandStyle;
-    		else if (node.isChildOf_or_is(TuneField)
-    				|| node.isChildOf_or_is(InlineField)
-    				|| node.isChildOf_or_is(AbcHeader))
-    			att = m_fieldStyle;
-    		else if (node.isChildOf_or_is(Tuplet)
-    				|| node.isChildOf_or_is(BrokenRhythm))
-    			att = m_rhythmStyle;
-    		else if (node.isChildOf_or_is(Gracing))
-				att = m_symbolStyle;
-    		else if (node.isChildOf_or_is(GraceNotes))
-    			att = m_gracingStyle;
-    		m_document.setCharacterAttributes(start, length, att, true);
-		}
+        for (Object o : m_abcRoot.getDeepestChilds()) {
+            AbcNode node = (AbcNode) o;
+            String value = node.getValue();
+            int length = value.length();
+            int start = node.getCharStreamPosition().getStartIndex();
+            if (start < maxStart) {
+                length -= (maxStart - start);
+                start = maxStart;
+            }
+            maxStart += length;
+
+            Style att = m_defaultStyle;
+            if (node.hasError()) {
+                att = m_errorStyle;
+                if (length == 0) {
+                    length = 1;
+                    maxStart++;
+                }
+            } else if (node.isChildOf_or_is(Pitch))
+                att = m_baseNoteStyle;
+            else if (node.isChildOf_or_is(NoteLength)
+                    || node.isChildOf_or_is(_Accidental)
+                    || node.isChildOf_or_is(Tie))
+                att = m_noteAttrStyle;
+            else if (node.isChildOf_or_is(Barline)
+                    || node.isChildOf_or_is(NthRepeat)
+                    || node.isChildOf_or_is(EndNthRepeat)
+                    || node.isChildOf_or_is(MeasureRepeat)
+                    || node.isChildOf_or_is(LineContinuation)
+                    || node.isChildOf_or_is(HardLineBreak))
+                att = m_barStyle;
+            else if (node.isChildOf_or_is(Rest)
+                    || node.isChildOf_or_is(MultiMeasureRest))
+                att = m_restStyle;
+            else if (node.isChildOf_or_is(TexText)
+                    || node.isChildOf_or_is(ChordOrText))
+                att = m_textStyle;
+            else if (node.isChildOf_or_is(Comment))
+                att = m_commentStyle;
+            else if (node.isChildOf_or_is(Xcommand))
+                att = m_xcommandStyle;
+            else if (node.isChildOf_or_is(TuneField)
+                    || node.isChildOf_or_is(InlineField)
+                    || node.isChildOf_or_is(AbcHeader))
+                att = m_fieldStyle;
+            else if (node.isChildOf_or_is(Tuplet)
+                    || node.isChildOf_or_is(BrokenRhythm))
+                att = m_rhythmStyle;
+            else if (node.isChildOf_or_is(Gracing))
+                att = m_symbolStyle;
+            else if (node.isChildOf_or_is(GraceNotes))
+                att = m_gracingStyle;
+            m_document.setCharacterAttributes(start, length, att, true);
+        }
 	}
   }
 

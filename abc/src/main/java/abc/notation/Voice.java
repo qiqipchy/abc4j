@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -16,10 +18,7 @@
 package abc.notation;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A Voice is a vector of {@link MusicElement music elements} (notes, bars...).
@@ -62,8 +61,7 @@ public class Voice extends Vector implements Cloneable, Serializable {
 		super();
 		m_voiceName = voiceName;
 		setFirstBarNumber(firstBarNo);
-		m_bars.put(new Short((short) m_firstBarNumber), new Bar(
-				(short) m_firstBarNumber, 0));
+		m_bars.put(m_firstBarNumber, new Bar(m_firstBarNumber, 0));
 	}
 
 	public void addElement(MusicElement element) {
@@ -82,7 +80,7 @@ public class Voice extends Vector implements Cloneable, Serializable {
 				// barLine.removeAnnotation("BAR_NUMBER");
 				// barLine.addAnnotation(new Annotation("^"+currentBar,
 				// "BAR_NUMBER"));
-				m_bars.put(new Short(m_currentBar), new Bar(m_currentBar,
+				m_bars.put(m_currentBar, new Bar(m_currentBar,
 						size()));
 			}
 			short x = (short) size();
@@ -92,12 +90,12 @@ public class Voice extends Vector implements Cloneable, Serializable {
 			if (me instanceof MultiNote) {
 				Note[] notes = ((MultiNote) me).toArray();
 				if (notes != null) {
-					for (int i = 0; i < notes.length; i++) {
-						notes[i].getReference().setPart(m_partLabel);
-						notes[i].getReference().setVoice(m_voiceName);
-						notes[i].getReference().setX(x);
-						// setY is defined in MultiNote constructor
-					}
+                    for (Note note : notes) {
+                        note.getReference().setPart(m_partLabel);
+                        note.getReference().setVoice(m_voiceName);
+                        note.getReference().setX(x);
+                        // setY is defined in MultiNote constructor
+                    }
 				}
 			}
 			super.addElement(me);
@@ -107,16 +105,13 @@ public class Voice extends Vector implements Cloneable, Serializable {
 	/**
 	 * Return true if the bar is empty or contains only barline and spacer(s).
 	 * False if barline contain other kind of music element
-	 * 
-	 * @param bar
 	 */
 	public boolean barIsEmpty(Bar bar) {
-		Iterator it = getBarContent(bar).iterator();
-		while (it.hasNext()) {
-			MusicElement me = (MusicElement) it.next();
-			if (!(me instanceof BarLine) && !(me instanceof Spacer))
-				return false;
-		}
+        for (Object o : getBarContent(bar)) {
+            MusicElement me = (MusicElement) o;
+            if (!(me instanceof BarLine) && !(me instanceof Spacer))
+                return false;
+        }
 		return true;
 	}
 
@@ -132,9 +127,7 @@ public class Voice extends Vector implements Cloneable, Serializable {
 			to = next.getPosInMusic() - 1;/* exclude barline */
 		}
 		Collection ret = new Vector(to - from + 1);
-		for (int i = from; i <= to; i++) {
-			ret.add(elementData[i]);
-		}
+        ret.addAll(Arrays.asList(elementData).subList(from, to + 1));
 		return ret;
 	}
 
@@ -300,7 +293,7 @@ public class Voice extends Vector implements Cloneable, Serializable {
 		short nextBar = barNum;
 		if (nextBar < m_firstBarNumber)
 			nextBar = (short) (m_firstBarNumber - 1);
-		Short s = new Short(nextBar++);
+		Short s = nextBar++;
 		if (m_bars.keySet().contains(s))
 			return (Bar) m_bars.get(s);
 		else {
@@ -311,8 +304,6 @@ public class Voice extends Vector implements Cloneable, Serializable {
 	/**
 	 * Returns a collection of Note between begin and end included
 	 * 
-	 * @param elmtBegin
-	 * @param elmtEnd
 	 * @return a Collection of NoteAbstract (Note or MultiNote)
 	 * @throws IllegalArgumentException
 	 */
@@ -334,13 +325,13 @@ public class Voice extends Vector implements Cloneable, Serializable {
 		for (int i = idxBegin; i <= idxEnd; i++) {
 			currentScoreEl = (MusicElement) elementAt(i);
 			if (currentScoreEl instanceof NoteAbstract)
-				ret.add((NoteAbstract) currentScoreEl);
+				ret.add(currentScoreEl);
 		}
 		return ret;
 	}
 
 	public Bar getPreviousBar() {
-		Short s = new Short((short) (m_currentBar - 1));
+		Short s = (short) (m_currentBar - 1);
 		if ((m_currentBar > m_firstBarNumber) && m_bars.keySet().contains(s))
 			return (Bar) m_bars.get(s);
 		else {

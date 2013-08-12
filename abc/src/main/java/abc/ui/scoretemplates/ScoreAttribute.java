@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -54,22 +56,19 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: false<br>
 	 * Type: boolean */
 	public static final ScoreAttribute ACCIACCATURA_AFTER_NOTE
-		= new ScoreAttribute("AcciaccaturaAfterNote",
-				new Boolean(false));
+		= new ScoreAttribute("AcciaccaturaAfterNote", false);
 	
 	/** Add a slash to acciaccaturas.<br>
 	 * Default value: true<br>
 	 * Type: boolean */
 	public static final ScoreAttribute ACCIACCATURA_SLASH
-		= new ScoreAttribute("AcciaccaturaSlash",
-				new Boolean(true));
+		= new ScoreAttribute("AcciaccaturaSlash", true);
 
 	/** Add a slur between note and acciaccaturas.<br>
 	 * Default value: false<br>
 	 * Type: boolean */
 	public static final ScoreAttribute ACCIACCATURA_SLUR
-		= new ScoreAttribute("AcciaccaturaSlur",
-				new Boolean(false));
+		= new ScoreAttribute("AcciaccaturaSlur", false);
 
 	/** Space after an accidental, in px or note width.<br>
 	 * Default value: 0.3 * note width<br>
@@ -82,15 +81,13 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: true (in theory, should be false)<br>
 	 * Type: boolean */
 	public static final ScoreAttribute APPOGGIATURA_SLASH
-		= new ScoreAttribute("AppoggiaturaSlash",
-				new Boolean(true));
+		= new ScoreAttribute("AppoggiaturaSlash", true);
 
 	/** Add a slur between note and appoggiaturas.<br>
 	 * Default value: false<br>
 	 * Type: boolean */
 	public static final ScoreAttribute APPOGGIATURA_SLUR
-		= new ScoreAttribute("AppoggiaturaSlur",
-				new Boolean(false));
+		= new ScoreAttribute("AppoggiaturaSlur", false);
 
 	/** Space between the staff top and chord line,
 	 * expressed in px or {@link SizeUnit#STAFF_HEIGHT}.<br>
@@ -121,8 +118,7 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: Engraver.DEFAULT<br>
 	 * Type: number (integer) */
 	public static final ScoreAttribute ENGRAVER_MODE
-		= new ScoreAttribute("EngraverMode",
-				new Integer(Engraver.DEFAULT));
+		= new ScoreAttribute("EngraverMode", Engraver.DEFAULT);
 	
 	/** Engraver variation, value is a number between
 	 * {@link Engraver#VARIATION_MIN} and
@@ -130,8 +126,7 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: {@link Engraver#VARIATION_DEFAULT}<br>
 	 * Type: number (integer) */
 	public static final ScoreAttribute ENGRAVER_VARIATION
-		= new ScoreAttribute("EngraverMode",
-				new Integer(Engraver.VARIATION_DEFAULT));
+		= new ScoreAttribute("EngraverMode", Engraver.VARIATION_DEFAULT);
 	
 	/** Left margin for first staff, expressed px or
 	 * {@link SizeUnit#STAFF_WIDTH}.<br>
@@ -175,15 +170,13 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: STEM UP<br>
 	 * Type: number (byte) */
 	public static final ScoreAttribute GRACENOTE_STEM_POLICY
-		= new ScoreAttribute("GracenoteStemPolicy",
-				new Byte(JTune.STEMS_UP));
+		= new ScoreAttribute("GracenoteStemPolicy", JTune.STEMS_UP);
 	
 	/** Justify staff lines<br>
 	 * Default value: true<br>
 	 * Type: boolean */
 	public static final ScoreAttribute JUSTIFY
-		= new ScoreAttribute("Justify",
-				new Boolean(true));
+		= new ScoreAttribute("Justify", true);
 	
 	/** Bottom margin.<br>
 	 * Default value: 0px<br>
@@ -268,8 +261,7 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: STEM AUTO<br>
 	 * Type: number (byte) */
 	public static final ScoreAttribute NOTE_STEM_POLICY
-		= new ScoreAttribute("NoteStemPolicy",
-				new Byte(JTune.STEMS_AUTO));
+		= new ScoreAttribute("NoteStemPolicy", JTune.STEMS_AUTO);
 
 	private static final long serialVersionUID = 4720580138163902559L;
 
@@ -322,7 +314,7 @@ public class ScoreAttribute implements Cloneable, Serializable {
 	 * Default value: 0 semitones<br>
 	 * Type: number (integer) */
 	public static final ScoreAttribute TRANSPOSITION
-		= new ScoreAttribute("Transposition", new Integer(0));
+		= new ScoreAttribute("Transposition", 0);
 	
 	
 	/** Tuplet number vertical offset, in note height or px.<br>
@@ -361,7 +353,7 @@ public class ScoreAttribute implements Cloneable, Serializable {
 		if (o instanceof ScoreAttribute)
 			return ((ScoreAttribute)o).m_name.equals(m_name);
 		else if (o instanceof String)
-			return ((String)o).equals(m_name);
+			return o.equals(m_name);
 		else
 			return super.equals(o);
 	}

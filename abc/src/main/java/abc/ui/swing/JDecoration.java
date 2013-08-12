@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -214,7 +216,7 @@ class JDecoration extends JScoreElementAbstract {
 	}
 	
 	protected void setInverted(boolean b) {
-		m_isInverted = isInvertable()?b:false;
+		m_isInverted = isInvertable() && b;
 	}
 	
 	protected void setAttachedTo(JScoreElementAbstract scoreEl) {
@@ -227,7 +229,7 @@ class JDecoration extends JScoreElementAbstract {
 	}
 	
 	/** Renders this Score element to the given graphic context.
-	 * @param g2 */
+	 */
 	public double render(Graphics2D g2) {
 		try {
 			char charDeco = getMusicalFont().getDecoration(

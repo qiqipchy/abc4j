@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -53,25 +55,21 @@ class JChord extends JNoteElementAbstract {
 	 * Such normalized chords are ordered with ascend strict durations in this array. */
 	protected JChord[] m_normalizedChords = null;
 
-	// the width of the chord group without grace notes
-	private double c_width = 0;
-	private double m_width = -1;
+    private double m_width = -1;
 	
 	private boolean followStemmingPolicy = true;
 
 	protected int m_stemYEndForChord = -1;
-	
-	/** Horizontal positifion of note head, after graces and accidentals */
-	private double m_noteHeadX = -1;
-	
-	public JChord(MultiNote multiNote, Clef clef, ScoreMetrics metrics, Point2D base){
+
+    public JChord(MultiNote multiNote, Clef clef, ScoreMetrics metrics, Point2D base){
 		super(multiNote, clef, base, metrics);
 		this.multiNote = multiNote;
 		
 		m_notes = multiNote.toArray();
 		//create JNotePartOfGroup instances. Those instances stay the same when the base is changed.
 		//The width of the chord is the width of the largest note.
-		if (multiNote.hasUniqueStrictDuration()) {
+        double c_width = 0;
+        if (multiNote.hasUniqueStrictDuration()) {
 			m_sNoteInstances = new JNote[m_notes.length];
 			boolean inverted = false;
 			for (int i=0; i<m_notes.length; i++) {
@@ -90,7 +88,7 @@ class JChord extends JNoteElementAbstract {
 						inverted = false;
 					}
 				}
-				if(m_sNoteInstances[i].getWidth()>c_width)
+				if(m_sNoteInstances[i].getWidth()> c_width)
 					c_width = m_sNoteInstances[i].getWidth();
 			}
 			setAutoStem(true);
@@ -139,10 +137,6 @@ class JChord extends JNoteElementAbstract {
 
 	/** The anchor of the chord is the one that present the rhytm (the highest one
 	 * in case of stem up, the lowest one in case of stem down)
-	 * @param note
-	 * @param base
-	 * @param metrics
-	 * @return
 	 */
 	protected JNote createAnchorNote(Note note, Point2D base, ScoreMetrics metrics) {
 //		JNote jNote = new JNote(note, base, metrics);
@@ -176,12 +170,13 @@ class JChord extends JNoteElementAbstract {
 	/** Sets the staff line this chord belongs to. */
 	public void setStaffLine(JStaffLine staffLine) {
 		if (m_normalizedChords!=null) {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				m_normalizedChords[i].setStaffLine(staffLine);
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                m_normalizedChord.setStaffLine(staffLine);
+            }
 		} else {
-			for (int i=0; i<m_sNoteInstances.length; i++)
-				m_sNoteInstances[i].setStaffLine(staffLine);
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                m_sNoteInstance.setStaffLine(staffLine);
+            }
 		}
 		super.setStaffLine(staffLine);
 	}
@@ -194,13 +189,13 @@ class JChord extends JNoteElementAbstract {
 	public void setBase(Point2D base) {
 		m_stemYEndForChord = -1;
 		if (m_normalizedChords!=null) {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				m_normalizedChords[i].setBase(base);
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                m_normalizedChord.setBase(base);
+            }
 		} else {
-			for (int i = 0; i < m_sNoteInstances.length; i++) {
-				m_sNoteInstances[i].setBase(base);
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                m_sNoteInstance.setBase(base);
+            }
 		}
 		if (m_jGracenotes != null) {
 			m_jGracenotes.setBase(base);
@@ -212,23 +207,23 @@ class JChord extends JNoteElementAbstract {
 		JNote highest = null;
 		JNote current;
 		if (m_normalizedChords != null) {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				current = m_normalizedChords[i].getHighestNote();
-				if (highest == null)
-					highest = current;
-				else if (((Note) current.getMusicElement()).isHigherThan(
-						(Note) highest.getMusicElement()))
-					highest = current;
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                current = m_normalizedChord.getHighestNote();
+                if (highest == null)
+                    highest = current;
+                else if (((Note) current.getMusicElement()).isHigherThan(
+                        (Note) highest.getMusicElement()))
+                    highest = current;
+            }
 		} else {
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				current = ((JNote)m_sNoteInstances[i]);
-				if (highest == null)
-					highest = current;
-				else if (((Note) current.getMusicElement()).isHigherThan(
-						(Note) highest.getMusicElement()))
-					highest = current;
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                current = m_sNoteInstance;
+                if (highest == null)
+                    highest = current;
+                else if (((Note) current.getMusicElement()).isHigherThan(
+                        (Note) highest.getMusicElement()))
+                    highest = current;
+            }
 		}
 		return highest;
 	}
@@ -237,24 +232,24 @@ class JChord extends JNoteElementAbstract {
 		JNote lowest = null;
 		JNote current;
 		if (m_normalizedChords != null) {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				current = m_normalizedChords[i].getLowestNote();
-				if (lowest == null)
-					lowest = current;
-				else if (((Note) current.getMusicElement()).isLowerThan(
-						(Note) lowest.getMusicElement()))
-					lowest = current;
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                current = m_normalizedChord.getLowestNote();
+                if (lowest == null)
+                    lowest = current;
+                else if (((Note) current.getMusicElement()).isLowerThan(
+                        (Note) lowest.getMusicElement()))
+                    lowest = current;
+            }
 		}
 		else {
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				current = ((JNote)m_sNoteInstances[i]);
-				if (lowest == null)
-					lowest = current;
-				else if (((Note) current.getMusicElement()).isLowerThan(
-						(Note) lowest.getMusicElement()))
-					lowest = current;
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                current = m_sNoteInstance;
+                if (lowest == null)
+                    lowest = current;
+                else if (((Note) current.getMusicElement()).isLowerThan(
+                        (Note) lowest.getMusicElement()))
+                    lowest = current;
+            }
 		}
 		return lowest;
 	}
@@ -267,10 +262,9 @@ class JChord extends JNoteElementAbstract {
 		if (autoStem) {
 			if (m_normalizedChords != null)
 				return false;
-			for (int i = 0; i < m_sNoteInstances.length; i++) {
-				if (m_sNoteInstances[i].isAutoStem() == false)
-					return false;
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                if (!m_sNoteInstance.isAutoStem()) return false;
+            }
 		}
 		return autoStem;
 	}
@@ -285,19 +279,7 @@ class JChord extends JNoteElementAbstract {
 		//autoStemming is disabled
 		byte midHeight = getClef().getMiddleNote().getHeight();
 		if ((m_normalizedChords == null) && isAutoStem()) {
-			boolean stemUp = false;
-			if (h <= midHeight) {
-				stemUp = true;
-			} else if (l > midHeight) {
-				stemUp = false;
-			} else {
-				if ( (h - midHeight) < (midHeight - l) ) {
-					// lowest note is further away from center line than highest note
-					stemUp = true;
-				} else {
-					stemUp = false;
-				}
-			}
+            boolean stemUp = h <= midHeight || l <= midHeight && (h - midHeight) < (midHeight - l);
 			//recalculate anchor and valuate its note char
 			setStemUp(stemUp);
 		}
@@ -317,10 +299,10 @@ class JChord extends JNoteElementAbstract {
 			} else {
 				stemYEnd = m_stemYEndForChord;
 			}
-			
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				((JNotePartOfGroup)m_sNoteInstances[i]).setStemYEnd(stemYEnd);
-			}
+
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                ((JNotePartOfGroup) m_sNoteInstance).setStemYEnd(stemYEnd);
+            }
 		}
 		
 		double graceNotesWidth = 0;
@@ -386,9 +368,9 @@ class JChord extends JNoteElementAbstract {
 			}
 		}
 		
-		m_noteHeadX = getBase().getX()
-			+ (graceNotesAfter?0:graceNotesWidth)
-			;//+ accidentalsWidth;
+		/* Horizontal position of note head, after graces and accidentals */
+        double m_noteHeadX = getBase().getX()
+                + (graceNotesAfter ? 0 : graceNotesWidth);
 		
 		Point2D chordBase = new Point2D.Double(m_noteHeadX, getBase().getY());
 		
@@ -406,42 +388,42 @@ class JChord extends JNoteElementAbstract {
 			}*/
 
 			double biggestStemX = -1;
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				m_sNoteInstances[i].setBase(chordBase);
-				if (m_sNoteInstances[i].getStemBeginPosition().getX()>biggestStemX)
-					biggestStemX = m_sNoteInstances[i].getStemBeginPosition().getX();
-				if (m_sNoteInstances[i].getWidth() > chordWidth)
-					chordWidth = m_sNoteInstances[i].getWidth();
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                m_sNoteInstance.setBase(chordBase);
+                if (m_sNoteInstance.getStemBeginPosition().getX() > biggestStemX)
+                    biggestStemX = m_sNoteInstance.getStemBeginPosition().getX();
+                if (m_sNoteInstance.getWidth() > chordWidth)
+                    chordWidth = m_sNoteInstance.getWidth();
+            }
 			//realign all stems
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				Point2D stemBegin = m_sNoteInstances[i].getStemBeginPosition();
-				Point2D newStemBegin = new Point2D.Double (biggestStemX, stemBegin.getY());
-				m_sNoteInstances[i].setStemBeginPosition(newStemBegin);
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                Point2D stemBegin = m_sNoteInstance.getStemBeginPosition();
+                Point2D newStemBegin = new Point2D.Double(biggestStemX, stemBegin.getY());
+                m_sNoteInstance.setStemBeginPosition(newStemBegin);
+            }
 		}
 		else
 		{
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				Point2D newBase = (Point2D) chordBase.clone();
-				if (accidentalsWidth > 0) {
-					double tmpAccWidth = 0;
-					//determinate accidental width of the chord
-					for (int j = 0; j < m_normalizedChords[i].m_sNoteInstances.length; j++) {
-						JNote jnote = m_normalizedChords[i].m_sNoteInstances[j];
-						double accWidth = jnote.getNotePosition().getX() - jnote.getBase().getX();
-						tmpAccWidth = Math.max(tmpAccWidth, accWidth);
-					}
-					newBase.setLocation(newBase.getX() + accidentalsWidth - tmpAccWidth,
-										newBase.getY());
-					if (newBase.getX() == chordBase.getX())
-						newBase = chordBase;
-				}
-				m_normalizedChords[i].setBase(newBase);
-				if (m_normalizedChords[i].getWidth() > chordWidth)
-					chordWidth = m_normalizedChords[i].getWidth();
-				//m_normalizedChords[i].onBaseChanged();
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                Point2D newBase = (Point2D) chordBase.clone();
+                if (accidentalsWidth > 0) {
+                    double tmpAccWidth = 0;
+                    //determinate accidental width of the chord
+                    for (int j = 0; j < m_normalizedChord.m_sNoteInstances.length; j++) {
+                        JNote jnote = m_normalizedChord.m_sNoteInstances[j];
+                        double accWidth = jnote.getNotePosition().getX() - jnote.getBase().getX();
+                        tmpAccWidth = Math.max(tmpAccWidth, accWidth);
+                    }
+                    newBase.setLocation(newBase.getX() + accidentalsWidth - tmpAccWidth,
+                            newBase.getY());
+                    if (newBase.getX() == chordBase.getX())
+                        newBase = chordBase;
+                }
+                m_normalizedChord.setBase(newBase);
+                if (m_normalizedChord.getWidth() > chordWidth)
+                    chordWidth = m_normalizedChord.getWidth();
+                //m_normalizedChords[i].onBaseChanged();
+            }
 		}
 
 		//slur anchors
@@ -467,7 +449,7 @@ class JChord extends JNoteElementAbstract {
 				gracesPosition = (Point2D) getBase().clone();
 			else {
 				gracesPosition = new Point2D.Double(
-					m_noteHeadX+chordWidth
+					m_noteHeadX +chordWidth
 						+getMetrics().getGraceNotesSpacing()*2,
 					getBase().getY()
 				);
@@ -482,19 +464,19 @@ class JChord extends JNoteElementAbstract {
 	
 	private JNote getJNote(Note n) {
 		if (m_normalizedChords == null) {
-			for (int i = 0; i < m_sNoteInstances.length; i++) {
-				if (m_sNoteInstances[i].getMusicElement() == n)
-					return m_sNoteInstances[i];
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                if (m_sNoteInstance.getMusicElement() == n)
+                    return m_sNoteInstance;
+            }
 		}
 		else {
-			for (int i = 0; i < m_normalizedChords.length; i++) {
-				for (int j = 0; j < m_normalizedChords[i].m_sNoteInstances.length; j++) {
-					if (m_normalizedChords[i].m_sNoteInstances[j]
-							.getMusicElement() == n)
-						return m_normalizedChords[i].m_sNoteInstances[j];
-				}
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                for (int j = 0; j < m_normalizedChord.m_sNoteInstances.length; j++) {
+                    if (m_normalizedChord.m_sNoteInstances[j]
+                            .getMusicElement() == n)
+                        return m_normalizedChord.m_sNoteInstances[j];
+                }
+            }
 		}
 		return null;
 	}
@@ -502,13 +484,13 @@ class JChord extends JNoteElementAbstract {
 	public Rectangle2D getBoundingBox() {
 		Rectangle2D bb = new Rectangle2D.Double(getBase().getX(), getBase().getY(), 0, 0);
 		if (m_normalizedChords == null) {
-			for (int i = 0; i < m_sNoteInstances.length; i++) {
-				bb.add(m_sNoteInstances[i].getBoundingBox());
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                bb.add(m_sNoteInstance.getBoundingBox());
+            }
 		} else {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				bb.add(m_normalizedChords[i].getBoundingBox());
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                bb.add(m_normalizedChord.getBoundingBox());
+            }
 		}
 		//take into account the graces notes when after, or
 		//other...
@@ -524,9 +506,8 @@ class JChord extends JNoteElementAbstract {
 		//JNote lowestElement = m_sNoteInstances[0];
 		//JNote highestElement = m_sNoteInstances[m_sNoteInstances.length-1];
 		if (m_normalizedChords==null) {
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				JNote n = m_sNoteInstances[i];
-				n.render(context);
+            for (JNote n : m_sNoteInstances) {
+                n.render(context);
 //System.out.println(n.getMusicElement().toString() +
 //					":\tX=" + n.getStemBeginPosition().getX() +
 //					",Y=" + n.getStemBeginPosition().getY() +
@@ -535,11 +516,12 @@ class JChord extends JNoteElementAbstract {
 ////System.out.println("\tstemYEnd="+((JNotePartOfGroup) n).getStemYEnd());
 //				}
 
-			}
+            }
 		}
 		else {
-			for (int i=0; i<m_normalizedChords.length; i++)
-				m_normalizedChords[i].render(context);
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                m_normalizedChord.render(context);
+            }
 		}
 		
 		renderGraceNotes(context);
@@ -581,28 +563,28 @@ class JChord extends JNoteElementAbstract {
 		}
 		//Apply the stem direction to the rest of the notes composing the chord.
 		setAutoStem(false);
-		for (int i=0; i<m_sNoteInstances.length; i++) {
-			//m_sNoteInstances[i].setAutoStem(false);
-			m_sNoteInstances[i].setStemUp(isUp);
-			if (!(this instanceof JChordPartOfGroup)) {
-				if (m_sNoteInstances[i] instanceof JChordNote) {
-					((JChordNote) m_sNoteInstances[i]).setAnchor(m_sNoteInstances[i] == anchor);
-				}
-			}
-		}
+        for (JNote m_sNoteInstance : m_sNoteInstances) {
+            //m_sNoteInstances[i].setAutoStem(false);
+            m_sNoteInstance.setStemUp(isUp);
+            if (!(this instanceof JChordPartOfGroup)) {
+                if (m_sNoteInstance instanceof JChordNote) {
+                    ((JChordNote) m_sNoteInstance).setAnchor(m_sNoteInstance == anchor);
+                }
+            }
+        }
 	}
 	
 	public void setAutoStem(boolean auto) {
 		super.setAutoStem(auto);
 		//Apply the stem direction to the rest of the notes composing the chord.
 		if (m_normalizedChords!=null) {
-			for (int i=0; i<m_normalizedChords.length; i++) {
-				m_normalizedChords[i].setAutoStem(auto);
-			}
+            for (JChord m_normalizedChord : m_normalizedChords) {
+                m_normalizedChord.setAutoStem(auto);
+            }
 		} else {
-			for (int i=0; i<m_sNoteInstances.length; i++) {
-				m_sNoteInstances[i].setAutoStem(auto);
-			}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                m_sNoteInstance.setAutoStem(auto);
+            }
 		}
 	}
 
@@ -613,11 +595,11 @@ class JChord extends JNoteElementAbstract {
 				scoreEl = m_normalizedChords[i].getScoreElementAt(point);
 			}
 		else
-		for (int i=0; i<m_sNoteInstances.length; i++) {
-			scoreEl = m_sNoteInstances[i].getScoreElementAt(point);
-			if (scoreEl!=null)
-				return scoreEl;
-		}
+            for (JNote m_sNoteInstance : m_sNoteInstances) {
+                scoreEl = m_sNoteInstance.getScoreElementAt(point);
+                if (scoreEl != null)
+                    return scoreEl;
+            }
 		return scoreEl;
 	}
 

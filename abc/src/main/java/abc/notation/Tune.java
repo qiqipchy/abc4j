@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -97,10 +99,10 @@ public class Tune implements Cloneable, Serializable
 	  this.m_origin = tune.m_origin;*/
 	  if (tune.m_parts != null) {
 		  this.m_parts = new ArrayList();
-		for (Iterator it = tune.m_parts.iterator(); it.hasNext();) {
-			Part value = (Part) it.next();
-			this.m_parts.add(value.clone());
-		}
+          for (Object m_part : tune.m_parts) {
+              Part value = (Part) m_part;
+              this.m_parts.add(value.clone());
+          }
 	  }
 	  if (tune.m_multiPartsDef != null)
 		  this.m_multiPartsDef = (MultiPartsDefinition)tune.m_multiPartsDef.clone(this);
@@ -237,7 +239,7 @@ public class Tune implements Cloneable, Serializable
   
   /** Adds lyricist (author of lyrics)
    * Corresponds to the "A:" abc field in v2.
-   * @param lyricist */
+   */
   public void addLyricist(String lyricist)
   { m_tuneInfos.add(TuneInfos.LYRICIST, lyricist); }
   
@@ -285,18 +287,17 @@ public class Tune implements Cloneable, Serializable
   {
     if (m_parts!=null)
     {
-    	Iterator it = m_parts.iterator();
-    	while (it.hasNext()) {
-    		Part p = (Part) it.next();
-    		//if (p.getLabel().equals(partLabel)
-    		//	|| p.getLabel().equals(""+partLabel.charAt(0))) {
-    		if (p.getLabel().charAt(0) == partLabel.charAt(0)) {
-    			if (partLabel.length() > 1) {
-    				p.setLabel(partLabel);
-    			}
-    			return p;
-    		}
-    	}
+        for (Object m_part : m_parts) {
+            Part p = (Part) m_part;
+            //if (p.getLabel().equals(partLabel)
+            //	|| p.getLabel().equals(""+partLabel.charAt(0))) {
+            if (p.getLabel().charAt(0) == partLabel.charAt(0)) {
+                if (partLabel.length() > 1) {
+                    p.setLabel(partLabel);
+                }
+                return p;
+            }
+        }
     	return null;
     }
     else
@@ -405,7 +406,6 @@ public class Tune implements Cloneable, Serializable
   
   /**
    * Returns the asked voice, create it if needed.
-   * @param voiceName
    */
   public Voice getVoice(String voiceName) {
 	  return m_defaultPart.getMusic().getVoice(voiceName);
@@ -439,14 +439,14 @@ public class Tune implements Cloneable, Serializable
 		if (ret.m_multiPartsDef != null) {
 			Vector alreadyAddedParts = new Vector();
 			Part[] parts = ret.m_multiPartsDef.toPartsArray();
-			for (int i = 0; i < parts.length; i++) {
-				String label = parts[i].getLabel();
-				// already added, skip it!
-				if (alreadyAddedParts.contains(label))
-					continue;
-				musics.add(parts[i].getMusic());
-				alreadyAddedParts.add(label);
-			}
+            for (Part part : parts) {
+                String label = part.getLabel();
+                // already added, skip it!
+                if (alreadyAddedParts.contains(label))
+                    continue;
+                musics.add(part.getMusic());
+                alreadyAddedParts.add(label);
+            }
 		}
 
 		KeySignature lastKey = ret.getMusic().getKey();
@@ -460,42 +460,41 @@ public class Tune implements Cloneable, Serializable
 		while (itMusics.hasNext()) {
 			musiccount++;
 			Music music = (Music) itMusics.next();
-			Iterator itVoices = music.getVoices().iterator();
-			while (itVoices.hasNext()) {
-				Voice voice = (Voice) itVoices.next();
-				for (int i = 0, j = voice.size(); i<j; i++) {
-					MusicElement element = (MusicElement) voice.elementAt(i);
-					if (element instanceof KeySignature) {
-						noneTranspKey = (KeySignature) element;
-						noneTranspKeyNote = new Note(noneTranspKey.getNote(), noneTranspKey.getAccidental());
-						KeySignature transposed = KeySignature
-							.transpose(noneTranspKey, semitones);
-						voice.setElementAt(transposed, i);
-						lastKey = transposed;
-						byte octav = 0;
-						try {
-							octav = Note.getOctaveTransposition((byte) (noneTranspKeyNote.getHeight()+semitones));
-						} catch (Exception e) { //Illegal arg if transp note is accidented
-							octav = Note.getOctaveTransposition((byte) (noneTranspKeyNote.getHeight()+semitones-1));
-						}
-						lastKeyNote = new Note(lastKey.getNote(), lastKey.getAccidental(), octav);
-					} else if ((element instanceof Note)
-							&& !((Note) element).isRest()) {
-						Note original = (Note) element;
-						Note transp = (Note) transpose_Note(original, noneTranspKeyNote,
-								noneTranspKey, lastKeyNote, lastKey);
-						voice.setElementAt(transp, i);
-					} else if (element instanceof MultiNote) {
-						MultiNote multi = (MultiNote) element;
-						MultiNote transp = (MultiNote) transpose_Note(multi, noneTranspKeyNote,
-								noneTranspKey, lastKeyNote, lastKey);
-						voice.setElementAt(transp, i);
-					} else if (element instanceof DecorableElement) {
-						transpose_Chord((DecorableElement) element, noneTranspKeyNote,
-								noneTranspKey, lastKeyNote, lastKey);
-					}
-				}//end for each element in the voice
-			}// end for each voices in the music
+            for (Object o : music.getVoices()) {
+                Voice voice = (Voice) o;
+                for (int i = 0, j = voice.size(); i < j; i++) {
+                    MusicElement element = (MusicElement) voice.elementAt(i);
+                    if (element instanceof KeySignature) {
+                        noneTranspKey = (KeySignature) element;
+                        noneTranspKeyNote = new Note(noneTranspKey.getNote(), noneTranspKey.getAccidental());
+                        KeySignature transposed = KeySignature
+                                .transpose(noneTranspKey, semitones);
+                        voice.setElementAt(transposed, i);
+                        lastKey = transposed;
+                        byte octav = 0;
+                        try {
+                            octav = Note.getOctaveTransposition((byte) (noneTranspKeyNote.getHeight() + semitones));
+                        } catch (Exception e) { //Illegal arg if transp note is accidented
+                            octav = Note.getOctaveTransposition((byte) (noneTranspKeyNote.getHeight() + semitones - 1));
+                        }
+                        lastKeyNote = new Note(lastKey.getNote(), lastKey.getAccidental(), octav);
+                    } else if ((element instanceof Note)
+                            && !((Note) element).isRest()) {
+                        Note original = (Note) element;
+                        Note transp = (Note) transpose_Note(original, noneTranspKeyNote,
+                                noneTranspKey, lastKeyNote, lastKey);
+                        voice.setElementAt(transp, i);
+                    } else if (element instanceof MultiNote) {
+                        MultiNote multi = (MultiNote) element;
+                        MultiNote transp = (MultiNote) transpose_Note(multi, noneTranspKeyNote,
+                                noneTranspKey, lastKeyNote, lastKey);
+                        voice.setElementAt(transp, i);
+                    } else if (element instanceof DecorableElement) {
+                        transpose_Chord((DecorableElement) element, noneTranspKeyNote,
+                                noneTranspKey, lastKeyNote, lastKey);
+                    }
+                }//end for each element in the voice
+            }// end for each voices in the music
 		}// end while there are more music part
 		return ret;
 	}
@@ -515,9 +514,10 @@ public class Tune implements Cloneable, Serializable
 			// Note transp = Note.transpose(original, semitones, lastKey);
 			Note transpHeight = interval.calculateSecondNote(lastKeyNote, lastKey);
 			try {
-				transp = (Note) ((Note) original).clone();
+				transp = (Note) original.clone();
 			} catch (CloneNotSupportedException never) {
 				never.printStackTrace();
+                return null;
 			}
 			((Note) transp).setHeight(transpHeight.getHeight());
 			((Note) transp).setOctaveTransposition(transpHeight.getOctaveTransposition());
@@ -527,9 +527,10 @@ public class Tune implements Cloneable, Serializable
 				((Note) transp).setAccidental(transpHeight.getAccidental().getValue()+microtonalOffset);
 		} else if (original instanceof MultiNote) {
 			try {
-				transp = (MultiNote) ((MultiNote) original).clone();
+				transp = (MultiNote) original.clone();
 			} catch (CloneNotSupportedException never) {
 				never.printStackTrace();
+                return null;
 			}
 			Note[] notes = ((MultiNote) transp).toArray();
 			for (int k = 0; k < notes.length; k++) {
@@ -555,10 +556,11 @@ public class Tune implements Cloneable, Serializable
 //		}
 		transpose_Chord(transp, noneTranspKeyNote, noneTranspKey,
 				lastKeyNote, lastKey);
-		if (transp.hasGracingNotes()) {
+        assert transp != null;
+        if (transp.hasGracingNotes()) {
 			NoteAbstract[] graces = transp.getGracingNotes();
 			for (int k = 0; k < graces.length; k++) {
-				graces[k] = (NoteAbstract) transpose_Note(graces[k], noneTranspKeyNote,
+				graces[k] = transpose_Note(graces[k], noneTranspKeyNote,
 						noneTranspKey, lastKeyNote, lastKey);
 			}
 		}
@@ -609,11 +611,10 @@ public class Tune implements Cloneable, Serializable
 			//Vector alreadyAddedParts = new Vector();
 			Music globalScore = newMusic();
 			globalScore.append(m_defaultPart.getMusic());
-			Iterator it = m_parts.iterator();
-			while (it.hasNext()) {
-				Part part = (Part) it.next();
-				globalScore.append(part.getMusic());
-			}
+            for (Object m_part : m_parts) {
+                Part part = (Part) m_part;
+                globalScore.append(part.getMusic());
+            }
 			return globalScore;
 		}
 	}
@@ -644,7 +645,7 @@ public class Tune implements Cloneable, Serializable
 	 * If there is no part, it's simple, it returns the "default"
 	 * part.
 	 * If you want to retrieve the music related to each part separatly
-	 * see {@link #getPart(char)}.{@link Part#getMusic() getMusic()}.
+	 * see {@link #getPart(String)}.{@link Part#getMusic() getMusic()}.
 	 * 
 	 * This is not desired for printing and graphic output.
 	 * But this is a beginning for audio output.
@@ -655,7 +656,7 @@ public class Tune implements Cloneable, Serializable
 	 * 
 	 * @see #getMusicForGraphicalRendition()
 	 * @see #getMusicForAudioRendition()
-	 * @see #getPart(char)
+	 * @see #getPart(String)
 	 * @return The music part of this tune. If this tune isn't composed of
 	 *         several parts this method returns the "normal" music part. If
 	 *         this tune is composed of several parts the returned music is
@@ -674,9 +675,9 @@ public class Tune implements Cloneable, Serializable
 			Music globalScore = newMusic();
 			globalScore.append(m_defaultPart.getMusic());
 			Part[] parts = m_multiPartsDef.toPartsArray();
-			for (int i = 0; i < parts.length; i++) {
-				globalScore.append(parts[i].getMusic());
-			}
+            for (Part part : parts) {
+                globalScore.append(part.getMusic());
+            }
 			return globalScore;
 		}
 	}

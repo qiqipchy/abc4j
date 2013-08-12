@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -25,7 +27,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.AttributedString;
 import java.text.AttributedCharacterIterator.Attribute;
-import java.util.Iterator;
 import java.util.Map;
 
 import abc.notation.Accidental;
@@ -219,11 +220,11 @@ public class JText extends JScoreElementAbstract {
 	public double getWidth() {
 		String[] lines = getTextLines();
 		double max = 0;
-		for (int i = 0; i < lines.length; i++) {
-			max = Math.max(max,
-					(double) getMetrics().getTextFontWidth(m_textField, lines[i])
-				);
-		}
+        for (String line : lines) {
+            max = Math.max(max,
+                    (double) getMetrics().getTextFontWidth(m_textField, line)
+            );
+        }
 		return max;
 	}
 
@@ -234,8 +235,6 @@ public class JText extends JScoreElementAbstract {
 
 	/**
 	 * Renders this Score element to the given graphic context.
-	 * 
-	 * @param g2
 	 */
 	public double render(Graphics2D g2) {
 		Font previousFont = g2.getFont();
@@ -308,11 +307,10 @@ public class JText extends JScoreElementAbstract {
 
 			Map attrib = getTemplate().getTextAttributes(m_textField);
 			if (attrib != null) {
-				Iterator it = attrib.keySet().iterator();
-				while (it.hasNext()) {
-					Attribute ta = (Attribute) it.next();
-					as.addAttribute(ta, attrib.get(ta));
-				}
+                for (Object o : attrib.keySet()) {
+                    Attribute ta = (Attribute) o;
+                    as.addAttribute(ta, attrib.get(ta));
+                }
 			}
 			if (getTextJustification() == TextJustification.JUSTIFIED) {
 				as.addAttribute(TextAttribute.JUSTIFICATION, TextAttribute.JUSTIFICATION_FULL);

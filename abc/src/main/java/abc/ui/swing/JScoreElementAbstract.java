@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -22,7 +24,6 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
 
 import abc.notation.Annotation;
@@ -159,22 +160,22 @@ abstract class JScoreElementAbstract implements JScoreElement {
 			return this;
 		else {
 			if (m_jAnnotations != null) {
-				for (Iterator it = m_jAnnotations.iterator(); it.hasNext();) {
-					JAnnotation ja = (JAnnotation) it.next();
-					if (ja.getBoundingBox().contains(location))
-						return ja;
-				}
+                for (Object m_jAnnotation : m_jAnnotations) {
+                    JAnnotation ja = (JAnnotation) m_jAnnotation;
+                    if (ja.getBoundingBox().contains(location))
+                        return ja;
+                }
 			}
 			if (m_jChordName != null) {
 				if (m_jChordName.getBoundingBox().contains(location))
 					return m_jChordName;
 			}
 			if (m_jDecorations != null) {
-				for (Iterator it = m_jDecorations.iterator(); it.hasNext();) {
-					JDecoration jd = (JDecoration) it.next();
-					if (jd.getBoundingBox().contains(location))
-						return jd;
-				}
+                for (Object m_jDecoration : m_jDecorations) {
+                    JDecoration jd = (JDecoration) m_jDecoration;
+                    if (jd.getBoundingBox().contains(location))
+                        return jd;
+                }
 			}
 			if (m_jDynamic != null) {
 				if (m_jDynamic.getBoundingBox().contains(location))
@@ -203,13 +204,13 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	protected void addDecorations(DecorableElement decorable) {
 		if (decorable.hasDecorations()) {
 			Decoration[] decorations = decorable.getDecorations();
-			for (int i = 0; i < decorations.length; i++) {
-				if (decorations[i] != null) {
-					addDecoration(
-						new JDecoration(
-							decorations[i], getMetrics()));
-				}
-			}
+            for (Decoration decoration : decorations) {
+                if (decoration != null) {
+                    addDecoration(
+                            new JDecoration(
+                                    decoration, getMetrics()));
+                }
+            }
 		}
 	}
 	
@@ -271,8 +272,6 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	 * Set the color for renderer, get color value in the score
 	 * template, or apply the specified color for the current
 	 * element.
-	 * @param g2
-	 * @param scoreElement
 	 */
 	protected void setColor(Graphics2D g2, byte scoreElement) {
 		if (m_color != null)
@@ -286,7 +285,7 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	}
 	
 	/** Renders this Score element to the given graphic context.
-	 * @param g2 */
+     */
 	public double render(Graphics2D g2) {
 		setRendered(true);
 		g2d = g2;
@@ -322,16 +321,15 @@ abstract class JScoreElementAbstract implements JScoreElement {
 			annots = ((DecorableElement) me).getAnnotations();
 		if (annots != null) {
 			m_jAnnotations = new Vector(annots.size());
-			Iterator it = annots.iterator();
-			while (it.hasNext()) {
-				Annotation annot = (Annotation) it.next();
-				JAnnotation jannot = new JAnnotation(getMetrics(), annot);
-				jannot.setStaffLine(getStaffLine());
-				jannot.setBase(getBase());
-				jannot.setAttachedTo(this);
-				jannot.render(gfx);
-				m_jAnnotations.add(jannot);
-			}
+            for (Object annot1 : annots) {
+                Annotation annot = (Annotation) annot1;
+                JAnnotation jannot = new JAnnotation(getMetrics(), annot);
+                jannot.setStaffLine(getStaffLine());
+                jannot.setBase(getBase());
+                jannot.setAttachedTo(this);
+                jannot.render(gfx);
+                m_jAnnotations.add(jannot);
+            }
 		}
 	}
 	
@@ -410,7 +408,6 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	/**
 	 * For debugging purpose, draw the bounding box of
 	 * the element
-	 * @param context
 	 */
 	protected void renderDebugBoundingBox(Graphics2D context) {
 		/* */java.awt.Color previousColor = context.getColor();
@@ -422,7 +419,6 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	/**
 	 * For debugging purpose, draw the outer of bounding box of
 	 * the element
-	 * @param context
 	 */
 	protected void renderDebugBoundingBoxOuter(Graphics2D context) {
 		java.awt.Color previousColor = context.getColor();
@@ -436,13 +432,13 @@ abstract class JScoreElementAbstract implements JScoreElement {
 	protected void renderDebugDecorationAnchors(Graphics2D context) {
 		java.awt.Color previousColor = context.getColor();
 		context.setColor(java.awt.Color.ORANGE);
-		for (int i = 0; i < m_decorationAnchors.length; i++) {
-			if (m_decorationAnchors[i] != null) {
-				context.drawOval((int)m_decorationAnchors[i].getX(),
-								(int)m_decorationAnchors[i].getY(),
-								1, 1);
-			}
-		}
+        for (Point2D m_decorationAnchor : m_decorationAnchors) {
+            if (m_decorationAnchor != null) {
+                context.drawOval((int) m_decorationAnchor.getX(),
+                        (int) m_decorationAnchor.getY(),
+                        1, 1);
+            }
+        }
 		context.setColor(previousColor);
 	}
 

@@ -31,7 +31,6 @@ public class NoteHeightException extends RuntimeException
 
   /**
    * Sets the message to "Invalid height " + midiLikeHeight
-   * @param midiLikeHeight
    */
   public NoteHeightException(int midiLikeHeight)
   {super("Invalid height " + midiLikeHeight);}

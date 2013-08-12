@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -290,9 +292,8 @@ public class KeySignature extends MusicElement implements Cloneable
     /**
      * Set the accidentals, ensure that the byte array is copied
      * <TT>accidentals = accidentalRules...[...]</TT> keeps the reference
-     * to accidentalRules... so if you set an accidental with {@link #setAccidental(byte, byte)}
+     * to accidentalRules... so if you set an accidental with {@link #setAccidental(byte, Accidental)}
      * the static accidentalRule...[] is altered.
-     * @param accidentalsDefinition
      */
     private void setAccidentals(Accidental[] accidentalsDefinition) {
     	Accidental[] newArray = new Accidental[7];
@@ -366,7 +367,6 @@ public class KeySignature extends MusicElement implements Cloneable
     
     /**
      * Sets the clef associated to this key signature
-     * @param clef
      */
     public void setClef(Clef clef) {
     	m_clef = clef;
@@ -415,13 +415,13 @@ public class KeySignature extends MusicElement implements Cloneable
 	 */
 	public boolean hasSharpsAndFlats() {
 		boolean hasSharp = false, hasFlat = false;
-		for (int i = 0; i < accidentals.length; i++) {
-			// handle microtonal (half flat and half sharp)
-			// theorically, double sharp and double flat
-			// are never at key, but half sharp and half flat can
-			hasSharp = hasSharp || (accidentals[i].getValue() > 0);
-			hasFlat = hasFlat || (accidentals[i].getValue() < 0);
-		}
+        for (Accidental accidental : accidentals) {
+            // handle microtonal (half flat and half sharp)
+            // theorically, double sharp and double flat
+            // are never at key, but half sharp and half flat can
+            hasSharp = hasSharp || (accidental.getValue() > 0);
+            hasFlat = hasFlat || (accidental.getValue() < 0);
+        }
 		return hasSharp && hasFlat;
 	}
 	
@@ -596,7 +596,7 @@ public class KeySignature extends MusicElement implements Cloneable
 
   	public Object clone() throws CloneNotSupportedException {
   		Object k = super.clone();
-  		((KeySignature) k).accidentals = (Accidental[]) accidentals.clone();
+  		((KeySignature) k).accidentals = accidentals.clone();
   		((KeySignature) k).m_clef = (Clef) m_clef.clone();
   		return k;
   	}

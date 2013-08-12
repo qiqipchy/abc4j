@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -58,7 +60,7 @@ public class TuneEditorArea extends TextArea
     private TextArea m_document = null;
     private TuneParser m_parser = null;
     private int m_idleTime = 0;
-    private Object m_mutex = new Object();
+    private final Object m_mutex = new Object();
 
     public ParsingRefresh(TextArea document, TuneParser parser)
     {

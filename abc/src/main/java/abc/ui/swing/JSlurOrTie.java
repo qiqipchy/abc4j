@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -43,10 +45,6 @@ public class JSlurOrTie extends JScoreElementAbstract {
 	
 	private TwoNotesLink m_slurDef = null;
 	
-	/**
-	 * @param tnl
-	 * @param c
-	 */
 	protected JSlurOrTie(TwoNotesLink tnl, ScoreMetrics c) {
 		super(c);
 		m_slurDef = tnl;
@@ -100,9 +98,6 @@ public class JSlurOrTie extends JScoreElementAbstract {
 		return isTuplet;
 	}
 
-	/**
-	 * @param b
-	 */
 	public void setTuplet(boolean b) {
 		isTuplet = b;
 	}

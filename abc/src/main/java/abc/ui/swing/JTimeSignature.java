@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -42,11 +44,11 @@ class JTimeSignature extends JScoreElementAbstract {
 		} else {
 			String s_numChars = "";
 			int[] sumOfNums = ts.getSumOfNumerators();
-			for (int i = 0; i < sumOfNums.length; i++) {
-				if (s_numChars.length() > 0)
-					s_numChars += getMusicalFont().getDecoration(Decoration.PLUS);
-				s_numChars += String.valueOf(getMusicalFont().getTimeSignatureDigits(sumOfNums[i]));
-			}
+            for (int sumOfNum : sumOfNums) {
+                if (s_numChars.length() > 0)
+                    s_numChars += getMusicalFont().getDecoration(Decoration.PLUS);
+                s_numChars += String.valueOf(getMusicalFont().getTimeSignatureDigits(sumOfNum));
+            }
 			m_numChars = s_numChars.toCharArray();
 		}
 		m_denomChars = getMusicalFont().getTimeSignatureDigits(ts.getDenominator());

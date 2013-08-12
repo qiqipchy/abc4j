@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -64,7 +66,7 @@ public class Chord extends Annotation implements Cloneable {
 		"^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
 		+"(([ABCDEFG])([b\u266D#\u266F])?)" //note name + accidental
 		//\u266D = flat, \u266E = natural, \u266F = sharp
-		+"([mM1234567890abdijnsuøØo°\u00D8\u00F8\u00B0\u0394\u2206\\-\\+]*)"
+		+"([mM1234567890abdijnsuï¿½ï¿½oï¿½\u00D8\u00F8\u00B0\u0394\u2206\\-\\+]*)"
 			//handles min(or), Maj/maj(or), dim, sus, Maj7, mb5...
 			// but not #11 (may be ok for Eb7#11,
 			// but F#11 will disturb...)
@@ -149,7 +151,6 @@ public class Chord extends Annotation implements Cloneable {
 	
 	/**
 	 * Sets the note of the chord, <TT>null</TT> accepted.
-	 * @param note
 	 */
 	public void setNote(Note note) {
 		m_note = note;
@@ -168,7 +169,6 @@ public class Chord extends Annotation implements Cloneable {
 	
 	/**
 	 * Sets the bass of the chord, <TT>null</TT> accepted
-	 * @param bass
 	 */
 	public void setBass(Note bass) {
 		m_bass = bass;
@@ -197,7 +197,7 @@ public class Chord extends Annotation implements Cloneable {
 		if (!isChord())
 			return m_chordName;
 		else {
-			StringBuffer ret = new StringBuffer();
+			StringBuilder ret = new StringBuilder();
 			if (isOptional())
 				ret.append("(");
 			ret.append(note2string(getNote(), unicode));
@@ -249,7 +249,7 @@ public class Chord extends Annotation implements Cloneable {
 	
 	public boolean equals(Object o) {
 		if (o instanceof Chord)
-			return ((Chord)o).getText() == getText();
+			return ((Chord) o).getText().equals(getText());
 		else
 			return super.equals(o);
 	}

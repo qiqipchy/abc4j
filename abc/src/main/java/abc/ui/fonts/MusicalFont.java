@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -46,9 +48,6 @@ public interface MusicalFont extends Cloneable, Serializable {
 
 	/**
 	 * Returns the decoration char, depending on the position
-	 * 
-	 * @param decoration
-	 * @param inverted
 	 */
 	public char getDecoration(Decoration decoration, boolean inverted);
 
@@ -57,9 +56,6 @@ public interface MusicalFont extends Cloneable, Serializable {
 	
 	/**
 	 * Returns the decoration char, depending on the position
-	 * 
-	 * @param decoration
-	 * @param inverted
 	 */
 	public char getDecoration(int decoration, boolean inverted);
 
@@ -145,7 +141,7 @@ public interface MusicalFont extends Cloneable, Serializable {
 	/**
 	 * Return abbreviated symbol for 2/2 (C|) and 4/4 (C)
 	 * time signatures
-	 * @param ts
+     *
 	 * @throws IllegalArgumentException if time signature is not
 	 * 2/2 nor 4/4
 	 */
@@ -154,5 +150,4 @@ public interface MusicalFont extends Cloneable, Serializable {
 
 	/** Returns the tuplet digit(s) */
 	public char[] getTupletDigits(int nuplet);
-
 }

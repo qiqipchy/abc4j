@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -23,6 +25,7 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 
 import abc.notation.Clef;
 import abc.notation.MultiNote;
@@ -64,7 +67,7 @@ class JGroupOfNotes extends JScoreElementAbstract
 		super(metrics);
 		m_clef = clef;
 		if (notes.length<=1)
-			throw new IllegalArgumentException(notes + " is not a group of notes, length = " + notes.length);
+			throw new IllegalArgumentException(Arrays.toString(notes) + " is not a group of notes, length = " + notes.length);
 		m_engraver = engrav;
 		m_notes = new NoteAbstract[notes.length];
 		//create JNotePartOfGroup instances. Those instance should stay the same
@@ -72,14 +75,14 @@ class JGroupOfNotes extends JScoreElementAbstract
 		m_jNotes = new JGroupableNote[m_notes.length];
 		for (int i=0; i<notes.length; i++)
 			if (notes[i] instanceof Note) {
-				m_notes[i] = (Note)notes[i];
+				m_notes[i] = notes[i];
 				m_jNotes[i] = new JNotePartOfGroup((Note)m_notes[i], clef, base, getMetrics());
 				//anchorNotes[i] = (Note)notes[i];
 			}
 			else {
 				//This is a multiNote
 				m_jNotes[i] = new JChordPartOfGroup((MultiNote)notes[i], clef, getMetrics(), new Point2D.Double());
-				m_notes[i] = (MultiNote) notes[i];
+				m_notes[i] = notes[i];
 					//(Note)((JChordPartOfGroup)m_jNotes[i]).getReferenceNoteForGroup().getMusicElement();
 			}
 		//m_jNotes[i]=n;
@@ -123,8 +126,9 @@ class JGroupOfNotes extends JScoreElementAbstract
 	public void setStaffLine(JStaffLine staffLine) {
 		//If a group of notes if displayed on a staff line, all notes
 		//composing the group are then part of this staff line as well.
-		for (int i=0; i<m_jNotes.length; i++)
-			((JScoreElementAbstract)m_jNotes[i]).setStaffLine(staffLine);
+        for (JGroupableNote m_jNote : m_jNotes) {
+            ((JScoreElementAbstract) m_jNote).setStaffLine(staffLine);
+        }
 		super.setStaffLine(staffLine);
 	}
 
@@ -134,7 +138,7 @@ class JGroupOfNotes extends JScoreElementAbstract
 
 	protected JScoreElementAbstract[] getRenditionElements() {
 		JScoreElementAbstract[] array = new JScoreElementAbstract[m_jNotes.length];
-		System.arraycopy(m_jNotes, 0, array, 0, m_jNotes.length);
+		System.arraycopy(m_jNotes, 0, array, 0, m_jNotes.length);   // XXX TODO: verify that array copy is valid
 		return array;
 	}
 
@@ -146,7 +150,6 @@ class JGroupOfNotes extends JScoreElementAbstract
 	 * JNoteElementAbstract is a JChord(PartOfGroup), returns the
 	 * really needed chord, itself if one-length, the shortest if
 	 * multi-length
-	 * @param chord
 	 */
 	private JChordPartOfGroup getChordReallyPartOfGroup(JChordPartOfGroup chord) {
 		if (chord.m_normalizedChords != null) {
@@ -162,21 +165,19 @@ class JGroupOfNotes extends JScoreElementAbstract
 	
 	public boolean isAutoStem() {
 		if (autoStemming) {
-			for (int i=0; i<m_jNotes.length; i++) {
-				boolean autoS = true;
-				JNoteElementAbstract jnea = (JNoteElementAbstract)m_jNotes[i];
-				//If the chord is multi length, looks at the chord which
-				//is *really* part of the group. In both chords in a
-				//multi-length chord, there is only one part of a group (the shortest)
-				if (jnea instanceof JChordPartOfGroup) {
-					autoS = getChordReallyPartOfGroup((JChordPartOfGroup) jnea).autoStem;
-				}
-				else {
-					autoS = jnea.isAutoStem();
-				}
-				if (autoS == false)
-					return false;
-			}
+            for (JGroupableNote m_jNote : m_jNotes) {
+                boolean autoS = true;
+                JNoteElementAbstract jnea = (JNoteElementAbstract) m_jNote;
+                //If the chord is multi length, looks at the chord which
+                //is *really* part of the group. In both chords in a
+                //multi-length chord, there is only one part of a group (the shortest)
+                if (jnea instanceof JChordPartOfGroup) {
+                    autoS = getChordReallyPartOfGroup((JChordPartOfGroup) jnea).autoStem;
+                } else {
+                    autoS = jnea.isAutoStem();
+                }
+                if (!autoS) return false;
+            }
 			return true;
 		}
 		return autoStemming;
@@ -184,14 +185,14 @@ class JGroupOfNotes extends JScoreElementAbstract
 
 	public void setAutoStem(boolean auto) {
 		autoStemming = auto;
-		for (int i=0; i<m_jNotes.length; i++) {
-			JNoteElementAbstract jnea = (JNoteElementAbstract)m_jNotes[i];
-			if (jnea instanceof JChordPartOfGroup) {
-				getChordReallyPartOfGroup((JChordPartOfGroup) jnea).setAutoStem(auto);
-			} else {
-				jnea.setAutoStem(auto);
-			}
-		}
+        for (JGroupableNote m_jNote : m_jNotes) {
+            JNoteElementAbstract jnea = (JNoteElementAbstract) m_jNote;
+            if (jnea instanceof JChordPartOfGroup) {
+                getChordReallyPartOfGroup((JChordPartOfGroup) jnea).setAutoStem(auto);
+            } else {
+                jnea.setAutoStem(auto);
+            }
+        }
 		setStemUp(isStemUp);
 	}
 	
@@ -199,17 +200,17 @@ class JGroupOfNotes extends JScoreElementAbstract
 		if (isAutoStem())
 			return isStemUp;
 		else {
-			for (int i=0; i<m_jNotes.length; i++) {
-				JNoteElementAbstract jnea = (JNoteElementAbstract)m_jNotes[i];
-				if (jnea instanceof JChordPartOfGroup) {
-					JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
-					if (jcpog.isAutoStem() == false)
-						return jcpog.isStemUp();
-				} else {
-					if (jnea.isAutoStem() == false)
-						return jnea.isStemUp();
-				}
-			}
+            for (JGroupableNote m_jNote : m_jNotes) {
+                JNoteElementAbstract jnea = (JNoteElementAbstract) m_jNote;
+                if (jnea instanceof JChordPartOfGroup) {
+                    JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
+                    if (!jcpog.isAutoStem())
+                        return jcpog.isStemUp();
+                } else {
+                    if (!jnea.isAutoStem())
+                        return jnea.isStemUp();
+                }
+            }
 			//should never happen
 			return isStemUp;
 		}
@@ -217,34 +218,34 @@ class JGroupOfNotes extends JScoreElementAbstract
 	
 	private void setStemYEnd(int stemY) {
 		m_stemYend = stemY;
-		for (int i=0; i<m_jNotes.length; i++) {
-			JNoteElementAbstract jnea = (JNoteElementAbstract)m_jNotes[i];
-			if (jnea instanceof JChordPartOfGroup) {
-				JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
-				jcpog.setStemYEnd(stemY);
-		//		jcpog.onBaseChanged();
-			} else { //JNotePartOfGroup
-				((JNotePartOfGroup) jnea).setStemYEnd(stemY);
-		//		jnea.onBaseChanged();
-			}
-		}
+        for (JGroupableNote m_jNote : m_jNotes) {
+            JNoteElementAbstract jnea = (JNoteElementAbstract) m_jNote;
+            if (jnea instanceof JChordPartOfGroup) {
+                JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
+                jcpog.setStemYEnd(stemY);
+                //		jcpog.onBaseChanged();
+            } else { //JNotePartOfGroup
+                ((JNotePartOfGroup) jnea).setStemYEnd(stemY);
+                //		jnea.onBaseChanged();
+            }
+        }
 	}
 
 	public void setStemUp(boolean isUp) {
 		isStemUp = isUp;
-		for (int i=0; i<m_jNotes.length; i++) {
-			JNoteElementAbstract jnea = (JNoteElementAbstract)m_jNotes[i];
-			if (jnea instanceof JChordPartOfGroup) {
-				JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
-				jcpog.setAutoStem(false);
-				jcpog.setStemUp(isStemUp);
-				jcpog.onBaseChanged();
-			} else {
-				jnea.setAutoStem(false);
-				jnea.setStemUp(isStemUp);
-				jnea.onBaseChanged();
-			}
-		}
+        for (JGroupableNote m_jNote : m_jNotes) {
+            JNoteElementAbstract jnea = (JNoteElementAbstract) m_jNote;
+            if (jnea instanceof JChordPartOfGroup) {
+                JChordPartOfGroup jcpog = getChordReallyPartOfGroup((JChordPartOfGroup) jnea);
+                jcpog.setAutoStem(false);
+                jcpog.setStemUp(isStemUp);
+                jcpog.onBaseChanged();
+            } else {
+                jnea.setAutoStem(false);
+                jnea.setStemUp(isStemUp);
+                jnea.onBaseChanged();
+            }
+        }
 	}
 	
 	/**
@@ -345,29 +346,29 @@ class JGroupOfNotes extends JScoreElementAbstract
 		JGroupableNote lastNote = m_jNotes[m_jNotes.length-1];
 		double engraverSpacing = 0;
 		// apply the new stem y end to the rest of the group of notes.
-		for (int i=0; i<m_jNotes.length; i++) {
-			updatedBase = m_jNotes[i].getBase();
-			updatedBase.setLocation(currentBase);
-			((JScoreElementAbstract)m_jNotes[i]).setBase(updatedBase);
-			m_jNotes[i].setStemYEnd(m_stemYend);
-			engraverSpacing = 0;
+        for (JGroupableNote m_jNote : m_jNotes) {
+            updatedBase = m_jNote.getBase();
+            updatedBase.setLocation(currentBase);
+            ((JScoreElementAbstract) m_jNote).setBase(updatedBase);
+            m_jNote.setStemYEnd(m_stemYend);
+            engraverSpacing = 0;
 
-			// gracenote group have fixed spacing, so only use engraver spacing if engraver is not null
-			// FIXME: fix this so gracenote groups use a proper engraver
-			if (m_engraver != null)
-				engraverSpacing = m_engraver.getNoteSpacing(m_jNotes[i]);
-			double justifySpacingCorrection = engraverSpacing
-				+ getMetrics().getNotesSpacingForContext(getNotationContext());
-			if (m_internalSpacingRatio > 0)
-				justifySpacingCorrection *= m_internalSpacingRatio;
-			currentBase.setLocation(currentBase.getX()
-							+ m_jNotes[i].getWidth()
-							//+ getMetrics().getNotesSpacing()
-							//+ engraverSpacing,
-							+ justifySpacingCorrection,
-						getBase().getY());
-				//}
-		}
+            // gracenote group have fixed spacing, so only use engraver spacing if engraver is not null
+            // FIXME: fix this so gracenote groups use a proper engraver
+            if (m_engraver != null)
+                engraverSpacing = m_engraver.getNoteSpacing(m_jNote);
+            double justifySpacingCorrection = engraverSpacing
+                    + getMetrics().getNotesSpacingForContext(getNotationContext());
+            if (m_internalSpacingRatio > 0)
+                justifySpacingCorrection *= m_internalSpacingRatio;
+            currentBase.setLocation(currentBase.getX()
+                    + m_jNote.getWidth()
+                    //+ getMetrics().getNotesSpacing()
+                    //+ engraverSpacing,
+                    + justifySpacingCorrection,
+                    getBase().getY());
+            //}
+        }
 		if (lastNote==null)
 			lastNote=firstNote;
 		//double firstNoteAccidentalWidth = (firstNote.getWidth()-getMetrics().getNoteWidth());
@@ -452,7 +453,7 @@ class JGroupOfNotes extends JScoreElementAbstract
 				if (hasPrevious) {
 					if (previousNoteIsShorterOrEquals)
 						//the end is the stem of the previous note.
-						noteLinkEnd = (int)((JGroupableNote)m_jNotes[i-1]).getStemBeginPosition().getX();//getE (int)(stemX-2*context.getNoteWidth());
+						noteLinkEnd = (int) m_jNotes[i-1].getStemBeginPosition().getX();//getE (int)(stemX-2*context.getNoteWidth());
 					else
 						if (!(hasNext && nextNoteIsShorterOrEquals))
 							noteLinkEnd = (int)(m_jNotes[i].getStemBeginPosition().getX()-getMetrics().getNoteWidth()/1.2);
@@ -492,12 +493,12 @@ class JGroupOfNotes extends JScoreElementAbstract
 					((JNoteElementAbstract) m_jNotes[m_jNotes.length-1]).getSlurAboveAnchor()
 					);
 				boolean intersects = false;
-				for (int i = 0; i < m_jNotes.length; i++) {
-					if (line.intersects(m_jNotes[i].getBoundingBox())) {
-						intersects = true;
-						break;
-					}
-				}
+                for (JGroupableNote m_jNote : m_jNotes) {
+                    if (line.intersects(m_jNote.getBoundingBox())) {
+                        intersects = true;
+                        break;
+                    }
+                }
 				if (intersects) { //control point above bounds of the group
 					ctrlP = new Point2D.Double(
 						m_jNotes[0].getStemBeginPosition().getX()+(getWidth()-getMetrics().getNoteWidth())/2,
@@ -524,19 +525,19 @@ class JGroupOfNotes extends JScoreElementAbstract
 
 	public Rectangle2D getBoundingBox() {
 		Rectangle2D bb = new Rectangle2D.Double(getBase().getX(), getBase().getY(), 0, 0);
-		for (int i = 0; i < m_jNotes.length; i++) {
-			bb.add((/*(JNotePartOfGroup) */m_jNotes[i]).getBoundingBox());
-		}
+        for (JGroupableNote m_jNote : m_jNotes) {
+            bb.add((/*(JNotePartOfGroup) */m_jNote).getBoundingBox());
+        }
 		return bb;
 	}
 
 	public JScoreElement getScoreElementAt(Point point) {
 		JScoreElement scoreEl = null;
-		for (int i=0; i<m_jNotes.length; i++) {
-			scoreEl = ((JScoreElement)m_jNotes[i]).getScoreElementAt(point);
-			if (scoreEl!=null)
-				return scoreEl;
-		}
+        for (JGroupableNote m_jNote : m_jNotes) {
+            scoreEl = m_jNote.getScoreElementAt(point);
+            if (scoreEl != null)
+                return scoreEl;
+        }
 		return scoreEl;
 	}
 

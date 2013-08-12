@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -64,9 +66,9 @@ public class TimeSignature extends Fraction implements Cloneable {
 		} else {
 			m_sumOfNumerators = sumOfNumerators;
 			int num = 0;
-			for (int i = 0; i < m_sumOfNumerators.length; i++) {
-				num += m_sumOfNumerators[i];
-			}
+            for (int m_sumOfNumerator : m_sumOfNumerators) {
+                num += m_sumOfNumerator;
+            }
 			setNumerator(num);
 		}
 	}

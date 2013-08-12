@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -19,10 +21,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +47,7 @@ import abc.ui.scoretemplates.VerticalPosition;
  * <li>positions are denoted by a couple of byte from {@link VerticalPosition} and
  * {@link HorizontalPosition} constants.
  * <li>font size can be expressed in percent of the default text size or in
- * fixed pt. See {@link #setTextSize(byte, float, byte)}
+ * fixed pt. See {@link #setTextSize(byte, float, SizeUnit)}
  * <li>font style is denoted by constants from Font class : {@link Font#PLAIN},
  * {@link Font#BOLD}, {@link Font#ITALIC} and Font.BOLD+Font.ITALIC
  * </ul>
@@ -79,7 +78,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 		}
 		public Object clone() throws CloneNotSupportedException {
 			FieldInfos ret = new FieldInfos(m_textField);
-			ret.m_fontFamilyNames = (String[]) m_fontFamilyNames.clone();
+			ret.m_fontFamilyNames = m_fontFamilyNames.clone();
 			ret.m_fontSize = m_fontSize;
 			ret.m_fontSizeUnit = (SizeUnit) m_fontSizeUnit.clone();
 			ret.m_fontStyle = m_fontStyle;
@@ -110,7 +109,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 			}
 		}
 		public String toString() {
-			StringBuffer ret = new StringBuffer();
+			StringBuilder ret = new StringBuilder();
 			ret.append(ScoreElements.toString(m_textField)+" ("+m_textField+") {\n");
 			ret.append("\tfont face: "+Arrays.toString(m_fontFamilyNames)+";\n");
 			ret.append("\tfont size: "+m_fontSize+m_fontSizeUnit+";\n");
@@ -119,12 +118,10 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 			ret.append("\tsuffix: "+m_suffix+";\n");
 			if (m_textAttributes != null) {
 				ret.append("\ttext attributes {\n");
-				Iterator it = m_textAttributes.keySet().iterator();
-				while (it.hasNext()) {
-					Object k = it.next();
-					Object v = m_textAttributes.get(k);
-					ret.append("\t"+k+": "+v+";\n");
-				}
+                for (Object k : m_textAttributes.keySet()) {
+                    Object v = m_textAttributes.get(k);
+                    ret.append("\t" + k + ": " + v + ";\n");
+                }
 				ret.append("\t}\n");
 			}
 			ret.append("\tvisible: "+(m_visible?"true":"false")+";\n");
@@ -242,21 +239,19 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Returns the boolean value associated to an attribute
 	 * 
-	 * @param sa
 	 * @throws RuntimeException if sa doesn't accept boolean value
 	 */
 	public boolean getAttributeBoolean(ScoreAttribute sa) {
 		if (!(sa.getDefaultValue() instanceof Boolean))
 			throw new RuntimeException(sa.toString()
 					+ " is not a boolean attribute");
-		return ((Boolean) getAttributeObject(sa)).booleanValue();
+		return (Boolean) getAttributeObject(sa);
 	}
 	
 	/**
 	 * Returns the number value associated to an attribute, as
 	 * a double.
 	 * 
-	 * @param sa
 	 * @throws RuntimeException if sa doesn't accept boolean value
 	 */
 	public double getAttributeNumber(ScoreAttribute sa) {
@@ -269,7 +264,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Returns the object associated to an attribute
 	 * 
-	 * @param sa
 	 * @return an object or <TT>null</TT> if attribute has not been defined.
 	 * @see #getAttributeSize(ScoreAttribute)
 	 */
@@ -291,7 +285,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 * have the rough size value, without unit, and you want to keep the default
 	 * unit (using {@link #setAttributeSize(ScoreAttribute, float)})
 	 * 
-	 * @param sa
 	 * @return a float value
 	 * @throws AttributeNotDefinedException
 	 *             if attribute has not been defined in the template
@@ -316,7 +309,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Gets the size of an attribute, calculated from score metrics if needed.
 	 * 
-	 * @param sa
 	 * @return a float value
 	 * @throws AttributeNotDefinedException
 	 *             if attribute has not been defined in the template
@@ -351,7 +343,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 			return (float) (size * getMetrics().getStaffCharBounds()
 					.getWidth());
 		} else if (u.equals(SizeUnit.PERCENT)) {
-			return (float) (size/100 * getAttributeSize(ScoreAttribute.NOTATION_SIZE));
+			return size/100 * getAttributeSize(ScoreAttribute.NOTATION_SIZE);
 		} else
 			throw new RuntimeException("unknown size unit for attribute: "
 					+ sa.toString());
@@ -414,7 +406,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	}
 	
 	private FieldInfos getFieldInfos(byte field) {
-		Byte B = new Byte(field);
+		Byte B = field;
 		if (m_fields.get(B) == null) {
 			m_fields.put(B, new FieldInfos(field));
 		}
@@ -435,14 +427,14 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 		if (m_fieldsPosition.get(p) != null) {
 			Vector v = (Vector) m_fieldsPosition.get(p);
 			Vector ret = new Vector(v.size());
-			for (int i = 0; i < v.size(); i++) {
-				byte field = ((Byte) v.get(i)).byteValue();
-				if (isVisible(field))
-					ret.add(new Byte(field));
-			}
+            for (Object aV : v) {
+                byte field = (Byte) aV;
+                if (isVisible(field))
+                    ret.add(field);
+            }
 			byte[] ret2 = new byte[ret.size()];
 			for (int i = 0; i < ret2.length; i++) {
-				ret2[i] = ((Byte) ret.get(i)).byteValue();
+				ret2[i] = (Byte) ret.get(i);
 			}
 			return ret2;
 		}
@@ -514,7 +506,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 */
 	public byte[] getPosition(byte field) {
 		Iterator it = m_fieldsPosition.keySet().iterator();
-		Byte B = new Byte(field);
+		Byte B = field;
 		while (it.hasNext()) {
 			Position p = (Position) it.next();
 			if (((Vector) m_fieldsPosition.get(p)).contains(B)) {
@@ -582,12 +574,8 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	public Font getTextFont(byte field) {
 		FieldInfos fi = getFieldInfos(field);
 		Vector v = new Vector(m_defaultTextFontFamilyNames.length+fi.m_fontFamilyNames.length);
-		for (int i = 0; i < fi.m_fontFamilyNames.length; i++) {
-			v.add(fi.m_fontFamilyNames[i]);
-		}
-		for (int i = 0; i < m_defaultTextFontFamilyNames.length; i++) {
-			v.add(m_defaultTextFontFamilyNames[i]);
-		}
+        Collections.addAll(v, fi.m_fontFamilyNames);
+        Collections.addAll(v, m_defaultTextFontFamilyNames);
 		Iterator it = v.iterator();
 		Font font = null;
 		String s = "";
@@ -672,21 +660,21 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 			boolean b = false;
 			String[] availableFamily = GraphicsEnvironment.getLocalGraphicsEnvironment()
 				.getAvailableFontFamilyNames();
-			for (int i = 0; i < availableFamily.length; i++) {
-				if (availableFamily[i].equals(fontName)) {
-					b = true;
-					break;
-				}
-			}
-			m_fontAvailability.put(fontName, new Boolean(b));
+            for (String anAvailableFamily : availableFamily) {
+                if (anAvailableFamily.equals(fontName)) {
+                    b = true;
+                    break;
+                }
+            }
+			m_fontAvailability.put(fontName, b);
 		}
-		return ((Boolean) m_fontAvailability.get(fontName)).booleanValue();
+		return (Boolean) m_fontAvailability.get(fontName);
 	}
 
 	/**
 	 * Returns <TT>true</TT> if the score must be justified
 	 * 
-	 * @return getAttributeBoolean({@link ScoreAttribute#JUSTIFY})
+	 * @return getAttributeBoolean {@link ScoreAttribute#JUSTIFY}
 	 */
 	public boolean isJustified() {
 		return getAttributeBoolean(ScoreAttribute.JUSTIFY);
@@ -711,10 +699,9 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 				);
 		}
 		//notify all listeners for change
-		Iterator it = getListeners().iterator();
-		while (it.hasNext()) {
-			((ScoreTemplateChangeListener) it.next()).onTemplateChange();
-		}
+        for (Object o : getListeners()) {
+            ((ScoreTemplateChangeListener) o).onTemplateChange();
+        }
 	}
 
 	public void removeListener(ScoreTemplateChangeListener stcl) {
@@ -724,7 +711,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Sets the object associated to an attribute
 	 * 
-	 * @param sa
 	 * @param value <TT>null</TT> to remove this attribute
 	 */
 	public void setAttribute(ScoreAttribute sa, Object value) {
@@ -738,9 +724,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Sets the size associated to an attribute, using the
 	 * attribute's default unit
-	 * 
-	 * @param sa
-	 * @param size
 	 */
 	public void setAttributeSize(ScoreAttribute sa, float size) {
 		m_attributes.put(sa.getName(), new ScoreAttribute.Size(size,
@@ -751,8 +734,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Sets the size associated to an attribute
 	 * 
-	 * @param sa
-	 * @param size
 	 * @param unit {@link SizeUnit#PX}, {@link SizeUnit#STAFF_HEIGHT}...
 	 * @throws RuntimeException if attribute doesn't accept size value
 	 */
@@ -786,8 +767,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 * 
 	 * if text sizes are expressed in percent, all sizes will be calculated
 	 * from default size.
-	 * 
-	 * @param f
 	 */
 	public void setDefaultTextSize(float f) {
 		setAttributeSize(ScoreAttribute.TEXT_DEFAULT_SIZE, f, SizeUnit.PT);
@@ -810,7 +789,7 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	}
 
 	/**
-	 * @param m_graphics
+	 * @param graphics
 	 *            The m_graphics to set.
 	 */
 	void setGraphics(Graphics2D graphics) {
@@ -819,11 +798,9 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	
 	/**
 	 * Sets if the score must be justified.
-	 * 
-	 * @param b
 	 */
 	public void setJustified(boolean b) {
-		setAttribute(ScoreAttribute.JUSTIFY, new Boolean(b));
+		setAttribute(ScoreAttribute.JUSTIFY, b);
 	}
 	
 	void setMetrics(ScoreMetrics sm) {
@@ -855,24 +832,26 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 *            one of {@link HorizontalPosition} constants
 	 */
 	public void setPosition(byte[] fields, byte vert, byte horiz) {
-		for (int i = 0; i < fields.length; i++) {
-			setVisible(fields[i], true);
-			Position p = new Position(vert, horiz);
-			if (!p.equals(getPosition(fields[i]))) {
-				Iterator it = m_fieldsPosition.values().iterator();
-				Byte B = new Byte(fields[i]);
-				while (it.hasNext()) {
-					Vector v = (Vector) it.next();
-					if (v.contains(B))
-						v.remove(B);
-				}
-				//don't know why get(p) doesn't work, p.toString() is ok
-				if (m_fieldsPosition.get(p) == null)
-					m_fieldsPosition.put(p, new Vector());
-				Vector v = (Vector) m_fieldsPosition.get(p);
-				v.add(B);
-			}
-		}
+        for (byte field : fields) {
+            setVisible(field, true);
+            Position p = new Position(vert, horiz);
+            byte[] p1f = getPosition(field);
+            Position p1 = p1f == null ? null : new Position(p1f[0], p1f[1]);    // fix HHR
+            if (!p.equals(p1)) {
+                Iterator it = m_fieldsPosition.values().iterator();
+                Byte B = field;
+                while (it.hasNext()) {
+                    Vector v = (Vector) it.next();
+                    if (v.contains(B))
+                        v.remove(B);
+                }
+                //don't know why get(p) doesn't work, p.toString() is ok
+                if (m_fieldsPosition.get(p) == null)
+                    m_fieldsPosition.put(p, new Vector());
+                Vector v = (Vector) m_fieldsPosition.get(p);
+                v.add(B);
+            }
+        }
 		notifyListeners();
 	}
 
@@ -893,16 +872,16 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	/**
 	 * Sets the text attributes of several fields
 	 * 
-	 * @param field
+	 * @param fields
 	 *            one of {@link ScoreElements} constants
 	 * @param attrib
 	 *            Map of attributes
 	 * @see java.awt.font.TextAttribute
 	 */
 	public void setTextAttributes(byte[] fields, Hashtable attrib) {
-		for (int i = 0; i < fields.length; i++) {
-			getFieldInfos(fields[i]).m_textAttributes = attrib;
-		}
+        for (byte field : fields) {
+            getFieldInfos(field).m_textAttributes = attrib;
+        }
 		notifyListeners();
 	}
 
@@ -932,9 +911,9 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	public void setTextFontFamilyName(byte[] fields, String[] fontFamilies) {
 		if (fontFamilies == null)
 			fontFamilies = new String[0];
-		for (int i = 0; i < fields.length; i++) {
-			getFieldInfos(fields[i]).m_fontFamilyNames = fontFamilies;
-		}
+        for (byte field : fields) {
+            getFieldInfos(field).m_fontFamilyNames = fontFamilies;
+        }
 		notifyListeners();
 	}
 	
@@ -945,8 +924,8 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 *            one of {@link ScoreElements} constants
 	 * @param size
 	 *            text size in percent of {@link #getDefaultTextSize()} if
-	 *            {@link #getTextSizeExpressedIn()} is
-	 *            {@link #PERCENT}, else in pt
+	 *            {@link #getTextSize(byte)} is
+	 *            {@link SizeUnit#PERCENT}, else in pt
 	 * @param unit
 	 *            {@link SizeUnit#PERCENT} or {@link SizeUnit#PT}
 	 */
@@ -964,17 +943,17 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 *            array of {@link ScoreElements} constants
 	 * @param size
 	 *            text size in percent of {@link #getDefaultTextSize()} if
-	 *            {@link #getTextSizeExpressedIn()} is
-	 *            {@link #PERCENT}, else in pt
+	 *            {@link #getTextSize(byte)} is
+	 *            {@link SizeUnit#PERCENT}, else in pt
 	 * @param unit
 	 *            {@link SizeUnit#PERCENT} or {@link SizeUnit#PT}
 	 */
 	public void setTextSize(byte[] fields, float size, SizeUnit unit) {
-		for (int i = 0; i < fields.length; i++) {
-			FieldInfos fi = getFieldInfos(fields[i]);
-			fi.m_fontSize = size;
-			fi.m_fontSizeUnit = unit;
-		}
+        for (byte field : fields) {
+            FieldInfos fi = getFieldInfos(field);
+            fi.m_fontSize = size;
+            fi.m_fontSizeUnit = unit;
+        }
 		notifyListeners();
 	}
 	
@@ -1032,9 +1011,9 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 *            Font.BOLD+Font.ITALIC
 	 */
 	public void setTextStyle(byte[] fields, int style) {
-		for (int i = 0; i < fields.length; i++) {
-			getFieldInfos(fields[i]).m_fontStyle = style;
-		}
+        for (byte field : fields) {
+            getFieldInfos(field).m_fontStyle = style;
+        }
 		notifyListeners();
 	}
 	
@@ -1043,7 +1022,6 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 * 
 	 * @param field
 	 *            one of {@link ScoreElements} constants
-	 * @param visible
 	 */
 	public void setVisible(byte field, boolean visible) {
 		getFieldInfos(field).m_visible = visible;
@@ -1055,17 +1033,16 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 	 * 
 	 * @param fields
 	 *            array of {@link ScoreElements} constants
-	 * @param visible
 	 */
 	public void setVisible(byte[] fields, boolean visible) {
-		for (int i = 0; i < fields.length; i++) {
-			getFieldInfos(fields[i]).m_visible = visible;
-		}
+        for (byte field : fields) {
+            getFieldInfos(field).m_visible = visible;
+        }
 		notifyListeners();
 	}
 	
 	public String toString() {
-		StringBuffer ret = new StringBuffer();
+		StringBuilder ret = new StringBuilder();
 		ret.append("Score template: "+getClass().getName()+" {\n");
 		ret.append("\tdefault text font face: "+Arrays.toString(m_defaultTextFontFamilyNames)+";\n");
 		ret.append("\tdefault text size: "+getDefaultTextSize()+"pt;\n");
@@ -1085,12 +1062,11 @@ public abstract class ScoreTemplate implements Cloneable, Serializable {
 			Position p = (Position) it.next();
 			ret.append("\t"+p.toString()+" {\n");
 			Vector v = (Vector) m_fieldsPosition.get(p);
-			Iterator it2 = v.iterator();
-			while (it2.hasNext()) {
-				byte field = ((Byte) it2.next()).byteValue();
-				FieldInfos fi = getFieldInfos(field);
-				ret.append("\t\t"+fi.toString().replace("\n", "\n\t\t")+"\n");
-			}
+            for (Object aV : v) {
+                byte field = (Byte) aV;
+                FieldInfos fi = getFieldInfos(field);
+                ret.append("\t\t" + fi.toString().replace("\n", "\n\t\t") + "\n");
+            }
 			ret.append("\t}\n\n");
 		}
 		ret.append("}\n");

@@ -16,6 +16,7 @@ package abc.examples;// modified by HHR 07-Aug-13
 // You should have received a copy of the GNU Lesser General Public License
 // along with abc4j.  If not, see <http://www.gnu.org/licenses/>.
 
+import java.awt.*;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -35,7 +36,8 @@ import abc.ui.swing.JScoreComponent;
  * Main entry point to execute some perf tests or any other 
  * operation. */
 public class Main  {
-    public static final String DEMO_RESOURCE_NAME = "LGtunes.abc";
+    public static final String DEMO_RESOURCE_NAME       = "LGtunes.abc";
+    public static final String CHROMATIC_RECOURCE_NAME  = "Chromatic.abc";
 
   //static int PARSING_TIMES_NB = 1;
   //static int tunesNb = 0;
@@ -139,11 +141,16 @@ public class Main  {
 	
 	public static void main (String[] arg) {
 		try {
-            Reader isr = new InputStreamReader(Main.class.getResourceAsStream(DEMO_RESOURCE_NAME), "UTF-8");
+            boolean chr = arg.length > 0 && arg[0].equals("--chromatic");
+            String rn   = chr ? CHROMATIC_RECOURCE_NAME : DEMO_RESOURCE_NAME;
+            Reader isr  = new InputStreamReader(Main.class.getResourceAsStream(rn), "UTF-8");
             TuneBook tb = new TuneBookParser().parse(isr);
-		    Tune tune = tb.getTune(7);
-		    JScoreComponent scoreUI =new JScoreComponent();
+		    Tune tune   = tb.getTune(chr ? 1 : 7);
+		    JScoreComponent scoreUI = new JScoreComponent();
 		    scoreUI.setTune(tune);
+            // Dimension d     = scoreUI.getSize();
+            // d.height       *= 3;
+            // scoreUI.setSize(d);
             File home       = new File(System.getProperty("user.home"));
             File desktop    = new File(home, "Desktop");
             File dir        = desktop.isDirectory() ? desktop : home;

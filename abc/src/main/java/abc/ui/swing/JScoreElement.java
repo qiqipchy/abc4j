@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -87,13 +89,11 @@ public interface JScoreElement {
 		
 		/**
 		 * Sets if the stem orientation is automatic or not
-		 * @param b
 		 */
 		public void setAutoStem(boolean b);
 		
 		/**
 		 * Sets the stem orientation to up or down
-		 * @param b
 		 */
 		public void setStemUp(boolean b);
 		
@@ -106,7 +106,7 @@ public interface JScoreElement {
 	}
 	
 	/**
-	 * Interface for {@link JGraceNote} and {@link JGroupOfGrace}
+	 * Interface for {@link JGraceNote} and {@link JGroupOfGraceNotes}
 	 */
 	public interface JGraceElement {
 		

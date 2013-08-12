@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -16,10 +18,7 @@
 package abc.notation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * TuneInfos is a convenient way to store textual informations about a tune or a
@@ -106,9 +105,7 @@ public class TuneInfos implements Cloneable, Serializable {
 			return new ArrayList(1);
 		else {
 			ArrayList list = new ArrayList(s.length);
-			for (int i = 0; i < s.length; i++) {
-				list.add(s[i]);
-			}
+            Collections.addAll(list, s);
 			return list;
 		}
 	}
@@ -127,14 +124,13 @@ public class TuneInfos implements Cloneable, Serializable {
 	public void add(byte b, Collection c) {
 		if ((c != null) && (c.size() > 0)) {
 			String s2 = get(b);
-			Iterator it = c.iterator();
-			while (it.hasNext()) {
-				String s = (String) it.next();
-				if (s2 == null)
-					s2 = s;
-				else
-					s2 += lineSeparator + s;
-			}
+            for (Object aC : c) {
+                String s = (String) aC;
+                if (s2 == null)
+                    s2 = s;
+                else
+                    s2 += lineSeparator + s;
+            }
 			set(b, s2);
 		}
 	}
@@ -168,9 +164,6 @@ public class TuneInfos implements Cloneable, Serializable {
 
 	/**
 	 * Returns the whole content of field b, null if not defined
-	 * 
-	 * @param b
-	 * @return
 	 */
 	public String get(byte b) {
 		Object o = m_infos.get(key(b));
@@ -195,9 +188,6 @@ public class TuneInfos implements Cloneable, Serializable {
 	/**
 	 * Returns the content of field b, as a collection, each line is an element
 	 * of the collection
-	 * 
-	 * @param b
-	 * @return
 	 */
 	public Collection getAsCollection(byte b) {
 		String[] lines = getAsStringArray(b);
@@ -225,7 +215,7 @@ public class TuneInfos implements Cloneable, Serializable {
 	}
 
 	private Object key(byte b) {
-		return new Byte(b);
+		return b;
 	}
 
 	/** Remove the whole content of field b */
@@ -235,9 +225,6 @@ public class TuneInfos implements Cloneable, Serializable {
 
 	/**
 	 * Remove the line s from the field b
-	 * 
-	 * @param b
-	 * @param s
 	 */
 	public void remove(byte b, String s) {
 		Collection c = getAsCollection(b);
@@ -248,13 +235,10 @@ public class TuneInfos implements Cloneable, Serializable {
 	/**
 	 * Set the whole content of field b <br>
 	 * Create one line per collection element
-	 * 
-	 * @param b
-	 * @param c
 	 */
 	public void set(byte b, Collection c) {
 		if ((c != null) && (c.size() > 0)) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			Iterator it = c.iterator();
 			while (it.hasNext()) {
 				String s = (String) it.next();
@@ -278,9 +262,6 @@ public class TuneInfos implements Cloneable, Serializable {
 	/**
 	 * Set the whole content of field b from a string array <br>
 	 * Create one line per collection element
-	 * 
-	 * @param b
-	 * @param s
 	 */
 	public void set(byte b, String[] s) {
 		if (s != null) {
@@ -293,7 +274,6 @@ public class TuneInfos implements Cloneable, Serializable {
 	/** Sets the infos for TuneBook containing the Tune.
 	 * <br>
 	 * Set it to null when you remove the tune from the book.
-	 * @param bookInfos
 	 */
 	protected void setBookInfos(TuneInfos bookInfos) {
 		m_bookInfos = bookInfos;

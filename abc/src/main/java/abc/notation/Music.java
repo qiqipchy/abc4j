@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -23,7 +25,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import abc.parser.CharStreamPosition;
-import abc.parser.PositionableInCharStream;
 
 /**
  * A Music is a collection of {@link abc.notation.Voice}s
@@ -57,17 +58,15 @@ public class Music implements Cloneable, Serializable {
 	public Music(short firstBarNo) {
 		super();
 		m_firstBarNumber = firstBarNo;
-		m_bars.put(new Short((short) m_firstBarNumber), new Bar(
-				(short) m_firstBarNumber, 0));
+		m_bars.put(m_firstBarNumber, new Bar(m_firstBarNumber, 0));
 	}
 	
 	protected void setPartLabel(String c) {
 		m_partLabel = c;
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			v.setPartLabel(m_partLabel);
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            v.setPartLabel(m_partLabel);
+        }
 	}
 	
 	protected void setGlobalInstructions(ArrayList al) {
@@ -87,31 +86,28 @@ public class Music implements Cloneable, Serializable {
 	
 	/**
 	 * Concatene the given music object to current one
-	 * @param music
 	 */
 	public void append(Music music) {
 		//if appending a music from a part
 		//add a PartLabel to all voices
 		if (!music.m_partLabel.equals(" ")) {
-			Iterator it = m_voices.iterator();
-			while (it.hasNext()) {
-				((Voice)it.next()).addElement(new PartLabel(music.m_partLabel));
-			}
+            for (Object m_voice : m_voices) {
+                ((Voice) m_voice).addElement(new PartLabel(music.m_partLabel));
+            }
 		}
-		Iterator it = music.getVoices().iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			if (!voiceExists(v.getVoiceName())) {
-				//create new voice (in getVoice)
-				//and copy v informations
-				Voice vCopy = getVoice(v.getVoiceName());
-				vCopy.setTablature(v.getTablature());
-				vCopy.setVolume(v.getVolume());
-				vCopy.setInstrument(v.getInstrument());
-				//? vCopy.setFirstBarNumber(v.getFirstBar().getBarNumber());
-			}
-			getVoice(v.getVoiceName()).addAll(v);
-		}
+        for (Object o : music.getVoices()) {
+            Voice v = (Voice) o;
+            if (!voiceExists(v.getVoiceName())) {
+                //create new voice (in getVoice)
+                //and copy v informations
+                Voice vCopy = getVoice(v.getVoiceName());
+                vCopy.setTablature(v.getTablature());
+                vCopy.setVolume(v.getVolume());
+                vCopy.setInstrument(v.getInstrument());
+                //? vCopy.setFirstBarNumber(v.getFirstBar().getBarNumber());
+            }
+            getVoice(v.getVoiceName()).addAll(v);
+        }
 	}
 	
 	public Voice getFirstVoice() {
@@ -124,15 +120,13 @@ public class Music implements Cloneable, Serializable {
 	
 	/**
 	 * Returns the asked voice, create it if needed.
-	 * @param voiceName
 	 */
 	public Voice getVoice(String voiceName) {
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			if (v.getVoiceName().equals(voiceName))
-				return v;
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            if (v.getVoiceName().equals(voiceName))
+                return v;
+        }
 		Voice v = new Voice(voiceName, m_firstBarNumber);
 		v.setPartLabel(m_partLabel);
 		m_voices.add(v);
@@ -156,8 +150,6 @@ public class Music implements Cloneable, Serializable {
 	 * 
 	 * This is just a shorten way to call
 	 * <code>myMusic.getVoice(voiceNumber).addElement(element)</code>
-	 * @param voiceName
-	 * @param element
 	 */
 	public void addElement(String voiceName, MusicElement element) {
 		getVoice(voiceName).addElement(element);
@@ -167,29 +159,24 @@ public class Music implements Cloneable, Serializable {
 	 * Maybe could be used...? add an element to all voices
 	 * be sure to add it first in the voice, are last when
 	 * all elements have been added...
-	 * @param element
 	 */
 	public void addToAllVoices(MusicElement element) {
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			v.addElement(element);
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            v.addElement(element);
+        }
 	}
 
 	/**
 	 * Return true if the bar is empty or contains only barline and spacer(s).
 	 * False if barline contain other kind of music element
-	 * 
-	 * @param bar
 	 */
 	public boolean barIsEmptyForAllVoices(Bar bar) {
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			if (!v.barIsEmpty(bar))
-				return false;
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            if (!v.barIsEmpty(bar))
+                return false;
+        }
 		return true;
 	}
 
@@ -232,9 +219,8 @@ public class Music implements Cloneable, Serializable {
 			MusicElement current = null;
 			for (int i = 0; i < size; i++) {
 				current = (MusicElement) v.elementAt(i);
-				if (current instanceof PositionableInCharStream) {
-					pos = ((PositionableInCharStream) current)
-						.getCharStreamPosition();
+				if (current != null) {
+					pos = current.getCharStreamPosition();
 					if (pos != null) {
 						if ((pos.getStartIndex() <= offset)
 								&& (pos.getEndIndex() > offset))
@@ -247,28 +233,24 @@ public class Music implements Cloneable, Serializable {
 	}
 	
 	private boolean voiceExists(String voiceName) {
-		for (Iterator it = m_voices.iterator(); it.hasNext();) {
-			Voice v = (Voice) it.next();
-			if (v.getVoiceName().equals(voiceName))
-				return true;
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            if (v.getVoiceName().equals(voiceName))
+                return true;
+        }
 		return false;
 	}
 
 	/**
 	 * Returns an element for the given reference, <TT>null</TT> if not found
-	 * 
-	 * @param ref
-	 * @return
 	 */
 	public MusicElement getElementByReference(MusicElementReference ref) {
 		if (voiceExists(ref.getVoice())) {
-			Iterator it = getVoice(ref.getVoice()).iterator();
-			while (it.hasNext()) {
-				MusicElement element = (MusicElement) it.next();
-				if (element.getReference().equals(ref))
-					return element;
-			}
+            for (Object o : getVoice(ref.getVoice())) {
+                MusicElement element = (MusicElement) o;
+                if (element.getReference().equals(ref))
+                    return element;
+            }
 		}
 		return null;
 	}
@@ -335,8 +317,6 @@ public class Music implements Cloneable, Serializable {
 	/**
 	 * Returns a collection of Note between begin and end included
 	 * 
-	 * @param elmtBegin
-	 * @param elmtEnd
 	 * @return a Collection of NoteAbstract (Note or MultiNote)
 	 * @throws IllegalArgumentException
 	 * @deprecated use {@link #getVoice(String)}.{@link Voice#getNotesBetween(MusicElement, MusicElement) getNotesBetween...}
@@ -351,17 +331,16 @@ public class Music implements Cloneable, Serializable {
 	 */
 	public Note getShortestNoteInAllVoices() throws IllegalArgumentException {
 		Note shortestNote = null;
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			Note shortInVoice = v.getShortestNote();
-			if (shortInVoice != null) {
-				if (shortestNote == null)
-					shortestNote = shortInVoice;
-				else if (shortInVoice.isShorterThan(shortestNote))
-					shortestNote = shortInVoice;
-			}
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            Note shortInVoice = v.getShortestNote();
+            if (shortInVoice != null) {
+                if (shortestNote == null)
+                    shortestNote = shortInVoice;
+                else if (shortInVoice.isShorterThan(shortestNote))
+                    shortestNote = shortInVoice;
+            }
+        }
 		return shortestNote;
 	}
 
@@ -375,12 +354,11 @@ public class Music implements Cloneable, Serializable {
 	}
 
 	private boolean hasObject(Class musicElementClass) {
-		Iterator it = m_voices.iterator();
-		while (it.hasNext()) {
-			Voice v = (Voice) it.next();
-			if (v.hasObject(musicElementClass))
-				return true;
-		}
+        for (Object m_voice : m_voices) {
+            Voice v = (Voice) m_voice;
+            if (v.hasObject(musicElementClass))
+                return true;
+        }
 		return false;
 	}
 

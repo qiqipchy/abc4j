@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -71,7 +73,6 @@ public class Fraction extends MusicElement implements Cloneable, Serializable
 
   /** Change this fraction, multiplies it by the specified
    * fraction.
-   * @param fraction
    */
   public void multiplyBy(Fraction fraction) {
 	  numerator *= fraction.getNumerator();

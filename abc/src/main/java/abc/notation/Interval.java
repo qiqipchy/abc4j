@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -147,7 +149,7 @@ public class Interval implements Cloneable, Serializable {
 	 * return a downward interval, and vice-versa.
 	 * 
 	 * A fifth stay a fifth.
-	 * @param i
+     *
 	 * @return a new Interval object.
 	 */
 	public static Interval reverseOrder(Interval i) {
@@ -174,7 +176,6 @@ public class Interval implements Cloneable, Serializable {
 	 * always the same as [the inversion] of the simple interval from which it
 	 * is compounded.
 	 * 
-	 * @param i
 	 * @return a new Interval object.
 	 */
 	public static Interval invert(Interval i) {
@@ -240,8 +241,7 @@ public class Interval implements Cloneable, Serializable {
 	 * 
 	 * If n1 is lower than n2, interval order is upward,
 	 * if n1 is higher than n2, interval order is downward.
-	 * @param n1
-	 * @param n2
+     *
 	 * @param key can be <TT>null</TT>
 	 */
 	public Interval(Note n1, Note n2, KeySignature key) {
@@ -353,7 +353,6 @@ public class Interval implements Cloneable, Serializable {
 	
 	/**
 	 * Returns <TT>true</TT> if interval is smaller than this one
-	 * @param interval
 	 */
 	public boolean isSmallerThan(Interval interval) {
 		return getSemitones() < interval.getSemitones();
@@ -361,7 +360,6 @@ public class Interval implements Cloneable, Serializable {
 
 	/**
 	 * Returns <TT>true</TT> if interval is greater than this one
-	 * @param interval
 	 */
 	public boolean isGreaterThan(Interval interval) {
 		return getSemitones() > interval.getSemitones();
@@ -522,7 +520,7 @@ public class Interval implements Cloneable, Serializable {
 	 * the key signature tells which accidental it has.
 	 * The returned note will have no accidental if its accidental
 	 * is in the key signature.
-	 * @param n1
+     *
 	 * @param key can be <TT>null</TT>
 	 * @return a clone of n1 which pitch is changed
 	 */
@@ -573,9 +571,7 @@ public class Interval implements Cloneable, Serializable {
 		//and now compute accidentals!
 		int delta = n1.getMidiLikeHeight(key) + getDirection()*getSemitones()
 				- n2.getMidiLikeHeight(key);
-		if (delta == 0) {
-			//do nothing
-		} else {
+		if (delta != 0) {
 			n2 = Note.transpose(n2, /*factor*Math.abs*/(delta));
 			Accidental[] acc = calculateSecondNoteAccidental(n1, key);
 			n2 = Note.createEnharmonic(n2, acc);
@@ -590,7 +586,7 @@ public class Interval implements Cloneable, Serializable {
 	/**
 	 * Compute the second note of this interval based on first
 	 * note n1.
-	 * @param n1
+     *
 	 * @return a clone of n1 which pitch is changed
 	 */
 	public Note calculateSecondNote(Note n1) {

@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -26,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -87,7 +88,7 @@ public class JScoreComponent extends JComponent
 
 	protected void initGfx(){
 		m_bufferedImage = new BufferedImage((int)m_dimension.getWidth(), (int)m_dimension.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		m_bufferedImageGfx = (Graphics2D)m_bufferedImage.createGraphics();
+		m_bufferedImageGfx = m_bufferedImage.createGraphics();
 		//staffLinesSpacing = (int)(m_metrics.getStaffCharBounds().getHeight()*2.5);
 	}
 	
@@ -137,16 +138,16 @@ public class JScoreComponent extends JComponent
 				initGfx();
 			}
 			m_bufferedImageGfx.setColor(getBackground());
-			m_bufferedImageGfx.fillRect(0, 0, (int)m_bufferedImage.getWidth(), (int)m_bufferedImage.getHeight());
+			m_bufferedImageGfx.fillRect(0, 0, m_bufferedImage.getWidth(), m_bufferedImage.getHeight());
 			drawIn(m_bufferedImageGfx);
 			m_isBufferedImageOutdated=false;
 		}
-		((Graphics2D)g).drawImage(m_bufferedImage, 0, 0, null);
+		g.drawImage(m_bufferedImage, 0, 0, null);
 	}
 
 	/** The size of the font used to display the music score.
 	 * @param size The size of the font used to display the music score expressed in ?
-	 * @deprecated use {@link #getScoreMetrics() getScoreMetrics()}.{@link ScoreMetrics#setNotationSize(float) setNotationSize(float)} and then {@link #refresh()}
+	 * @deprecated use {@link #getScoreMetrics() getScoreMetrics()}.{@link ScoreMetrics#setNotationFontSize(float) setNotationSize(float)} and then {@link #refresh()}
 	 * or better, set attribute {@link ScoreAttribute#NOTATION_SIZE} in template
 	 */
 	public void setSize(float size){
@@ -172,7 +173,7 @@ public class JScoreComponent extends JComponent
      * @deprecated use template attribute {@link ScoreAttribute#NOTE_STEM_POLICY}
      */
     public void setStemmingPolicy (byte policy) {
-    	getTemplate().setAttribute(ScoreAttribute.NOTE_STEM_POLICY, new Byte(policy));
+    	getTemplate().setAttribute(ScoreAttribute.NOTE_STEM_POLICY, policy);
     }
     /**
      * @deprecated use getTemplate().getAttributeNumber {@link ScoreAttribute#NOTE_STEM_POLICY}
@@ -210,9 +211,9 @@ public class JScoreComponent extends JComponent
 			setTune(m_jTune.getTune());
  		}
 		BufferedImage bufferedImage = new BufferedImage((int)m_dimension.getWidth(), (int)m_dimension.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D bufferedImageGfx = (Graphics2D)bufferedImage.createGraphics();
+		Graphics2D bufferedImageGfx = bufferedImage.createGraphics();
 		bufferedImageGfx.setColor(getBackground());//Color.WHITE);
-		bufferedImageGfx.fillRect(0, 0, (int)bufferedImage.getWidth(), (int)bufferedImage.getHeight());
+		bufferedImageGfx.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
 		drawIn(bufferedImageGfx);
 		ImageIO.write(bufferedImage, "png", os);
 	}
@@ -232,9 +233,6 @@ public class JScoreComponent extends JComponent
 	/**
 	 * Sets tune and template in one shot, this is optimized version,
 	 * it avoid 2 calculation (first at setTemplate and second at setTune).
-	 * 
-	 * @param tune
-	 * @param template
 	 */
 	public void setTuneAndTemplate(Tune tune, ScoreTemplate template) {
 		//from setTemplate(template)
@@ -273,7 +271,7 @@ public class JScoreComponent extends JComponent
 	 * @deprecated use template attribute {@link ScoreAttribute#JUSTIFY}
 	 */
 	public void setJustification(boolean isJustified) {
-		setJustified(isJustified);
+        getTemplate().setAttribute(ScoreAttribute.JUSTIFY, isJustified);
 	}
 
 	/** Changes the justification of the rendition score. This will
@@ -285,8 +283,7 @@ public class JScoreComponent extends JComponent
 	 * @deprecated use template attribute {@link ScoreAttribute#JUSTIFY}
 	 */
 	public void setJustified(boolean isJustified) {
-		getTemplate().setAttribute(ScoreAttribute.JUSTIFY,
-				new Boolean(isJustified));
+		getTemplate().setAttribute(ScoreAttribute.JUSTIFY, isJustified);
 	}
 
 	/** Return <TT>true</TT> if the rendition staff lines alignment is
@@ -337,9 +334,9 @@ public class JScoreComponent extends JComponent
 	 * @see #setSelectedItem(MusicElement) */
 	public void setSelectedItem(JScoreElement elmnt){
 		if (m_selectedItems!=null) {
-			for (Iterator it = m_selectedItems.iterator(); it.hasNext();) {
-				((JScoreElement) it.next()).setColor(null);
-			}
+            for (Object m_selectedItem : m_selectedItems) {
+                ((JScoreElement) m_selectedItem).setColor(null);
+            }
 			m_selectedItems = null;
 		}
 		if (elmnt!=null) {
@@ -352,22 +349,22 @@ public class JScoreComponent extends JComponent
 	
 	/** Highlights the given elements in the score.
 	 * If item(s) was previously selected, it is unselected.
-	 * @param elments A collection of score element to be highlighted in the
+	 * @param elements A collection of score element to be highlighted in the
 	 * score. <TT>null</TT> or empty collection can be specified to remove
 	 * highlighting.
 	 */
 	public void setSelectedItems(Collection elements) {
 		if (m_selectedItems!=null) {
-			for (Iterator it = m_selectedItems.iterator(); it.hasNext();) {
-				((JScoreElement) it.next()).setColor(null);
-			}
+            for (Object m_selectedItem : m_selectedItems) {
+                ((JScoreElement) m_selectedItem).setColor(null);
+            }
 			m_selectedItems = null;
 		}
 		if ((elements != null) && (elements.size() > 0)) {
 			m_selectedItems = elements;
-			for (Iterator it = m_selectedItems.iterator(); it.hasNext();) {
-				((JScoreElement) it.next()).setColor(SELECTED_ITEM_COLOR);
-			}
+            for (Object m_selectedItem : m_selectedItems) {
+                ((JScoreElement) m_selectedItem).setColor(SELECTED_ITEM_COLOR);
+            }
 		}
 	}
 

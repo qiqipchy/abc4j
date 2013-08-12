@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -192,14 +194,14 @@ public class Clef extends MusicElement implements Cloneable {
 					staffLines = Byte.parseByte(args[i].split("=")[1]);
 					args[i] = null;
 					break;
-				} catch (Exception e) {}
+				} catch (Exception ignored) {}
 			} else if (args[i].startsWith("t=")
 					|| args[i].startsWith("transpose=")) {
 				try {
 					semitonesTransp = Byte.parseByte(args[i].split("=")[1]);
 					args[i] = null;
 					break;
-				} catch (Exception e) {}
+				} catch (Exception ignored) {}
 			} else if (args[i].startsWith("m=")
 					|| args[i].startsWith("middle=")) {
 				String a = args[i].split("=")[1];
@@ -343,7 +345,6 @@ public class Clef extends MusicElement implements Cloneable {
 	/**
 	 * Returns the reference note, <TT>G</TT> for G clef,
 	 * <TT>G'</TT> for G + 1 octave, <TT>F,</TT> for bass clef.
-	 * @return
 	 */
 	public Note getReferenceNote() {
 		if (m_referenceNote == null) {
@@ -442,7 +443,8 @@ public class Clef extends MusicElement implements Cloneable {
 					case 4: interval = Interval.reverseOrder(Interval.MAJOR_THIRD); break;
 					case 5: interval = Interval.reverseOrder(Interval.PERFECT_FIFTH); break;
 					}
-					m_middleNote = interval.calculateSecondNote(ref);
+                    assert interval != null;
+                    m_middleNote = interval.calculateSecondNote(ref);
 					m_middleNote.setAccidental(new Accidental());//Accidental.NONE);
 					m_middleNote.setOctaveTransposition((byte)
 							(m_middleNote.getOctaveTransposition()
@@ -460,7 +462,6 @@ public class Clef extends MusicElement implements Cloneable {
 	 * 
 	 * e.g. middle note for bass is <TT>D,</TT> accepts <TT>D</TT> or <TT>d</TT>
 	 * but will reject all other notes
-	 * @param n
 	 */
 	public void setMiddleNote(Note n) {
 		//same note has middle, maybe with octave
@@ -479,13 +480,13 @@ public class Clef extends MusicElement implements Cloneable {
 				toCompare = new Clef[] { SOPRANO, MEZZOSOPRANO, ALTO, TENOR };
 			}
 			if (toCompare != null) {
-				for (int i = 0; i < toCompare.length; i++) {
-					if (strictHeight == toCompare[i].getMiddleNote().getStrictHeight()) {
-						m_lineNumber = (byte) toCompare[i].getLineNumber();
-						set = true;
-						break;
-					}
-				}
+                for (Clef aToCompare : toCompare) {
+                    if (strictHeight == aToCompare.getMiddleNote().getStrictHeight()) {
+                        m_lineNumber = (byte) aToCompare.getLineNumber();
+                        set = true;
+                        break;
+                    }
+                }
 			}
 			//Accept any note as middle
 			if (isPerc()) {
@@ -627,12 +628,18 @@ public class Clef extends MusicElement implements Cloneable {
 		Object o = super.clone();
 		if (m_referenceNote != null)
 		((Clef) o).m_referenceNote = (Note) m_referenceNote.clone();
-		if (m_middleNote != null)
-		((Clef) o).m_middleNote = (Note) m_referenceNote.clone();
-		if (m_lowNote != null)
-		((Clef) o).m_lowNote = (Note) m_referenceNote.clone();
-		if (m_highNote != null)
-		((Clef) o).m_highNote = (Note) m_referenceNote.clone();
+		if (m_middleNote != null) {
+            assert m_referenceNote != null;
+            ((Clef) o).m_middleNote = (Note) m_referenceNote.clone();
+        }
+		if (m_lowNote != null) {
+            assert m_referenceNote != null;
+            ((Clef) o).m_lowNote = (Note) m_referenceNote.clone();
+        }
+		if (m_highNote != null) {
+            assert m_referenceNote != null;
+            ((Clef) o).m_highNote = (Note) m_referenceNote.clone();
+        }
 		return o;
 	}
 	

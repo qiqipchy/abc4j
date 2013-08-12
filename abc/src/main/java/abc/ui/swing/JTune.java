@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -73,12 +75,12 @@ public class JTune extends JScoreElementAbstract {
 
 	//private static int DEBUG = 0;
 	
-	private final static short START = 0;
-	private final static short CONTROL = 1;
-	private final static short END = 2;
+	private final static short START    = 0;
+	private final static short CONTROL  = 1;
+	private final static short END      = 2;
 	
 	public final static byte STEMS_AUTO = 0;
-	public final static byte STEMS_UP = 1;
+	public final static byte STEMS_UP   = 1;
 	public final static byte STEMS_DOWN = 2;
 	
 	private Tune m_tuneBeforeTransposition = null;
@@ -126,8 +128,7 @@ public class JTune extends JScoreElementAbstract {
 	private KeySignature previousKey = null;
 	private KeySignature currentKey = null;
 	private Clef currentClef = null;
-	private TimeSignature previousTime = null;
-	private TimeSignature currentTime = null;
+    private TimeSignature currentTime = null;
 	private Tablature m_currentTablature = null;
 	private String m_currentVoice = "1";
 	private Point2D cursor = null;
@@ -192,8 +193,6 @@ public class JTune extends JScoreElementAbstract {
 	/**
 	 * Returns the rendition object (JNote, JChord...) for
 	 * the given music element reference
-	 * @param note
-	 * @return
 	 */
 	public JScoreElement getRenditionObjectFor(MusicElementReference ref) {
 		//fast way
@@ -217,8 +216,6 @@ public class JTune extends JScoreElementAbstract {
 	/**
 	 * Returns the rendition object (JNote, JChord...) for
 	 * the given notation (Note, MultiNote)
-	 * @param note
-	 * @return
 	 */
 	public JScoreElement getRenditionObjectFor(MusicElement musicElement) {
 		JScoreElement ret = getRenditionObjectFor(musicElement.getReference());
@@ -308,72 +305,86 @@ public class JTune extends JScoreElementAbstract {
 				}
 			}
 		}
-		else if (textField == ScoreElements.TEXT_PARTS_ORDER) {
-			if (m_tune.getMultiPartsDefinition() != null) {
-				Part[] parts = m_tune.getMultiPartsDefinition().toPartsArray();
-				String txt = "";
-				//if all parts are only played one time
-				//no need to add this information
-				//e.g. A B C D
-				//but A B A C D will display (because 2 A)
-				boolean hasDouble = false;
-				for (int i = 0; i < parts.length; i++) {
-					char c = parts[i].getIdentifier();
-					if (txt.indexOf(c) != -1)
-						hasDouble = true;
-					if (txt.length() > 0)
-						txt += ", ";
-					txt += c;
-				}
-				if (hasDouble) {
-					m_headerAndFooterTexts.add(
-							new JText(getMetrics(), txt, ScoreElements.TEXT_PARTS_ORDER));
-				}
-			}
-		}
 		else {
-			String text = null;
-			switch (textField) {
-			case ScoreElements.TEXT_ANNOTATIONS://=NOTES
-				text = m_tune.getNotes(); break;
-			case ScoreElements.TEXT_BOOK:
-				text = m_tune.getBook(); break;
-			case ScoreElements.TEXT_COMPOSER:
-				text = m_tune.getComposer(); break;
-			case ScoreElements.TEXT_DISCOGRAPHY:
-				text = m_tune.getDiscography(); break;
-			case ScoreElements.TEXT_FILEURL:
-				text = m_tune.getFileURL(); break;
-			case ScoreElements.TEXT_GROUP:
-				text = m_tune.getGroup(); break;
-			case ScoreElements.TEXT_HISTORY:
-				text = m_tune.getHistory(); break;
-			case ScoreElements.TEXT_INFORMATIONS:
-				text = m_tune.getInformation(); break;
-			case ScoreElements.TEXT_LYRICIST:
-				text = m_tune.getLyricist(); break;
-			case ScoreElements.TEXT_ORIGIN://=AREA
-				text = m_tune.getOrigin();
-				if (text == null)
-					text = "";
-				if ((m_tune.getArea() != null) && (m_tune.getArea().length() > 0))
-					text += (text.length()>0?", ":"")
-						+ m_tune.getArea();
-				break;
-			case ScoreElements.TEXT_RHYTHM:
-				text = m_tune.getRhythm(); break;
-			case ScoreElements.TEXT_SOURCE:
-				text = m_tune.getSource(); break;
-			case ScoreElements.TEXT_TRANSCRNOTES:
-				text = m_tune.getTranscriptionNotes(); break;
-			case ScoreElements.TEXT_WORDS:
-				text = m_tune.getLyricist(); break;
-			}
-			if ((text != null) && (text.length() > 0)) {
-				m_headerAndFooterTexts.add(
-					new JText(getMetrics(), text, textField));
-			}
-		}
+            if (textField == ScoreElements.TEXT_PARTS_ORDER) {
+                if (m_tune.getMultiPartsDefinition() != null) {
+                    Part[] parts = m_tune.getMultiPartsDefinition().toPartsArray();
+                    String txt = "";
+                    //if all parts are only played one time
+                    //no need to add this information
+                    //e.g. A B C D
+                    //but A B A C D will display (because 2 A)
+                    boolean hasDouble = false;
+                    for (Part part : parts) {
+                        char c = part.getIdentifier();
+                        if (txt.indexOf(c) != -1)
+                            hasDouble = true;
+                        if (txt.length() > 0)
+                            txt += ", ";
+                        txt += c;
+                    }
+                    if (hasDouble) {
+                        m_headerAndFooterTexts.add(
+                                new JText(getMetrics(), txt, ScoreElements.TEXT_PARTS_ORDER));
+                    }
+                }
+            } else {
+                String text = null;
+                switch (textField) {
+                    case ScoreElements.TEXT_ANNOTATIONS://=NOTES
+                        text = m_tune.getNotes();
+                        break;
+                    case ScoreElements.TEXT_BOOK:
+                        text = m_tune.getBook();
+                        break;
+                    case ScoreElements.TEXT_COMPOSER:
+                        text = m_tune.getComposer();
+                        break;
+                    case ScoreElements.TEXT_DISCOGRAPHY:
+                        text = m_tune.getDiscography();
+                        break;
+                    case ScoreElements.TEXT_FILEURL:
+                        text = m_tune.getFileURL();
+                        break;
+                    case ScoreElements.TEXT_GROUP:
+                        text = m_tune.getGroup();
+                        break;
+                    case ScoreElements.TEXT_HISTORY:
+                        text = m_tune.getHistory();
+                        break;
+                    case ScoreElements.TEXT_INFORMATIONS:
+                        text = m_tune.getInformation();
+                        break;
+                    case ScoreElements.TEXT_LYRICIST:
+                        text = m_tune.getLyricist();
+                        break;
+                    case ScoreElements.TEXT_ORIGIN://=AREA
+                        text = m_tune.getOrigin();
+                        if (text == null)
+                            text = "";
+                        if ((m_tune.getArea() != null) && (m_tune.getArea().length() > 0))
+                            text += (text.length() > 0 ? ", " : "")
+                                    + m_tune.getArea();
+                        break;
+                    case ScoreElements.TEXT_RHYTHM:
+                        text = m_tune.getRhythm();
+                        break;
+                    case ScoreElements.TEXT_SOURCE:
+                        text = m_tune.getSource();
+                        break;
+                    case ScoreElements.TEXT_TRANSCRNOTES:
+                        text = m_tune.getTranscriptionNotes();
+                        break;
+                    case ScoreElements.TEXT_WORDS:
+                        text = m_tune.getLyricist();
+                        break;
+                }
+                if ((text != null) && (text.length() > 0)) {
+                    m_headerAndFooterTexts.add(
+                            new JText(getMetrics(), text, textField));
+                }
+            }
+        }
 	}
 	
 	/**
@@ -410,9 +421,9 @@ public class JTune extends JScoreElementAbstract {
 		m_headerAndFooterTexts.clear();
 		
 		byte[] headerFields = getTemplate().getHeaderFields();
-		for (int i = 0; i < headerFields.length; i++) {
-			computeTextFieldToJText(headerFields[i]);
-		}
+        for (byte headerField : headerFields) {
+            computeTextFieldToJText(headerField);
+        }
 		/*if (isShowTitles())*/ {
 			//calculate Y position
 			Iterator itHeaders = m_headerAndFooterTexts.iterator();
@@ -464,7 +475,7 @@ public class JTune extends JScoreElementAbstract {
 		//int maxDurationInGroup = Note.QUARTER;
 		//int durationInCurrentMeasure = 0;
 		Tuplet tupletContainer = null;
-		int staffLineNb = 0;
+		// int staffLineNb = 0;
 		//init attributes that are for iterating through the score of the tune.
 		currentKey = m_tune.getKey();
 		if (currentKey != null) {
@@ -476,173 +487,163 @@ public class JTune extends JScoreElementAbstract {
 		}
 		else
 			previousKey = null;
-		previousTime = null;
+        TimeSignature previousTime = null;
 		currentTime = null;
 		currentStaffLineInitialized = false;
 		currentStaffLine = null;
 		m_currentTablature = null;
-		Iterator itVoices = m_music.getVoices().iterator();
-		while (itVoices.hasNext()) {
-			Voice voice = (Voice) itVoices.next();
-			m_currentVoice = voice.getVoiceName();
-			m_currentTablature = voice.getTablature();
-			//m_currentTablature = Tablature.GUITAR;
-			if (m_currentTablature != null) {
-				m_currentTablature.computeFingerings(voice);
-			}
-			int size = 0;
-		for (m_index = 0, size=voice.size(); m_index < size; m_index++) {
-			MusicElement s = (MusicElement)voice.elementAt(m_index);
-			//System.out.println(s.toString() + " " + s.getReference().toString());
-			// ==== Notes>quarter, rests, notes without slur,tuplet ====
-			if (
-					(
-						!(s instanceof Note  || s instanceof MultiNote)
-					|| (s instanceof Note && ((Note)s).isRest())
-					//if we were in a tuplet and the current note isn't part of tuplet anymore or part of another tuplet
-					|| (s instanceof NoteAbstract && tupletContainer!=null && (!tupletContainer.equals(((NoteAbstract)s).getTuplet())))
-					//if we weren't in a tuplet and the new note is part of a tuplet.
-					|| (s instanceof NoteAbstract && tupletContainer==null && ((NoteAbstract)s).isPartOfTuplet())
-					|| (s instanceof Note && ((Note)s).getStrictDuration()>=Note.QUARTER)
-					|| (s instanceof MultiNote && (  !((MultiNote)s).hasUniqueStrictDuration() ||
-														((MultiNote)s).getLongestNote().getStrictDuration()>=Note.QUARTER)))
+        for (Object o : m_music.getVoices()) {
+            Voice voice = (Voice) o;
+            m_currentVoice = voice.getVoiceName();
+            m_currentTablature = voice.getTablature();
+            //m_currentTablature = Tablature.GUITAR;
+            if (m_currentTablature != null) {
+                m_currentTablature.computeFingerings(voice);
+            }
+            int size = 0;
+            for (m_index = 0, size = voice.size(); m_index < size; m_index++) {
+                MusicElement s = (MusicElement) voice.elementAt(m_index);
+                //System.out.println(s.toString() + " " + s.getReference().toString());
+                // ==== Notes>quarter, rests, notes without slur,tuplet ====
+                if (
+                        (
+                                !(s instanceof Note || s instanceof MultiNote)
+                                        || (s instanceof Note && ((Note) s).isRest())
+                                        //if we were in a tuplet and the current note isn't part of tuplet anymore or part of another tuplet
+                                        || (s instanceof NoteAbstract && tupletContainer != null && (!tupletContainer.equals(((NoteAbstract) s).getTuplet())))
+                                        //if we weren't in a tuplet and the new note is part of a tuplet.
+                                        || (s instanceof NoteAbstract && tupletContainer == null && ((NoteAbstract) s).isPartOfTuplet())
+                                        || (s instanceof Note && ((Note) s).getStrictDuration() >= Note.QUARTER)
+                                        || (s instanceof MultiNote && (!((MultiNote) s).hasUniqueStrictDuration() ||
+                                        ((MultiNote) s).getLongestNote().getStrictDuration() >= Note.QUARTER)))
 
-					&& lessThanQuarter.size()!=0) {
-				//this is is the end of the group, append the current group content to the score.
-				appendToScore(lessThanQuarter);
-				lessThanQuarter.clear();
-			}
-			// ==== Key signature ====
-			if (s instanceof KeySignature) {
-				currentKey = (KeySignature)s;
-				currentClef = currentKey.getClef();
-				//TODO if end of staffline, add the key signture at right
-				//here or in initStaffLine?
-				if (currentStaffLineInitialized && !currentKey.equals(previousKey)) {
-					appendToScore(new JKeySignature(currentKey, previousKey, cursor, getMetrics()));
-					try {
-						previousKey = (KeySignature) currentKey.clone();
-					} catch (CloneNotSupportedException never) {
-						never.printStackTrace();
-					}
-				}
-			} else
-			// ==== Time signature ====
-			if (s instanceof TimeSignature) {
-				if (currentTime != null) {
-					try {
-						previousTime = (TimeSignature) currentTime.clone();
-					} catch (CloneNotSupportedException never) {
-						never.printStackTrace();
-					}
-				}
-				currentTime = (TimeSignature)s;
-				//if (previousTime != null)
-				if (currentStaffLineInitialized && !currentTime.equals(previousTime))
-					appendToScore(new JTimeSignature(currentTime, cursor, getMetrics()));
-			}
-			else
-			// ==== MultiNote ====
-			if (s instanceof MultiNote) {
-				NoteAbstract note = (NoteAbstract) s;
-				if (note.isBeginingSlur())
-					m_beginningNotesLinkElements.addElement(note);
-				tupletContainer = ((MultiNote)s).getTuplet();
-				Note[] tiesStart = ((MultiNote)s).getNotesBeginningTie();
-				if (tiesStart!=null)
-					for (int j=0; j<tiesStart.length; j++)
-						m_beginningNotesLinkElements.addElement(tiesStart[j]);
-				//checks if the shortest durations of the multi note is less than a quarter note.
-				// if yes, this multi note will be put into a group.
-				if (((MultiNote)s).getStrictDurations()[0]<Note.QUARTER)
-					lessThanQuarter.add(s);
-				else {
-					appendToScore(new JChord((MultiNote)s, currentClef, getMetrics(), cursor));
-				}
+                                && lessThanQuarter.size() != 0) {
+                    //this is is the end of the group, append the current group content to the score.
+                    appendToScore(lessThanQuarter);
+                    lessThanQuarter.clear();
+                }
+                // ==== Key signature ====
+                if (s instanceof KeySignature) {
+                    currentKey = (KeySignature) s;
+                    currentClef = currentKey.getClef();
+                    //TODO if end of staffline, add the key signture at right
+                    //here or in initStaffLine?
+                    if (currentStaffLineInitialized && !currentKey.equals(previousKey)) {
+                        appendToScore(new JKeySignature(currentKey, previousKey, cursor, getMetrics()));
+                        try {
+                            previousKey = (KeySignature) currentKey.clone();
+                        } catch (CloneNotSupportedException never) {
+                            never.printStackTrace();
+                        }
+                    }
+                } else
+                    // ==== Time signature ====
+                    if (s instanceof TimeSignature) {
+                        if (currentTime != null) {
+                            try {
+                                previousTime = (TimeSignature) currentTime.clone();
+                            } catch (CloneNotSupportedException never) {
+                                never.printStackTrace();
+                            }
+                        }
+                        currentTime = (TimeSignature) s;
+                        //if (previousTime != null)
+                        if (currentStaffLineInitialized && !currentTime.equals(previousTime))
+                            appendToScore(new JTimeSignature(currentTime, cursor, getMetrics()));
+                    } else
+                        // ==== MultiNote ====
+                        if (s instanceof MultiNote) {
+                            NoteAbstract note = (NoteAbstract) s;
+                            if (note.isBeginingSlur())
+                                m_beginningNotesLinkElements.addElement(note);
+                            tupletContainer = ((MultiNote) s).getTuplet();
+                            Note[] tiesStart = ((MultiNote) s).getNotesBeginningTie();
+                            if (tiesStart != null)
+                                for (Note aTiesStart : tiesStart) {
+                                    m_beginningNotesLinkElements.addElement(aTiesStart);
+                                }
+                            //checks if the shortest durations of the multi note is less than a quarter note.
+                            // if yes, this multi note will be put into a group.
+                            if (((MultiNote) s).getStrictDurations()[0] < Note.QUARTER)
+                                lessThanQuarter.add(s);
+                            else {
+                                appendToScore(new JChord((MultiNote) s, currentClef, getMetrics(), cursor));
+                            }
 
-				//durationInCurrentMeasure+=((MultiNote)s).getLongestNote().getDuration();
-			} //end MultiNote
-			else
-			// ==== Note ====
-			if (s instanceof Note) {
-				Note note = (Note)s;
+                            //durationInCurrentMeasure+=((MultiNote)s).getLongestNote().getDuration();
+                        } //end MultiNote
+                        else
+                            // ==== Note ====
+                            if (s instanceof Note) {
+                                Note note = (Note) s;
 
-				if (note.isBeginingSlur() || note.isBeginningTie())
-					m_beginningNotesLinkElements.addElement(note);
-				short strictDur = note.getStrictDuration();
-				tupletContainer = note.getTuplet();
-				// checks if this note should be part of a group.
-				if (strictDur<Note.QUARTER && !note.isRest()) {
-					//durationInGroup+=(note).getDuration();
-					//System.out.println("duration in group " + durationInGroup);
-					lessThanQuarter.add(note);
-					/*if (durationInGroup>=maxDurationInGroup) {
+                                if (note.isBeginingSlur() || note.isBeginningTie())
+                                    m_beginningNotesLinkElements.addElement(note);
+                                short strictDur = note.getStrictDuration();
+                                tupletContainer = note.getTuplet();
+                                // checks if this note should be part of a group.
+                                if (strictDur < Note.QUARTER && !note.isRest()) {
+                                    //durationInGroup+=(note).getDuration();
+                                    //System.out.println("duration in group " + durationInGroup);
+                                    lessThanQuarter.add(note);
+                    /*if (durationInGroup>=maxDurationInGroup) {
 						appendToScore(lessThanQuarter);
 						lessThanQuarter.clear();
 						durationInGroup = 0;
 					}*/
-				}
-				else {
-					JNote noteR = new JNote(note, currentClef, cursor, getMetrics());
-					//if (note.getHeight()>=Note.c)
-					//	noteR.setStemUp(false);
-					appendToScore(noteR);
-				}
-				//durationInCurrentMeasure+=note.getDuration();
-			} //end Note
-			else
-			// ==== RepeatBarLine ===
-			if (s instanceof RepeatBarLine) {
-				appendToScore(new JRepeatBar((RepeatBarLine)s, cursor, getMetrics()));
-				//durationInCurrentMeasure=0;
-			}
-			else
-			// ==== BarLine ====
-			if (s instanceof BarLine) {
-				appendToScore(new JBar((BarLine)s, cursor, getMetrics()));
-				//durationInCurrentMeasure=0;
-			}
-			else
-			// ==== EndOfStaffLine ====
-			if (s instanceof EndOfStaffLine) {
-				staffLineNb++;
-				currentStaffLineInitialized = false;
-			}
-			else
-			// ==== NotesSeparator ====
-			if (s instanceof NotesSeparator) {
-				appendToScore(lessThanQuarter);
-				lessThanQuarter.clear();
-			}
-			else
-			// ==== Spacer ====
-			if (s instanceof Spacer) {
-				appendToScore(lessThanQuarter);
-				lessThanQuarter.clear();
-				appendToScore(new JSpacer(getMetrics(), cursor, (Spacer)s));
-			}
-			else
-			// ==== Words ====
-			if (s instanceof Words) {
-				appendLyrics(new JWords(getMetrics(), (Words)s));
-			}
-			else
-			// ==== Part label ====
-			if (s instanceof PartLabel) {
-				appendToScore(new JPartLabel(getMetrics(), cursor, (PartLabel)s));
-			}
-			else
-			// ==== Tempo ====
-			if ((s instanceof Tempo)/* && (s != m_tune.getGeneralTempo())*/) {
-				appendToScore(new JTempo(getMetrics(), cursor, (Tempo)s));
-			}
-			else
-			// ==== MeasureRepeat ====
-			if (s instanceof MeasureRepeat) {
-				appendToScore(new JMeasureRepeat(getMetrics(), cursor, (MeasureRepeat)s));
-			}
-		}//end each element in voice
-		}//end each voice in music
+                                } else {
+                                    JNote noteR = new JNote(note, currentClef, cursor, getMetrics());
+                                    //if (note.getHeight()>=Note.c)
+                                    //	noteR.setStemUp(false);
+                                    appendToScore(noteR);
+                                }
+                                //durationInCurrentMeasure+=note.getDuration();
+                            } //end Note
+                            else
+                                // ==== RepeatBarLine ===
+                                if (s instanceof RepeatBarLine) {
+                                    appendToScore(new JRepeatBar((RepeatBarLine) s, cursor, getMetrics()));
+                                    //durationInCurrentMeasure=0;
+                                } else
+                                    // ==== BarLine ====
+                                    if (s instanceof BarLine) {
+                                        appendToScore(new JBar((BarLine) s, cursor, getMetrics()));
+                                        //durationInCurrentMeasure=0;
+                                    } else
+                                        // ==== EndOfStaffLine ====
+                                        if (s instanceof EndOfStaffLine) {
+                                            // staffLineNb++;
+                                            currentStaffLineInitialized = false;
+                                        } else
+                                            // ==== NotesSeparator ====
+                                            if (s instanceof NotesSeparator) {
+                                                appendToScore(lessThanQuarter);
+                                                lessThanQuarter.clear();
+                                            } else
+                                                // ==== Spacer ====
+                                                if (s instanceof Spacer) {
+                                                    appendToScore(lessThanQuarter);
+                                                    lessThanQuarter.clear();
+                                                    appendToScore(new JSpacer(getMetrics(), cursor, (Spacer) s));
+                                                } else
+                                                    // ==== Words ====
+                                                    if (s instanceof Words) {
+                                                        appendLyrics(new JWords(getMetrics(), (Words) s));
+                                                    } else
+                                                        // ==== Part label ====
+                                                        if (s instanceof PartLabel) {
+                                                            appendToScore(new JPartLabel(getMetrics(), cursor, (PartLabel) s));
+                                                        } else
+                                                            // ==== Tempo ====
+                                                            if ((s instanceof Tempo)/* && (s != m_tune.getGeneralTempo())*/) {
+                                                                appendToScore(new JTempo(getMetrics(), cursor, (Tempo) s));
+                                                            } else
+                                                                // ==== MeasureRepeat ====
+                                                                if (s instanceof MeasureRepeat) {
+                                                                    appendToScore(new JMeasureRepeat(getMetrics(), cursor, (MeasureRepeat) s));
+                                                                }
+            }//end each element in voice
+        }//end each voice in music
 
 		if (lessThanQuarter.size()!=0) {
 			appendToScore(lessThanQuarter);
@@ -661,9 +662,9 @@ public class JTune extends JScoreElementAbstract {
 
 		/*if (isShowFootNotes())*/ {
 			byte[] footerFields = getTemplate().getFooterFields();
-			for (int i = 0; i < footerFields.length; i++) {
-				computeTextFieldToJText(footerFields[i]);
-			}
+            for (byte footerField : footerFields) {
+                computeTextFieldToJText(footerField);
+            }
 			Iterator it = m_headerAndFooterTexts.iterator();
 			double height = 0;
 			while (it.hasNext()) {
@@ -691,11 +692,10 @@ public class JTune extends JScoreElementAbstract {
 		}
 		
 		//if header/footer texts are too long, extend component width
-		Iterator it = m_headerAndFooterTexts.iterator();
-		while (it.hasNext()) {
-			JText jt = (JText) it.next();
-			componentWidth = Math.max(componentWidth, jt.getWidth());
-		}
+        for (Object m_headerAndFooterText : m_headerAndFooterTexts) {
+            JText jt = (JText) m_headerAndFooterText;
+            componentWidth = Math.max(componentWidth, jt.getWidth());
+        }
 		componentWidth += getTemplate().getAttributeSize(
 				ScoreAttribute.MARGIN_RIGHT);
 		componentHeight = (int)cursor.getY();
@@ -709,7 +709,6 @@ public class JTune extends JScoreElementAbstract {
 	/**
 	 * Append an element to the score, calculating its
 	 * position
-	 * @param element
 	 */
 	private void appendToScore(JScoreElementAbstract element) {
 		if (!currentStaffLineInitialized) {
@@ -779,8 +778,9 @@ public class JTune extends JScoreElementAbstract {
 					//adds all the notes of the chords into the hashtable
 					//TODO the ordering of the get notes as vector and the jnotes should be the same...
 					//System.out.println("Warning - abc4j - current limitation prevents you from using chords with different notes lengths.");
-					for (int i=0; i<jnotes.length; i++)
-						m_scoreElements.put(jnotes[i].getMusicElement().getReference(), jnotes[i]);
+                    for (JNote jnote : jnotes) {
+                        m_scoreElements.put(jnote.getMusicElement().getReference(), jnote);
+                    }
 					//adds also the chords itself
 					m_scoreElements.put(g.getRenditionElements()[j].getMusicElement().getReference(), g.getRenditionElements()[j]);
 				}
@@ -793,8 +793,9 @@ public class JTune extends JScoreElementAbstract {
 			//adds all the notes of the chords into the hashtable
 			//TODO the ordering of the get notes as vector and the jnotes should be the same...
 			//System.out.println("Warning - abc4j - current limitation prevents you from using chords with different notes lengths.");
-			for (int i=0; i<jnotes.length; i++)
-				m_scoreElements.put(jnotes[i].getMusicElement().getReference(), jnotes[i]);
+            for (JNote jnote : jnotes) {
+                m_scoreElements.put(jnote.getMusicElement().getReference(), jnote);
+            }
 			//adds also the chords itself
 			m_scoreElements.put(element.getMusicElement().getReference(), element);
 		}
@@ -854,7 +855,7 @@ public class JTune extends JScoreElementAbstract {
 				if (noteStemPolicy == STEMS_AUTO) {
 					stemmable.setAutoStem(true);
 				} else {
-					boolean isup = (noteStemPolicy == STEMS_UP) ? true : false;
+					boolean isup = (noteStemPolicy == STEMS_UP);
 					stemmable.setAutoStem(false);
 					stemmable.setStemUp(isup);
 				}
@@ -873,7 +874,7 @@ public class JTune extends JScoreElementAbstract {
 					&& (N2 instanceof JStemmableElement)
 					&& !((JStemmableElement) N1).isStemUp()
 					&& ((JStemmableElement) N2).isStemUp()) {
-					Note n = (Note) ((JNote) N1).getMusicElement();
+					Note n = (Note) N1.getMusicElement();
 					if (n.getHeight() == ((JNote) N1).getClef().getMiddleNote().getHeight()) {
 						((JStemmableElement) N1).setAutoStem(false);
 						((JStemmableElement) N1).setStemUp(true);
@@ -890,7 +891,7 @@ public class JTune extends JScoreElementAbstract {
 					if (gracenoteStemPolicy == STEMS_AUTO) {
 						stemmableGN.setAutoStem(true);
 					} else {
-						boolean isup = (gracenoteStemPolicy == STEMS_UP) ? true : false;
+						boolean isup = (gracenoteStemPolicy == STEMS_UP);
 						stemmableGN.setAutoStem(false);
 						stemmableGN.setStemUp(isup);
 					}
@@ -905,7 +906,7 @@ public class JTune extends JScoreElementAbstract {
 						if (gracenoteStemPolicy == STEMS_AUTO) {
 							stemmableGN.setAutoStem(true);
 						} else {
-							boolean isup = (gracenoteStemPolicy == STEMS_UP) ? true : false;
+							boolean isup = (gracenoteStemPolicy == STEMS_UP);
 							stemmableGN.setAutoStem(false);
 							stemmableGN.setStemUp(isup);
 						}
@@ -947,30 +948,29 @@ public class JTune extends JScoreElementAbstract {
 	}
 
 	private void renderTitlesAndFootnotes(Graphics2D g2) {
-		Iterator iter = m_headerAndFooterTexts.iterator();
-		while (iter.hasNext()) {
-			JText text = (JText) iter.next();
-			//System.out.println(text.getText());
-			if (text.getBase() == null) {
-				System.err.println("base is null for "+text);
-				continue;
-			}
-			short align = text.getHorizontalPosition();
-			//double textWidth = text.getWidth();
-			double y = text.getBase().getY();
-			if (align == HorizontalPosition.CENTER) {
-				text.setBase(new Point2D.Double(getWidth()/2, y));
-			} else if (align == HorizontalPosition.RIGHT) {
-				text.setBase(new Point2D.Double(getWidth(), y));
-			} else if (align == HorizontalPosition.LEFT_TAB) {
-				text.setBase(new Point2D.Double(getBase().getX()
-					+ getTemplate().getAttributeSize(ScoreAttribute.FIRST_STAFF_LEFT_MARGIN)
-					+ 30, y));
-			} else {//HorizontalAlign.LEFT
-				text.setBase(new Point2D.Double(getBase().getX(), y));
-			}
-			text.render(g2);
-		}
+        for (Object m_headerAndFooterText : m_headerAndFooterTexts) {
+            JText text = (JText) m_headerAndFooterText;
+            //System.out.println(text.getText());
+            if (text.getBase() == null) {
+                System.err.println("base is null for " + text);
+                continue;
+            }
+            short align = text.getHorizontalPosition();
+            //double textWidth = text.getWidth();
+            double y = text.getBase().getY();
+            if (align == HorizontalPosition.CENTER) {
+                text.setBase(new Point2D.Double(getWidth() / 2, y));
+            } else if (align == HorizontalPosition.RIGHT) {
+                text.setBase(new Point2D.Double(getWidth(), y));
+            } else if (align == HorizontalPosition.LEFT_TAB) {
+                text.setBase(new Point2D.Double(getBase().getX()
+                        + getTemplate().getAttributeSize(ScoreAttribute.FIRST_STAFF_LEFT_MARGIN)
+                        + 30, y));
+            } else {//HorizontalAlign.LEFT
+                text.setBase(new Point2D.Double(getBase().getX(), y));
+            }
+            text.render(g2);
+        }
 	}
 
 	/** Triggers the re computation of all staff lines elements in order to
@@ -1018,8 +1018,6 @@ public class JTune extends JScoreElementAbstract {
 	 * Draw a link between 2 notes
 	 *
 	 * @see #getLinkPoints(TwoNotesLink) calculates the best link curve
-	 * @param g2
-	 * @param slurDef
 	 */
 	protected void drawLink(Graphics2D g2, TwoNotesLink slurDef) {
 		Point2D[] points = null;
@@ -1105,7 +1103,7 @@ public class JTune extends JScoreElementAbstract {
 	/**
 	 * Returns the 3 points of a slur
 	 * <br>Method used by {@link #drawLink(Graphics2D, TwoNotesLink)}
-	 * @param slurDef
+     *
 	 * @return [0]=>start, [1]=control, [2]=end
 	 */
 	private Point2D[] getLinkPoints(TwoNotesLink slurDef) {
@@ -1308,18 +1306,18 @@ public class JTune extends JScoreElementAbstract {
 				aboveCurves.add(new Point2D[] {p[ABOVE_OUT][START],p[ABOVE_OUT][CONTROL],p[ABOVE_IN][END]});
 			}
 			//verify above and under curves must be above / under
-			for (Iterator it = aboveCurves.iterator(); it.hasNext();) {
-				Point2D[] p2d = (Point2D[]) it.next();
-				if ((p2d[CONTROL].getY()<p2d[START].getY())
-					&& (p2d[CONTROL].getY()<p2d[END].getY()))
-					curves.add(p2d);
-			}
-			for (Iterator it = underCurves.iterator(); it.hasNext();) {
-				Point2D[] p2d = (Point2D[]) it.next();
-				if ((p2d[CONTROL].getY()>p2d[START].getY())
-					&& (p2d[CONTROL].getY()>p2d[END].getY()))
-					curves.add(p2d);
-			}
+            for (Object aboveCurve : aboveCurves) {
+                Point2D[] p2d = (Point2D[]) aboveCurve;
+                if ((p2d[CONTROL].getY() < p2d[START].getY())
+                        && (p2d[CONTROL].getY() < p2d[END].getY()))
+                    curves.add(p2d);
+            }
+            for (Object underCurve : underCurves) {
+                Point2D[] p2d = (Point2D[]) underCurve;
+                if ((p2d[CONTROL].getY() > p2d[START].getY())
+                        && (p2d[CONTROL].getY() > p2d[END].getY()))
+                    curves.add(p2d);
+            }
 		}
 		//Out of stems
 		if (!jSlurDef.isAbove()) //under or auto
@@ -1397,34 +1395,33 @@ public class JTune extends JScoreElementAbstract {
 				//not good curve, remove it
 				if (curves.size() > 1) {
 					itCurves.remove();
-					continue;
-				} else {
+                } else {
 					break;
 				}
 			}
 		}
 
 		//Checks additional curves
-		for (Iterator itAddCurves = additionnalCurves.iterator(); itAddCurves.hasNext();) {
-			Point2D[] p2d = (Point2D[]) itAddCurves.next();
-			//System.out.print((cpt++) + " : ");
-			try {
-				SlurInfos slurInfos = new SlurInfos(p2d,
-					getNoteGlyphesBetween(startNote, endNote),
-					getMetrics());
-				if (slurInfos.mark>bestMark || (bestCurve==null)) {
-					bestMark = slurInfos.mark;
-					bestCurve = p2d;
-					//bestComboIdx = cpt-1;
-				}
-				curves.add(p2d);
-			} catch (MalFormedCurveException mfce) {
-				//nothing to do
-			}
-		}
+        for (Object additionnalCurve : additionnalCurves) {
+            Point2D[] p2d = (Point2D[]) additionnalCurve;
+            //System.out.print((cpt++) + " : ");
+            try {
+                SlurInfos slurInfos = new SlurInfos(p2d,
+                        getNoteGlyphesBetween(startNote, endNote),
+                        getMetrics());
+                if (slurInfos.mark > bestMark || (bestCurve == null)) {
+                    bestMark = slurInfos.mark;
+                    bestCurve = p2d;
+                    //bestComboIdx = cpt-1;
+                }
+                curves.add(p2d);
+            } catch (MalFormedCurveException mfce) {
+                //nothing to do
+            }
+        }
 
 		//System.out.println("curves.size()="+curves.size());
-		//System.out.println("best curve n° "+bestCurveIdx+", mark="+bestMark);
+		//System.out.println("best curve nï¿½ "+bestCurveIdx+", mark="+bestMark);
 		return bestCurve!=null
 				? bestCurve
 				: (curves.size()==0 ? new Point2D[] {} : (Point2D[]) curves.get(0));
@@ -1434,10 +1431,8 @@ public class JTune extends JScoreElementAbstract {
 	 * Draw a link between 2 notes, forcing slur position to under
 	 *
 	 * @see #drawLink(Graphics2D, TwoNotesLink)
-	 * @param g2
-	 * @param slurDef
 	 */
-	protected void drawLinkDown(Graphics2D g2, TwoNotesLink slurDef) {
+	protected void drawLinkDown(TwoNotesLink slurDef) {
 		getJSlurOrTie(slurDef).setPosition(JSlurOrTie.POSITION_UNDER);
 	}
 
@@ -1445,18 +1440,14 @@ public class JTune extends JScoreElementAbstract {
 	 * Draw a link between 2 notes, forcing slur position to above
 	 *
 	 * @see #drawLink(Graphics2D, TwoNotesLink)
-	 * @param g2
-	 * @param slurDef
-	 */
-	protected void drawLinkUp(Graphics2D g2, TwoNotesLink slurDef) {
+     */
+	protected void drawLinkUp(TwoNotesLink slurDef) {
 		getJSlurOrTie(slurDef).setPosition(JSlurOrTie.POSITION_ABOVE);
 	}
 
 	/**
 	 * Return the JNote that have the highest bounding box
-	 * @param start
-	 * @param end
-	 * @param excludeStartAndEnd
+     *
 	 * @return a JNote. May return <code>null</code> if exclude is true and no notes between start and end!
 	 */
 	private JNoteElementAbstract getHighestNoteGlyphBetween(NoteAbstract start, NoteAbstract end, boolean excludeStartAndEnd) {
@@ -1486,10 +1477,8 @@ public class JTune extends JScoreElementAbstract {
 	}
 
 	/**
-	 * Return the JNote that have the lowest bounding box
-	 * @param start
-	 * @param end
-	 * @param excludeStartAndEnd
+	 * Returns the JNote that have the lowest bounding box
+     *
 	 * @return a JNote. May return <code>null</code> if exclude is true and no notes between start and end!
 	 */
 	private JNoteElementAbstract getLowestNoteGlyphBetween(NoteAbstract start, NoteAbstract end, boolean excludeStartAndEnd) {
@@ -1521,18 +1510,15 @@ public class JTune extends JScoreElementAbstract {
 	/**
 	 * Returns a Collection of JNote representing the note glyphes
 	 * between start and end NoteAbstract.
-	 * @param start
-	 * @param end
-	 * @return
 	 */
 	private Collection getNoteGlyphesBetween(NoteAbstract start, NoteAbstract end) {
 		Collection jnotes = new Vector();
 		try {
 			Collection notes = m_music.getVoice(start.getReference().getVoice()).getNotesBetween(start, end);
-			for (Iterator it = notes.iterator(); it.hasNext();) {
-				NoteAbstract n = (NoteAbstract) it.next();
-				jnotes.add((JNoteElementAbstract) getRenditionObjectFor(n));
-			}
+            for (Object note : notes) {
+                NoteAbstract n = (NoteAbstract) note;
+                jnotes.add(getRenditionObjectFor(n));
+            }
 		} catch (Exception e) {
 			// TODO: handle exception, shouldn't happen
 		}
@@ -1687,9 +1673,8 @@ class SlurInfos {
 
 	/**
 	 *
-	 * @param threePoints The 3 points of the curve
+	 * @param p2d The 3 points of the curve
 	 * @param noteGlyphs The glyphs ({@link JNote}) in the slur
-	 * @param m_metrics
 	 */
 	protected SlurInfos(Point2D[] p2d, Collection noteGlyphs,
 		ScoreMetrics m_metrics)
@@ -1784,13 +1769,13 @@ class SlurInfos {
 				//resize boundingBox for checking, curve must not be to close than border of the box
 				bb.add(bb.getCenterX(), bb.getMinY()-m_metrics.getSlurAnchorYOffset());
 				bb.add(bb.getCenterX(), bb.getMaxY()+m_metrics.getSlurAnchorYOffset());
-				for (Iterator itSeg = curveSegments.iterator(); itSeg.hasNext();) {
-					Line2D segment = (Line2D) itSeg.next();
-					if (segment.intersects(bb)) {
-						intersect++;
-						break;
-					}
-				}
+                for (Object curveSegment : curveSegments) {
+                    Line2D segment = (Line2D) curveSegment;
+                    if (segment.intersects(bb)) {
+                        intersect++;
+                        break;
+                    }
+                }
 			}
 			start = false;
 		}
@@ -1800,12 +1785,12 @@ class SlurInfos {
 		//- opposite of stems (10 +%opposite -%same direction)
 		divisor++;
 		if (isAbove) {
-			mark += (float)(-(upNotes/countNotes)*10 + (downNotes/countNotes)*10);
+			mark += -(upNotes/countNotes)*10 + (downNotes/countNotes)*10;
 	//		if (downNotes == countNotes)
 	//			countIntersect = false;
 		}
 		else {
-			mark += (float)((upNotes/countNotes)*10 - (downNotes/countNotes)*10);
+			mark += (upNotes/countNotes)*10 - (downNotes/countNotes)*10;
 	//		if (upNotes == countNotes)
 	//			countIntersect = false;
 		}

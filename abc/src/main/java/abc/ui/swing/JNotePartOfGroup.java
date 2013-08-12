@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -127,7 +129,7 @@ class JNotePartOfGroup extends JNote implements JGroupableNote {
 		if (isStemUp()) {
 			return new Rectangle2D.Double(
 				(int)(getBase().getX()),
-				(int)(stemYEnd),
+                stemYEnd,
 				getWidth(),
 				getStemBeginPosition().getY()-stemYEnd+glyphDimension.getHeight()/2);
 		}

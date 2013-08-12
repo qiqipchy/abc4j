@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -15,10 +17,7 @@
 // along with abc4j.  If not, see <http://www.gnu.org/licenses/>.
 package abc.ui.swing;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -67,9 +66,8 @@ class JNote extends JNoteElementAbstract {
 	protected Point2D stemDownBeginPosition = null;
 
 	private double m_width = -1;
-	private double boundingBox_width = -1;
-	
-	public JNote(Note noteValue, Clef clef, Point2D base, ScoreMetrics c) {
+
+    public JNote(Note noteValue, Clef clef, Point2D base, ScoreMetrics c) {
 		super(noteValue, clef, base, c);
 		note = noteValue;
 		valuateNoteChars();
@@ -160,7 +158,7 @@ class JNote extends JNoteElementAbstract {
 	}
 	
 	/**
-	 * in a genric way that enables positioning, sizing,
+	 * in a generic way that enables positioning, sizing,
 	 * rendering to be done generically
 	 * <p>subclasses should override this method. 
 	 * @return {@link ScoreMetrics#NOTATION_CONTEXT_NOTE}
@@ -220,12 +218,12 @@ class JNote extends JNoteElementAbstract {
 		//double noteY =(int)(base.getY()-getOffset(note)*c.getNoteHeigth());
 		//double noteY =(int)(base.getY()-getOffset(note)*glyphDimension.getHeigth());
 		double noteX = base.getX()
-			+ (graceNotesAfter?0:graceNotesWidth)
+			+ (graceNotesAfter ? 0 : graceNotesWidth)
 			+ accidentalsWidth;
 		if (note.hasAccidental())
 			accidentalsPosition = new Point2D.Double(
-					base.getX()+(graceNotesAfter?0:graceNotesWidth),
-					noteY-(glyphDimension.getHeight()/2));
+					base.getX() + (graceNotesAfter ? 0 : graceNotesWidth),
+					noteY - (glyphDimension.getHeight()/2));
 		if (isHeadInverted() && !isStemUp())
 			noteX += glyphDimension.getWidth();
 		displayPosition = new Point2D.Double(noteX, noteY);
@@ -299,7 +297,7 @@ class JNote extends JNoteElementAbstract {
 		}
 		
 		m_width = (int)(graceNotesWidth+accidentalsWidth+glyphDimension.getWidth()+extraWidth);
-		boundingBox_width = (int)(glyphDimension.getWidth()+extraWidth);
+        double boundingBox_width = (int) (glyphDimension.getWidth() + extraWidth);
 
 		onNotePositionChanged();
 	}
@@ -444,6 +442,10 @@ class JNote extends JNoteElementAbstract {
 		if (!(note.isRest() && note.isRestInvisible())) {
 			if (note.isRest() || !isHeadInverted()) {
 				gfx.drawChars(noteChars, 0, 1, (int)displayPosition.getX(), (int)displayPosition.getY());
+                // gfx.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+                // gfx.translate(0.0, -0.5);
+                // gfx.drawString(new String(noteChars), (float) displayPosition.getX(), (float) displayPosition.getY());
+                // gfx.translate(0.0,  0.5);
 			} else {
 				char[][] chars = valuateInvertedNoteChars();
 				if (chars[0] != null) // stem
@@ -548,10 +550,10 @@ class JNote extends JNoteElementAbstract {
 			char[] glyph = new char[] {
 				getMusicalFont().getDot()
 			};
-			for (int i = 0; i < dotsPosition.length; i++) {
-				context.drawChars(glyph, 0, 1,
-						(int)dotsPosition[i].getX(), (int)dotsPosition[i].getY());
-			}
+            for (Point2D aDotsPosition : dotsPosition) {
+                context.drawChars(glyph, 0, 1,
+                        (int) aDotsPosition.getX(), (int) aDotsPosition.getY());
+            }
 		}
 	}
 

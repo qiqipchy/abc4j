@@ -1,11 +1,9 @@
-/**
- * 
- */
+// modified by HHR 12-Aug-13
+
 package abc.ui.swing;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TreeSet;
 
 import abc.notation.MultiNote;
@@ -52,7 +50,6 @@ public class Engraver implements Serializable {
 	 * Adapt the engraving to the tune, i.e. search for the
 	 * shortest note in the tune. If shortest note is a quarter,
 	 * we can reduce the space between quarter.
-	 * @param tune
 	 */
 	protected void adaptToTune(Tune tune, ScoreMetrics metrics) {
 		//reinit the values of the engraving mode
@@ -80,7 +77,7 @@ public class Engraver implements Serializable {
 				int iMin = 0, iShortest = 0;
 				for (int i = 0; i < durations.length; i++) {
 					//System.out.println("durations["+i+"] = "+durations[i]);
-					int j = ((Integer) durations[i]).intValue();
+					int j = (Integer) durations[i];
 					if (j == min)
 						iMin = i;
 					if (j == shortestDuration)
@@ -97,8 +94,8 @@ public class Engraver implements Serializable {
 							s += getSpaceAfter(i2.intValue())+"\t";
 						}
 						System.out.println("\n"+s);*/
-						setSpaceAfter(((Integer) durations[i]).intValue(),
-							getSpaceAfter( ((Integer)durations[i-offset]).intValue())
+						setSpaceAfter((Integer) durations[i],
+							getSpaceAfter((Integer) durations[i - offset])
 							);
 					}
 				}
@@ -114,13 +111,13 @@ public class Engraver implements Serializable {
 
 	private int[] getNearestDurations(int unknownDuration) {
 		int[] ret = {Note.DOTTED_WHOLE, Note.SIXTY_FOURTH};
-		for (Iterator it = spacesAfter.keySet().iterator(); it.hasNext();) {
-			int i = ((Integer) it.next()).intValue();
-			if (i > unknownDuration && i < ret[0])
-				ret[0] = i;
-			else if (i < unknownDuration && i > ret[1])
-				ret[1] = i;
-		}
+        for (Object o : spacesAfter.keySet()) {
+            int i = (Integer) o;
+            if (i > unknownDuration && i < ret[0])
+                ret[0] = i;
+            else if (i < unknownDuration && i > ret[1])
+                ret[1] = i;
+        }
 		return ret;
 	}
 	
@@ -146,22 +143,22 @@ public class Engraver implements Serializable {
 	public double getSpaceAfter(int noteDuration) {
 		if (m_mode == NONE)
 			return 0;
-		Integer i = new Integer(noteDuration);
+		Integer i = noteDuration;
 		if (spacesAfter.containsKey(i))
-			return ((Double) spacesAfter.get(i)).doubleValue();
+			return (Double) spacesAfter.get(i);
 		else {
 			int longest = Note.SIXTY_FOURTH, shortest = Note.LONG;
-			for (Iterator itDur = spacesAfter.keySet().iterator(); itDur.hasNext();) {
-				int dur = ((Integer) itDur.next()).intValue();
-				if (dur < shortest) shortest = dur;
-				if (dur > longest) longest = dur;
-			}
+            for (Object o : spacesAfter.keySet()) {
+                int dur = (Integer) o;
+                if (dur < shortest) shortest = dur;
+                if (dur > longest) longest = dur;
+            }
 			if (noteDuration < shortest)
 				//return getSpaceAfter(shortest);
-				return ((Double) spacesAfter.get(new Integer(shortest))).doubleValue();
+				return (Double) spacesAfter.get(new Integer(shortest));
 			else if (noteDuration > longest)
 				//return getSpaceAfter(longest);
-				return ((Double) spacesAfter.get(new Integer(longest))).doubleValue();
+				return (Double) spacesAfter.get(new Integer(longest));
 		}
 /*		else if (noteDuration <= Note.SIXTY_FOURTH) {
 			System.out.println("getSpaceAfter("+noteDuration+") <= "+Note.SIXTY_FOURTH);
@@ -182,7 +179,7 @@ public class Engraver implements Serializable {
 			//System.out.println(" --> % = "+(noteDuration-bottomD)+"/"+(topD-bottomD)+"="+percent);
 			double topL = getSpaceAfter(topD);
 			double bottomL = getSpaceAfter(bottomD);
-			double ret = (double) ((percent*(topL-bottomL)) + bottomL);
+			double ret = (percent*(topL-bottomL)) + bottomL;
 			//System.out.println(" --> topL="+topL+", bottomL="+bottomL+" = "+ret);
 			return ret;
 		} catch (Exception e) {
@@ -200,7 +197,6 @@ public class Engraver implements Serializable {
 	 * <ul><li>{@link #NONE} : equal space between each note
 	 * <li>{@link #DEFAULT} : smaller space for short note, bigger space for long notes, something that look nice ;)
 	 * </ul>
-	 * @param mode
 	 */
 	public void setMode(int mode) {
 		setMode(mode, VARIATION_DEFAULT);
@@ -245,13 +241,13 @@ public class Engraver implements Serializable {
 			setSpaceAfter(Note.DOTTED_SIXTY_FOURTH, -4*factor);
 			setSpaceAfter(Note.SIXTY_FOURTH, -5*factor);
 		}
-		else { //mode==NONE
-			//do nothing, will always return 0
-		}
+		// else { //mode==NONE
+		// 	//do nothing, will always return 0
+		// }
 	}
 	
 	public void setSpaceAfter(int noteLength, double space) {
-		spacesAfter.put(new Integer(noteLength), new Double(space));
+		spacesAfter.put(noteLength, space);
 	}
 	
 }

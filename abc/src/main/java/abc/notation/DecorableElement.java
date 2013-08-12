@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -47,11 +49,9 @@ public abstract class DecorableElement extends MusicElement implements
 	public Object clone() throws CloneNotSupportedException {
 		Object o = super.clone();
 		if (m_annotations != null)
-			((DecorableElement) o).m_annotations = (Vector) m_annotations
-					.clone();
+			((DecorableElement) o).m_annotations = (Vector) m_annotations.clone();
 		if (m_decorations != null)
-			((DecorableElement) o).m_decorations = (Decoration[]) m_decorations
-					.clone();
+			((DecorableElement) o).m_decorations = m_decorations.clone();
 		if (m_dynamic != null)
 			((DecorableElement) o).m_dynamic = (Dynamic) m_dynamic.clone();
 		return o;
@@ -124,10 +124,10 @@ public abstract class DecorableElement extends MusicElement implements
 	 */
 	public boolean hasDecoration(byte decorationType) {
 		if (hasDecorations()) {
-			for (int i = 0; i < m_decorations.length; i++) {
-				if (m_decorations[i].isType(decorationType))
-					return true;
-			}
+            for (Decoration m_decoration : m_decorations) {
+                if (m_decoration.isType(decorationType))
+                    return true;
+            }
 		}
 		return false;
 	}
@@ -141,10 +141,10 @@ public abstract class DecorableElement extends MusicElement implements
 	 */
 	public boolean hasDecorations() {
 		if (m_decorations != null && m_decorations.length > 0) {
-			for (int i = 0; i < m_decorations.length; i++) {
-				if (m_decorations[i] != null)
-					return true;
-			}
+            for (Decoration m_decoration : m_decorations) {
+                if (m_decoration != null)
+                    return true;
+            }
 		}
 		return false;
 	}
@@ -159,7 +159,6 @@ public abstract class DecorableElement extends MusicElement implements
 	
 	/**
 	 * Removes annotation(s) having the given identifier
-	 * @param annotIdentifier
 	 */
 	protected void removeAnnotation(String annotIdentifier) {
 		if (m_annotations != null) {

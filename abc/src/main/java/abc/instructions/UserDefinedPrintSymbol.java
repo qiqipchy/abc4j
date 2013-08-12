@@ -26,10 +26,6 @@ public class UserDefinedPrintSymbol extends UserDefinedSymbol implements Cloneab
 
 	private static final long serialVersionUID = -1390989857941609678L;
 
-	/**
-	 * @param symbol
-	 * @param element
-	 */
 	public UserDefinedPrintSymbol(char symbol, SymbolElement element) {
 		super(symbol, element);
 	}

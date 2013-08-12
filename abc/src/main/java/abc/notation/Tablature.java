@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -16,11 +18,7 @@
 package abc.notation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A tablature is another way to print the notes on a usual 5-line staff. Most
@@ -143,11 +141,9 @@ public class Tablature implements Cloneable, Serializable {
 			if (element instanceof NoteAbstract) {
 				NoteAbstract[] graces = ((NoteAbstract) element).getGracingNotes();
 				if (graces != null) {
-					for (int i = 0; i < graces.length; i++) {
-						notes.add(graces[i]);
-					}
+                    Collections.addAll(notes, graces);
 				}
-				notes.add((NoteAbstract) element);
+				notes.add(element);
 			}
 		}
 		computedFingerings = new HashMap(notes.size());
@@ -159,17 +155,16 @@ public class Tablature implements Cloneable, Serializable {
 			NoteAbstract currentNote = (NoteAbstract) it.next();
 			if (currentNote instanceof MultiNote) {
 				//we have a chord
-				Iterator it2 = (((MultiNote) currentNote).getNotesAsVector()).iterator();
-				while (it2.hasNext()) {
-					Note note = (Note) it2.next();
-					if (note.isRest() || note.isEndingTie())
-						continue;
-					//just a random thing to put numbers on the tab :-)
-					int string = 1+(int)(Math.random()*(m_strings.length-1));
-					int fret = (int)(Math.random()*m_numberOfFret);
-					computedFingerings.put(note.getReference(),
-							new int[]{string, fret});
-				}
+                for (Object o : (((MultiNote) currentNote).getNotesAsVector())) {
+                    Note note = (Note) o;
+                    if (note.isRest() || note.isEndingTie())
+                        continue;
+                    //just a random thing to put numbers on the tab :-)
+                    int string = 1 + (int) (Math.random() * (m_strings.length - 1));
+                    int fret = (int) (Math.random() * m_numberOfFret);
+                    computedFingerings.put(note.getReference(),
+                            new int[]{string, fret});
+                }
 			} else if (currentNote instanceof Note) {
 				Note note = (Note) currentNote;
 				if (!note.isEndingTie()) {

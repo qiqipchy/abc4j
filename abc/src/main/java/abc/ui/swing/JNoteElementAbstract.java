@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -87,8 +89,8 @@ abstract class JNoteElementAbstract extends JScoreElementAbstract
 				if (graceNotes[0] instanceof Note) {
 					m_jGracenotes = new JGraceNote((Note)graceNotes[0], clef, base, getMetrics());
 					base.setLocation(base.getX()+m_jGracenotes.getWidth(),base.getY());
-				} else {
-					//TODO JGraceMultiNote
+				// } else {
+				// 	//TODO JGraceMultiNote
 				}
 			} else if (graceNotes.length>1) {
 				m_jGracenotes = new JGroupOfGraceNotes(getMetrics(), base, graceNotes, clef, null);
@@ -112,24 +114,24 @@ abstract class JNoteElementAbstract extends JScoreElementAbstract
 		// add JDecorations
 		if (noteValue.hasDecorations()) {
 			Decoration[] decorations = noteValue.getDecorations();
-			for (int i=0; i<decorations.length;i++) {
-				try {
-					if ((decorations[i].getType() == Decoration.ROLL)
-							&& noteValue.hasGeneralGracing()) {
-						addDecoration(
-							new JDecoration(
-								new Decoration(Decoration.GENERAL_GRACING),
-								getMetrics()
-							));
-					} else {
-						addDecoration(
-							new JDecoration(
-								decorations[i], getMetrics()));
-					}
-				} catch (MissingGlyphException mge) {
-					//continue;
-				}
-			}
+            for (Decoration decoration : decorations) {
+                try {
+                    if ((decoration.getType() == Decoration.ROLL)
+                            && noteValue.hasGeneralGracing()) {
+                        addDecoration(
+                                new JDecoration(
+                                        new Decoration(Decoration.GENERAL_GRACING),
+                                        getMetrics()
+                                ));
+                    } else {
+                        addDecoration(
+                                new JDecoration(
+                                        decoration, getMetrics()));
+                    }
+                } catch (MissingGlyphException mge) {
+                    //continue;
+                }
+            }
 		}
 		
 		if (noteValue.hasDynamic()) {
@@ -177,11 +179,7 @@ abstract class JNoteElementAbstract extends JScoreElementAbstract
 		//reset the note's accidental before checking
 		Accidental acc = note.getAccidental();
 		note.setAccidental(Accidental.NONE);
-		if ((getClef() == null) || note.isLowerThan(getClef().getMiddleNote())) {
-		  isup = true;
-		} else {
-		  isup = false;
-		}
+        isup = (getClef() == null) || note.isLowerThan(getClef().getMiddleNote());
 		note.setAccidental(acc);
 	  }
 	  return isup;
@@ -190,7 +188,6 @@ abstract class JNoteElementAbstract extends JScoreElementAbstract
 	/**
 	 * Sets if the note head is inverted (i.e. right to stem
 	 * if stem is up, left to stem if stem is down)
-	 * @param b
 	 */
 	protected void setHeadInverted(boolean b) {
 		m_headInverted = b;
@@ -466,10 +463,10 @@ abstract class JNoteElementAbstract extends JScoreElementAbstract
 				getSlurUnderAnchorOutOfStem() };
 		java.awt.Color previousColor = context.getColor();
 		context.setColor(java.awt.Color.BLUE);
-		for (int i = 0; i < anchors.length; i++) {
-			if (anchors[i] != null)
-				context.drawOval((int)anchors[i].getX(), (int)anchors[i].getY(), 1, 1);
-		}
+        for (Point2D anchor : anchors) {
+            if (anchor != null)
+                context.drawOval((int) anchor.getX(), (int) anchor.getY(), 1, 1);
+        }
 		context.setColor(previousColor);
 		System.out.println("renderDebugSlurAnchors : "+getMusicElement());
 		System.out.println("  object : "+getClass().getSimpleName());

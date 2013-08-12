@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -23,7 +25,7 @@ import abc.ui.scoretemplates.ScoreElements;
  * A <TT>JScoreElement</TT> can itself contain <TT>JScoreElement</TT> instances.
  * You should figure out the graphical score representation as a tree of
  * <TT>JScoreElement</TT>. (Composite)
- * @see Tune#getMusic()
+ * @see abc.notation.Tune#getMusic()
  */
 class JTitle extends JText {
 

@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -70,18 +72,14 @@ public class TuneBook implements Cloneable, Serializable {
 	/**
 	 * Returns true if tune book already contains a tune with the same reference
 	 * number.
-	 * 
-	 * @param referenceNumber
 	 */
 	public boolean containsTune(int referenceNumber) {
-		return getTune(new Integer(referenceNumber)) != null;
+		return getTune(referenceNumber) != null;
 	}
 
 	/**
 	 * Returns true if tune book already contains a tune with the same reference
 	 * number.
-	 * 
-	 * @param tune
 	 */
 	public boolean containsTune(Tune tune) {
 		return containsTune(tune.getReferenceNumber());
@@ -105,12 +103,11 @@ public class TuneBook implements Cloneable, Serializable {
 	 */
 	public int getHighestReferenceNumber() {
 		int max = -1;
-		Iterator it = m_tunes.keySet().iterator();
-		while (it.hasNext()) {
-			Integer i = (Integer) it.next();
-			if (i > max)
-				max = i;
-		}
+        for (Object o : m_tunes.keySet()) {
+            Integer i = (Integer) o;
+            if (i > max)
+                max = i;
+        }
 		return max;
 	}
 
@@ -136,7 +133,7 @@ public class TuneBook implements Cloneable, Serializable {
 		int[] refNb = new int[m_tunes.size()];
 		int index = 0;
 		while (it.hasNext()) {
-			refNb[index] = ((Integer) it.next()).intValue();
+			refNb[index] = (Integer) it.next();
 			index++;
 		}
 		return refNb;
@@ -146,7 +143,6 @@ public class TuneBook implements Cloneable, Serializable {
 	 * Returns the tune requested by its reference number. <br>
 	 * Returns null if ref number is not found
 	 * 
-	 * @param referenceNumber
 	 * @return a Tune or null
 	 */
 	public Tune getTune(int referenceNumber) {
@@ -168,21 +164,19 @@ public class TuneBook implements Cloneable, Serializable {
 	 * Put a tune into the book. If exists, replace tune with the same reference
 	 * number and returns true. If doesn't exist, add it and return false.
 	 * 
-	 * @param tune
 	 * @return true if it replaced an existing tune, false otherwise
 	 */
 	public boolean putTune(Tune tune) {
 		boolean ret = containsTune(tune);
 		tune.getTuneInfos().setBookInfos(getBookInfos());
 		tune.getInstructions().addAll(0, getInstructions());
-		m_tunes.put(new Integer(tune.getReferenceNumber()), tune);
+		m_tunes.put(tune.getReferenceNumber(), tune);
 		return ret;
 	}
 
 	/**
 	 * Remove the tune having the requested reference number from the book
 	 * 
-	 * @param referenceNumber
 	 * @return the removed tune, null if didn't exist.
 	 */
 	public Tune removeTune(int referenceNumber) {
@@ -198,7 +192,6 @@ public class TuneBook implements Cloneable, Serializable {
 	/**
 	 * Remove the tune having the same reference number from the book
 	 * 
-	 * @param tune
 	 * @return the removed tune, null if didn't exist.
 	 */
 	public Tune removeTune(Tune tune) {
@@ -216,11 +209,10 @@ public class TuneBook implements Cloneable, Serializable {
 
 	public Vector toVector() {
 		Vector v = new Vector(size(), 5);
-		Iterator it = m_tunes.keySet().iterator();
-		while (it.hasNext()) {
-			Integer i = (Integer) it.next();
-			v.addElement(m_tunes.get(i));
-		}
+        for (Object o : m_tunes.keySet()) {
+            Integer i = (Integer) o;
+            v.addElement(m_tunes.get(i));
+        }
 		return v;
 	}
 }

@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -44,10 +46,10 @@ class JRepeatBar extends JBar{
 		String chars = "";
 		byte[] numbers = ((RepeatBarLine)m_barLine).getRepeatNumbers();
 		if (numbers.length > 0) {
-			for (int i = 0; i < numbers.length; i++) {
-				chars += String.copyValueOf(getMusicalFont().getTupletDigits(numbers[i]));
-				chars += String.copyValueOf(new char[] {getMusicalFont().getTextualDot()});
-			}
+            for (byte number : numbers) {
+                chars += String.copyValueOf(getMusicalFont().getTupletDigits(number));
+                chars += String.copyValueOf(new char[]{getMusicalFont().getTextualDot()});
+            }
 			char[] ch = chars.toCharArray();
 			double digitHeight = metrics.getBounds(ch).getHeight();
 			context.drawChars(ch, 0, ch.length, 

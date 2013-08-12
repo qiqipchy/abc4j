@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -15,7 +17,6 @@
 // along with abc4j.  If not, see <http://www.gnu.org/licenses/>.
 package abc.notation;
 
-import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -144,9 +145,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * If the key has no accidental, sharp is preferred. If the note is just
 	 * under the key note, sharp is preferred (e.g. f# instead of gb for G
 	 * minor).
-	 * 
-	 * @param midiHeight
-	 * @param key
 	 */
 	static public Note createFromMidiLikeHeight(int midiHeight, KeySignature key) {
 		Accidental acc = key.isFlatDominant() ? Accidental.FLAT
@@ -166,9 +164,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * is considered as NATURAL. In fact it depends on the key!
 	 * If height = Note.E and accidental = NONE, it could be
 	 * E flat if key is Bb major, C minor...!
-	 * 
-	 * @param midiHeight
-	 * @param key
 	 */
 	static public Note createFromMidiLikeHeight(int midiHeight,
 			Accidental preferredAccidental) {
@@ -188,7 +183,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * <li>midiHeight = -1 returns B,
 	 * </ul>
 	 * 
-	 * @param midiHeight
 	 * @throws NoteHeightException
 	 */
 	static public Note createFromMidiLikeHeight(int midiHeight)
@@ -217,9 +211,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * 
 	 * e.g.: enharmonics of _E (E flat) are ^D (D sharp) and __F (F double
 	 * flat).
-	 * 
-	 * @param note
-	 * @param key
 	 */
 	static public Note createEnharmonic(Note note, KeySignature key) {
 		Note ret;
@@ -227,14 +218,13 @@ public class Note extends NoteAbstract implements Cloneable
 			ret = (Note) note.clone();
 		} catch (CloneNotSupportedException never) {
 			never.printStackTrace();
-			ret = null;
+			return null;
 		}
-		if (note.getAccidental().isInTheKey())
-			return ret; //is in the key
+		if (note.getAccidental().isInTheKey()) return ret; //is in the key
 		Accidental accValue = note.getAccidental();
 		if (accValue.isDoubleFlat() || accValue.isDoubleSharp())
 			ret = createEnharmonic(note, new Accidental[] {Accidental.NATURAL, Accidental.SHARP});
-		if (ret.getAccidental().equals(
+        if (ret.getAccidental().equals(
 				key.getAccidentalFor(ret.getStrictHeight()))) {
 			//no need to change
 			ret.setAccidental(Accidental.NONE);
@@ -305,7 +295,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * If height = Note.E and accidental = NONE, it could be
 	 * E flat if key is Bb major, C minor...!
 	 * 
-	 * @param note
 	 * @param accidentalTypes array of accidental types, by order of preference
 	 * @see #createEnharmonic(Note, KeySignature)
 	 */
@@ -315,9 +304,9 @@ public class Note extends NoteAbstract implements Cloneable
 			ret = (Note) note.clone();
 		} catch (CloneNotSupportedException never) {
 			never.printStackTrace();
-			ret = null;
+			return null;
 		}
-		if (ret.isRest() || (accidentalTypes[0].equals(ret.getAccidental())))
+        if (ret.isRest() || (accidentalTypes[0].equals(ret.getAccidental())))
 			return ret;
 		Vector nearNotes = new Vector(9);
 		for (int i = -4; i <= 4; i++) {
@@ -325,21 +314,21 @@ public class Note extends NoteAbstract implements Cloneable
 				continue;
 			try {
 				nearNotes.add(transpose(ret, i));
-			} catch (NoteHeightException ignoreIt) {
+			} catch (NoteHeightException ignored) {
 			}
 		}
 		try {
 			nearNotes.add(transpose(ret, 0));
-		} catch (NoteHeightException ignoreIt) {
+		} catch (NoteHeightException ignored) {
 		}
-		for (int i = 0; i < accidentalTypes.length; i++) {
-			for (Iterator it = nearNotes.iterator(); it.hasNext();) {
-				Note nearNote = (Note) it.next();
-				nearNote.setAccidental(accidentalTypes[i]);
-				if (nearNote.getMidiLikeMicrotonalHeight() == note.getMidiLikeMicrotonalHeight())
-					return nearNote;
-			}
-		}
+        for (Accidental accidentalType : accidentalTypes) {
+            for (Object nearNote1 : nearNotes) {
+                Note nearNote = (Note) nearNote1;
+                nearNote.setAccidental(accidentalType);
+                if (nearNote.getMidiLikeMicrotonalHeight() == note.getMidiLikeMicrotonalHeight())
+                    return nearNote;
+            }
+        }
 		return ret;
 	}
 	
@@ -353,9 +342,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * {@link #createEnharmonic(Note, KeySignature)} after
 	 * transposing.
 	 * 
-	 * @param note
-	 * @param semitones
-	 * @return
 	 * @throws NoteHeightException
 	 *             if transposition is going to low or to high.
 	 */
@@ -366,7 +352,7 @@ public class Note extends NoteAbstract implements Cloneable
 			ret = (Note) note.clone();
 		} catch (CloneNotSupportedException never) {
 			never.printStackTrace();
-			ret = null;
+			return null;
 		}
 		//if semitones == 0, E## will be transposed as F#
 		//ensure that we will return NATURAL or SHARP accidental
@@ -389,10 +375,6 @@ public class Note extends NoteAbstract implements Cloneable
 	 * a clone which only height is changed. The accidental is deduced from the
 	 * key signature.
 	 * 
-	 * @param note
-	 * @param semitones
-	 * @param keySig
-	 * @return
 	 * @throws NoteHeightException
 	 *             if transposition is going to low or to high.
 	 */
@@ -451,7 +433,6 @@ public class Note extends NoteAbstract implements Cloneable
    * @param heightValue The heigth of this note as a byte that respect the scale defined by
    * constants such as C D E F G A B c d e ..... The heigth is <TT>REST</TT> if
    * this note is a rest.
-   * @param accidental
    */
   public Note (byte heightValue, Accidental accidental) {
 	  super();
@@ -477,16 +458,17 @@ public class Note extends NoteAbstract implements Cloneable
    */
   public Note (byte heightValue, float accidentalValue, byte octaveTranspositionValue)
   {
-    this(heightValue, accidentalValue);
+    this(heightValue, new Accidental(accidentalValue));
     setOctaveTransposition((byte)(octaveTransposition+octaveTranspositionValue));
   }
   
   /** Creates an abc note with the specified heigth, accidental and octave
    * transposition.
+   *
    * @param heightValue The heigth of this note as a byte that respect the scale defined by
    * constants such as C D E F G A B c d e ..... The heigth is <TT>REST</TT> if
    * this note is a rest.
-   * @param accidental
+   *
    * @param octaveTranspositionValue The octave transposition for this note :
    * 1, 2 or 3 means "1, 2 or 3 octave(s) higher than the reference octave" and
    * -1, -2 or -3 means "1, 2 or 3 octave(s) less than the reference octave".
@@ -831,12 +813,12 @@ public class Note extends NoteAbstract implements Cloneable
     int totalLength=0;
     if (hasGracingNotes()) {
 		NoteAbstract[] notes = getGracingNotes();
-		for (int i=0; i<notes.length; i++) {
-			if (notes[i] instanceof Note)
-				totalLength+=((Note)notes[i]).getStrictDuration();
-			else
-				totalLength+=((MultiNote)notes[i]).getLongestNote().getStrictDuration();
-		}
+        for (NoteAbstract note : notes) {
+            if (note instanceof Note)
+                totalLength += ((Note) note).getStrictDuration();
+            else
+                totalLength += ((MultiNote) note).getLongestNote().getStrictDuration();
+        }
 	}
     return totalLength;
   }
@@ -1005,33 +987,33 @@ public class Note extends NoteAbstract implements Cloneable
 
   public static short convertToNoteLengthStrict(int num, int denom) throws IllegalArgumentException
   {
-    if (num==1 && denom==1) return Note.WHOLE;
-    else if (num==1 && denom==2) return Note.HALF;
-    else if (num==3 && denom==2) return Note.DOTTED_WHOLE;
-    else if (num==1 && denom==4) return Note.QUARTER;
-    else if (num==3 && denom==4) return Note.DOTTED_HALF;
-    else if (num==1 && denom==8) return Note.EIGHTH;
-    else if (num==3 && denom==8) return Note.DOTTED_QUARTER;
+    if      (num==1 && denom== 1) return Note.WHOLE;
+    else if (num==1 && denom== 2) return Note.HALF;
+    else if (num==3 && denom== 2) return Note.DOTTED_WHOLE;
+    else if (num==1 && denom== 4) return Note.QUARTER;
+    else if (num==3 && denom== 4) return Note.DOTTED_HALF;
+    else if (num==1 && denom== 8) return Note.EIGHTH;
+    else if (num==3 && denom== 8) return Note.DOTTED_QUARTER;
     else if (num==1 && denom==16) return Note.SIXTEENTH;
     else if (num==3 && denom==16) return Note.DOTTED_EIGHTH;
     else if (num==1 && denom==32) return Note.THIRTY_SECOND;
     else if (num==3 && denom==32) return Note.DOTTED_SIXTEENTH;
     else if (num==1 && denom==64) return Note.SIXTY_FOURTH;
-    else if (num==1 && denom==64) return Note.DOTTED_THIRTY_SECOND;
+    else if (num==3 && denom==64) return Note.DOTTED_THIRTY_SECOND; // fix HHR
     else throw new IllegalArgumentException(num + "/" + denom + " doesn't correspond to any strict note length");
   }
 
   public String toString()
   {
-    StringBuffer sb = new StringBuffer(super.toString());
-    if (strictHeight == REST) sb.append("z");
-    else if (strictHeight == C) sb.append("C");
-    else if (strictHeight == D) sb.append("D");
-    else if (strictHeight == E) sb.append("E");
-    else if (strictHeight == F) sb.append("F");
-    else if (strictHeight == G) sb.append("G");
-    else if (strictHeight == A) sb.append("A");
-    else if (strictHeight == B) sb.append("B");
+    StringBuilder sb = new StringBuilder(super.toString());
+    if      (strictHeight == REST) sb.append("z");
+    else if (strictHeight == C)    sb.append("C");
+    else if (strictHeight == D)    sb.append("D");
+    else if (strictHeight == E)    sb.append("E");
+    else if (strictHeight == F)    sb.append("F");
+    else if (strictHeight == G)    sb.append("G");
+    else if (strictHeight == A)    sb.append("A");
+    else if (strictHeight == B)    sb.append("B");
     sb.append(m_accidental.toString());
     if (octaveTransposition >= 1) {
     	for (int i = 1; i <= octaveTransposition; i++)

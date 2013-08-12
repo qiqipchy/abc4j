@@ -26,10 +26,6 @@ public class UserDefinedPlaySymbol extends UserDefinedSymbol implements Cloneabl
 
 	private static final long serialVersionUID = -1390989857941609678L;
 
-	/**
-	 * @param symbol
-	 * @param element
-	 */
 	public UserDefinedPlaySymbol(char symbol, SymbolElement element) {
 		super(symbol, element);
 	}

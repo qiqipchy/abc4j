@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -23,7 +25,7 @@ import java.io.Serializable;
  * <br>
  * <ul>
  * <li>the part label, <TT>' '</TT> for default part
- * <li>the "horizontal" index set when added in {@link abc.notation.Tune.Music}
+ * <li>the "horizontal" index set when added in {@link abc.notation.Music}
  * elements collection, <TT>-1</TT> if not set
  * <li>the "vertical" index for each note in a {@link abc.notation.MultiNote},
  * <TT>-1</TT> if not set.

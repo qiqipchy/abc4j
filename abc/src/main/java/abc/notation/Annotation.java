@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -39,13 +41,13 @@ public class Annotation extends MusicPresentationElement implements Cloneable {
 	private String m_text = null;
 	
 	/** Creates a new annotation.
-	 * @param theContent */
+	 */
 	public Annotation(String theContent){
 		m_text = theContent;
 	}
 
 	/** Creates a new annotation.
-	 * @param theContent
+     *
 	 * @param identifier Not displayed string, but useful if you want to
 	 * remove/update some kind of annotation
 	 */

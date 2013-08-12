@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -30,8 +32,7 @@ public class JTempo extends JText {
 	
 	private Tempo m_tempo = null;
 	private char[] m_refNote;
-	private boolean m_dotted;
-	private String m_number;
+    private String m_number;
 	private Rectangle2D m_refNoteBounds;
 	private Rectangle2D m_noteHeadBounds;
 	private Rectangle2D m_numberBounds;
@@ -43,7 +44,7 @@ public class JTempo extends JText {
 	protected JTempo(ScoreMetrics mtrx, Point2D base, Tempo tempo) {
 		super(mtrx, "", ScoreElements.TEMPO);
 		m_tempo = tempo;
-		m_dotted = !Note.isStrictDuration(m_tempo.getReferenceLength());
+        boolean m_dotted = !Note.isStrictDuration(m_tempo.getReferenceLength());
 		short refLength = m_tempo.getReferenceLength();
 		if (m_dotted) {
 			refLength = Note.getStrictDuration(refLength);

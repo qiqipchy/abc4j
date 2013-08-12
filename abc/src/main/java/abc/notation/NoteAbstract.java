@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -223,7 +225,6 @@ public class NoteAbstract extends DecorableElement implements Cloneable
   /**
    * @deprecated see {@link #addSlurDefinition(SlurDefinition)}
    * because one Note can have multiple slurs definitions
-   * @param slurDefinition
    */
   public void setSlurDefinition(SlurDefinition slurDefinition) {
 	  addSlurDefinition(slurDefinition);
@@ -273,7 +274,7 @@ public class NoteAbstract extends DecorableElement implements Cloneable
 	 * @return a String representation of this Object.
 	 */
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (m_chord != null)
 			sb.append("\"" + m_chord.getText() + "\"");
 		if (generalGracing)
@@ -281,9 +282,9 @@ public class NoteAbstract extends DecorableElement implements Cloneable
 		if ((m_gracingNotes != null)
 				&& (m_gracingNotes.length > 0)) {
 			sb.append("{");
-			for (int i = 0; i < m_gracingNotes.length; i++) {
-				sb.append(m_gracingNotes[i].toString());
-			}
+            for (NoteAbstract m_gracingNote : m_gracingNotes) {
+                sb.append(m_gracingNote.toString());
+            }
 			sb.append("}");
 		}
 		if (staccato)
@@ -291,9 +292,9 @@ public class NoteAbstract extends DecorableElement implements Cloneable
 		if ((m_decorations != null)
 				&& (m_decorations.length > 0)) {
 			sb.append("!");
-			for (int i = 0; i < m_decorations.length; i++) {
-				sb.append(m_decorations[i].toString());
-			}
+            for (Decoration m_decoration : m_decorations) {
+                sb.append(m_decoration.toString());
+            }
 			sb.append("!");
 		}
 		return sb.toString();
@@ -302,14 +303,10 @@ public class NoteAbstract extends DecorableElement implements Cloneable
 	public Object clone() throws CloneNotSupportedException {
 		Object o = super.clone();
 		NoteAbstract clone = (NoteAbstract) o;
-		if (m_chord != null)
-		clone.m_chord = (Chord) m_chord.clone();
-		if (m_dynamic != null)
-		clone.m_dynamic = (Dynamic) m_dynamic.clone();
-		if (m_decorations != null)
-		clone.m_decorations = (Decoration[]) m_decorations.clone();
-		if (m_gracingNotes != null)
-		clone.m_gracingNotes = (NoteAbstract[]) m_gracingNotes.clone();
+		if (m_chord         != null) clone.m_chord          = (Chord)   m_chord  .clone();
+		if (m_dynamic       != null) clone.m_dynamic        = (Dynamic) m_dynamic.clone();
+		if (m_decorations   != null) clone.m_decorations    = m_decorations.clone();
+		if (m_gracingNotes  != null) clone.m_gracingNotes   = m_gracingNotes.clone();
 		//do not clone tuplet
 		//if (m_tuplet != null)
 		//clone.m_tuplet = (Tuplet) m_tuplet.clone();

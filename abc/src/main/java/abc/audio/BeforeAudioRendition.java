@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -16,7 +18,6 @@
 package abc.audio;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 
 import abc.notation.KeySignature;
 import abc.notation.Music;
@@ -25,7 +26,7 @@ import abc.notation.PartLabel;
 import abc.notation.Voice;
 
 /**
- * Utility class to prepare a {@link abc.notation.Tune.Music} object
+ * Utility class to prepare a {@link abc.notation.Music} object
  * to be rendered in audio output (MIDI or other)
  */
 public class BeforeAudioRendition {
@@ -58,50 +59,47 @@ public class BeforeAudioRendition {
 	 * This method corrects this, the key was Bb before the
 	 * first part A, so before the second part A we add a Bb
 	 * key.
-	 * @param music
-	 * @return
 	 */
 	public static Music correctPartsKeys(Music music) {
 		//we may have key/clef changes
 		//repeat operation for each voice. Key is for all voices
 		//but clef can change from one voice to another
-		Iterator it = music.getVoices().iterator();
-		while (it.hasNext()) {
-			Voice voice = (Voice) it.next();
-			if (voice.hasObject(KeySignature.class)
-					&& voice.hasObject(PartLabel.class)) {
-				Hashtable partsKey = new Hashtable();
-				KeySignature tuneKey = null;
-				int size = voice.size();
-				int i = 0;
-				while (i < size) {
-					MusicElement me = (MusicElement) voice.elementAt(i);
-					if (me instanceof KeySignature) {
-						tuneKey = (KeySignature) me;
-					} else if (me instanceof PartLabel) {
-						PartLabel pl = (PartLabel) me;
-						if ((tuneKey != null) && (partsKey.get(pl.getLabel()+"") == null)) {
-							//first time we see this part, store the key
-							partsKey.put(pl.getLabel()+"", tuneKey);
-						} else {//not the first time we see this part
-							//add the key
-							tuneKey = (KeySignature) partsKey.get(pl.getLabel() + "");
-							if (i < (size - 1)) {
-								if (!(voice.elementAt(i+1) instanceof KeySignature)) {
-									//if next element is a key, no need to insert one
-									//just before, next while step it'll be defined as
-									//tuneKey
-									voice.insertElementAt(tuneKey, i+1);
-									i++;
-									size++;
-								}
-							}
-						}
-					}
-					i++;
-				}//end for each element of voice
-			}//end voice has key(s) and part(s)
-		}//end for each voice of music
+        for (Object o : music.getVoices()) {
+            Voice voice = (Voice) o;
+            if (voice.hasObject(KeySignature.class)
+                    && voice.hasObject(PartLabel.class)) {
+                Hashtable partsKey = new Hashtable();
+                KeySignature tuneKey = null;
+                int size = voice.size();
+                int i = 0;
+                while (i < size) {
+                    MusicElement me = (MusicElement) voice.elementAt(i);
+                    if (me instanceof KeySignature) {
+                        tuneKey = (KeySignature) me;
+                    } else if (me instanceof PartLabel) {
+                        PartLabel pl = (PartLabel) me;
+                        if ((tuneKey != null) && (partsKey.get(pl.getLabel() + "") == null)) {
+                            //first time we see this part, store the key
+                            partsKey.put(pl.getLabel() + "", tuneKey);
+                        } else {//not the first time we see this part
+                            //add the key
+                            tuneKey = (KeySignature) partsKey.get(pl.getLabel() + "");
+                            if (i < (size - 1)) {
+                                if (!(voice.elementAt(i + 1) instanceof KeySignature)) {
+                                    //if next element is a key, no need to insert one
+                                    //just before, next while step it'll be defined as
+                                    //tuneKey
+                                    voice.insertElementAt(tuneKey, i + 1);
+                                    i++;
+                                    size++;
+                                }
+                            }
+                        }
+                    }
+                    i++;
+                }//end for each element of voice
+            }//end voice has key(s) and part(s)
+        }//end for each voice of music
 		//else nothing to do
 		return music;
 	}
@@ -111,8 +109,6 @@ public class BeforeAudioRendition {
 	 * accidental to the same note of a bar.
 	 * 
 	 * TODO use the rule ??? to apply or not to octaves
-	 * @param music
-	 * @return
 	 */
 	public static Music applyAccidentals(Music music) {
 		return music;
@@ -123,7 +119,7 @@ public class BeforeAudioRendition {
 	 * into multiple notes (and rests).
 	 * 
 	 * e.g. +trill+C2 will be transformed into DCDC
-	 * @param source
+     *
 	 * @return the Music object which contents has been changed
 	 */
 	public static Music transformDecorations(Music music) {
@@ -132,19 +128,16 @@ public class BeforeAudioRendition {
 		KeySignature currentKey = null;
 		Hashtable partsKey = new Hashtable();
 		MusicElement element;
-		Iterator itMusic = music.iterator();
-		while (itMusic.hasNext()) {
-			element = (MusicElement) itMusic.next();
-			
-		}
+        for (Object o : music.getFirstVoice()) {
+            element = (MusicElement) o;
+
+        }
 		return music;
 	}
 	
 	/**
 	 * Transforms <code>|: ... :|</code> into <code>2 * (...)</code>,
 	 * repeat bars.
-	 * @param music
-	 * @return
 	 */
 	public static Music transformRepeatsAndBreaks(Music music) {
 		return music;
@@ -153,8 +146,6 @@ public class BeforeAudioRendition {
 	/**
 	 * Apply dynamics by modifying notes' velocities by a
 	 * percentage, e.g. +ff+ apply 120%.
-	 * @param music
-	 * @return
 	 */
 	public static Music applyDynamics(Music music) {
 		return music;
@@ -164,8 +155,6 @@ public class BeforeAudioRendition {
 	 * If <code>%%MIDI gchord ...</code> instruction(s) is(are)
 	 * declared, create new voices for bass and chord
 	 * accompaniments
-	 * @param music
-	 * @return
 	 */
 	public static Music generateBassAndChords(Music music) {
 		return music;

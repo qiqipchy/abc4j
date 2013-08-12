@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -22,10 +24,10 @@ public class RepeatBarLine extends BarLine implements Cloneable {
 
 	private static boolean containsOne(byte[] byteArray) {
 		if (byteArray != null) {
-			for (int i = 0; i < byteArray.length; i++) {
-				if (byteArray[i] == 1)
-					return true;
-			}
+            for (byte aByteArray : byteArray) {
+                if (aByteArray == 1)
+                    return true;
+            }
 		}
 		return false;
 	}
@@ -37,7 +39,7 @@ public class RepeatBarLine extends BarLine implements Cloneable {
 	/**
 	 * Creates a new repeat bar line.
 	 * 
-	 * @param repeatsNumber
+	 * @param repeatNumbers
 	 *            The number of times the repeat should occur.
 	 * @param barline
 	 *            barline type {@link BarLine#SIMPLE} or
@@ -59,7 +61,6 @@ public class RepeatBarLine extends BarLine implements Cloneable {
 	 */
 	public RepeatBarLine(byte barline, String nthRepeatText) {
 		super(barline);
-		;
 		m_repeatNumbers = new byte[0];
 		m_repeatText = nthRepeatText;
 	}
@@ -67,7 +68,7 @@ public class RepeatBarLine extends BarLine implements Cloneable {
 	/**
 	 * Creates a new repeat bar line.
 	 * 
-	 * @param repeatsNumber
+	 * @param repeatNumbers
 	 *            The number of times the repeat should occur.
 	 */
 	public RepeatBarLine(byte[] repeatNumbers) {

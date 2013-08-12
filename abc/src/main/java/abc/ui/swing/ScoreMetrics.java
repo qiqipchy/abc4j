@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -39,9 +41,9 @@ import abc.ui.scoretemplates.SizeUnit;
  */
 public class ScoreMetrics {
 
-	protected static final int NOTATION_CONTEXT_GRACENOTE = 200;
-	protected static final int NOTATION_CONTEXT_NOTE = 100;
-	protected static final int NOTATION_CONTEXT_TEMPO = 150;
+	protected static final int NOTATION_CONTEXT_GRACENOTE   = 200;
+	protected static final int NOTATION_CONTEXT_NOTE        = 100;
+	protected static final int NOTATION_CONTEXT_TEMPO       = 150;
 
 	/**
 	 * Map to store the calculated bounds of various glyphes
@@ -56,8 +58,6 @@ public class ScoreMetrics {
 
 	/**
 	 * Build a ScoreMetrics from a {@link ScoreTemplate}
-	 * @param g2d
-	 * @param template
 	 */
 	protected ScoreMetrics(Graphics2D g2d, ScoreTemplate template) {
 		g2 = g2d;
@@ -67,8 +67,6 @@ public class ScoreMetrics {
 
 	/**
 	 * Get the bounds of a glyph in the default notation context.
-	 * 
-	 * @param glyph
 	 */
 	protected Rectangle2D getBounds(char glyph) {
 		return getBounds(new char[] { glyph }, NOTATION_CONTEXT_NOTE);
@@ -77,7 +75,7 @@ public class ScoreMetrics {
 	/**
 	 * Get the bounds of a glyph in the default notation
 	 * context.
-	 * @param glyph
+     *
 	 * @param notationContext {@link #NOTATION_CONTEXT_NOTE} or {@link #NOTATION_CONTEXT_GRACENOTE}
 	 */
 	protected Rectangle2D getBounds(char glyph, int notationContext) {
@@ -87,7 +85,7 @@ public class ScoreMetrics {
 	/**
 	 * Get the bounds of a glyph in the default notation
 	 * context.
-	 * @param glyph {@link #SHARP}, {@link #FLAT}...
+	 * @param glyph {@link abc.notation.Accidental#SHARP}, {@link abc.notation.Accidental#FLAT}...
 	 */
 	protected Rectangle2D getBounds(char[] glyph) {
 		return getBounds(glyph, NOTATION_CONTEXT_NOTE);
@@ -95,7 +93,7 @@ public class ScoreMetrics {
 	
 	/**
 	 * Get the bounds of a glyph in the given notation context
-	 * @param glyph {@link #SHARP}, {@link #FLAT}...
+	 * @param glyph {@link abc.notation.Accidental#SHARP}, {@link abc.notation.Accidental#FLAT}...
 	 * @param notationContext {@link #NOTATION_CONTEXT_NOTE} or {@link #NOTATION_CONTEXT_GRACENOTE}
 	 */
 	protected Rectangle2D getBounds(char[] glyph, int notationContext) {
@@ -118,16 +116,16 @@ public class ScoreMetrics {
 	}
 	
 	/**
-	 *
 	 * @param notationContext {@link #NOTATION_CONTEXT_NOTE}, {@link #NOTATION_CONTEXT_GRACENOTE}
-	 * @return
 	 */
 	protected Dimension getGlyphDimension(int notationContext) {
 		Rectangle2D bounds = getBounds(
 				new char[] {getMusicalFont().getNoteWithoutStem(Note.QUARTER)},
 				notationContext);
-		return new Dimension((int)(bounds.getHeight()),
-				(int)(bounds.getWidth()));
+        // System.out.println("bounds.getHeight() : " + bounds);
+
+        // fix HHR: width and height were swapped; also reported width seems too large
+		return new Dimension((int) bounds.getWidth() - 1, (int) bounds.getHeight());
 	}
 
 	/* *** graceNotes support *** */
@@ -199,11 +197,6 @@ public class ScoreMetrics {
 				NOTATION_CONTEXT_NOTE).getHeight();
 	}
 
-	/** @deprecated {@link getNoteHeight()} */
-	public double getNoteHeigth() {
-		return getNoteHeight();
-	}
-
 	protected BasicStroke getNotesLinkStroke() {
 		return getNotesLinkStrokeForContext(NOTATION_CONTEXT_NOTE);
 	}
@@ -263,8 +256,11 @@ public class ScoreMetrics {
 	 * @return Returns the bounding box of a staff line character.
 	 */
 	protected Rectangle2D getStaffCharBounds() {
-		return getBounds(new char[] { getMusicalFont().getStaffFiveLines() },
+		Rectangle2D r = getBounds(new char[] { getMusicalFont().getStaffFiveLines() },
 				NOTATION_CONTEXT_NOTE);
+        // System.out.println(r);
+        // r.setRect(0.0, -25.0, 26.0, 26.0);  // correction HHR: +1
+        return r;
 	}
 	
 	/**
@@ -272,7 +268,6 @@ public class ScoreMetrics {
 	 * @param notationContext
 	 *            {@link #NOTATION_CONTEXT_NOTE},
 	 *            {@link #NOTATION_CONTEXT_GRACENOTE}
-	 * @return
 	 */
 	protected int getStemLengthForContext(int notationContext) {
 		switch (notationContext) {
@@ -365,8 +360,6 @@ public class ScoreMetrics {
 	 * It's the same than
 	 * {@link ScoreTemplate#setAttributeSize(ScoreAttribute, float)} for
 	 * {@link ScoreAttribute#NOTATION_SIZE}.
-	 * 
-	 * @param size
 	 */
 	public void setNotationFontSize(float notationSize) {
 		getTemplate().setAttributeSize(ScoreAttribute.NOTATION_SIZE,
@@ -384,8 +377,6 @@ public class ScoreMetrics {
 	 * It's the same than
 	 * {@link ScoreTemplate#setAttributeSize(ScoreAttribute, float)} for
 	 * {@link ScoreAttribute#TEXT_DEFAULT_SIZE}.
-	 * 
-	 * @param textSize
 	 */
 	public void setTextFontSize(float textSize) {
 		getTemplate().setDefaultTextSize(textSize);

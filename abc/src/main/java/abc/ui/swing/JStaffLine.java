@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -120,22 +122,20 @@ class JStaffLine extends JScoreElementAbstract {
 	}
 
 	public boolean hasLyrics() {
-		if (m_lyrics.size() > 0) return true;
-		else return false;
+        return m_lyrics.size() > 0;
 	}
 	
 	/**
 	 * Returns true if this staff line has note(s).
 	 * Returns false if it only contains clef, key, time sig., tempo, barlines...
-	 * @return
 	 */
 	public boolean hasNotes() {
-		for (Iterator it = m_staffElements.iterator(); it.hasNext();) {
-			JScoreElement element = (JScoreElement) it.next();
-			if ((element instanceof JNoteElementAbstract)
-					|| (element instanceof JGroupOfNotes))
-				return true;
-		}
+        for (Object m_staffElement : m_staffElements) {
+            JScoreElement element = (JScoreElement) m_staffElement;
+            if ((element instanceof JNoteElementAbstract)
+                    || (element instanceof JGroupOfNotes))
+                return true;
+        }
 		return false;
 	}
 
@@ -238,11 +238,11 @@ class JStaffLine extends JScoreElementAbstract {
 		}
 		
 		JScoreElementAbstract[] elmts = toArray();
-		for (int j=0; j<elmts.length; j++) {
-			//Render all elements of this line (notes, barlines...)
-			//this will render lyrics, tablature numbers
-			elmts[j].render(g);
-		}
+        for (JScoreElementAbstract elmt : elmts) {
+            //Render all elements of this line (notes, barlines...)
+            //this will render lyrics, tablature numbers
+            elmt.render(g);
+        }
 		
 		// TODO render lyrics, etc.
 		Iterator iter = m_lyrics.iterator();

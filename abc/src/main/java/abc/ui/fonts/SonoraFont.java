@@ -79,7 +79,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		'\uF0BB'}; //9
 	
 	/** Unknown note length */
-	private static final char UNKNWON_NOTE = '\uF0AD';
+	private static final char UNKNOWN_NOTE = '\uF0AD';
 
 	public SonoraFont() {
 		//voided
@@ -303,7 +303,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		case Note.WHOLE: return '\uF092';
 		case Note.BREVE: return '\uF057';
 		case Note.LONG: return '\uF0DD';
-		default: return UNKNWON_NOTE;
+		default: return UNKNOWN_NOTE;
 		}
 	}
 	
@@ -318,7 +318,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		case Note.WHOLE: return '\uF092';
 		case Note.BREVE: return '\uF057';
 		case Note.LONG: return '\uF0DD';
-		default: return UNKNWON_NOTE;
+		default: return UNKNOWN_NOTE;
 		}
 	}
 	
@@ -346,7 +346,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		case Note.HALF: return '\uF0EE';
 		case Note.WHOLE: return '\uF0B7';
 		case Note.BREVE: return '\uF0E3';
-		default: return UNKNWON_NOTE;
+		default: return UNKNOWN_NOTE;
 		}
 	}
 
@@ -363,7 +363,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		case Note.QUARTER:
 		case Note.HALF: return '\uF019';
 		//whole, breve and long have no stem
-		default: return UNKNWON_NOTE;
+		default: return UNKNOWN_NOTE;
 		}
 	}
 	
@@ -376,7 +376,7 @@ public class SonoraFont extends MusicalFontAbstract implements MusicalFont, Seri
 		case Note.QUARTER:
 		case Note.HALF: return '\uF018';
 		//whole, breve and long have no stem
-		default: return UNKNWON_NOTE;
+		default: return UNKNOWN_NOTE;
 		}
 	}
 	

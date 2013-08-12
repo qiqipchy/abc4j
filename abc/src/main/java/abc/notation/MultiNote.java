@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -16,7 +18,6 @@
 package abc.notation;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 
 /** A multi note is a group of notes that should be played together. */
@@ -34,9 +35,9 @@ public class MultiNote extends NoteAbstract implements Cloneable
 		super();
 		m_notes = fromLowestToHighest(notes);
 		byte y = 1;
-		for (Iterator it = m_notes.iterator(); it.hasNext();) {
-			((Note) it.next()).getReference().setY(y++);
-		}
+        for (Object m_note : m_notes) {
+            ((Note) m_note).getReference().setY(y++);
+        }
   	}
   	
   	/** Returns <TT>true</TT> if this chord contains the specified note.
@@ -88,10 +89,10 @@ public class MultiNote extends NoteAbstract implements Cloneable
   public static Note[] getNotesShorterThan(Note[] notes, int aStrictDuration) {
 	  Vector shorterNotes = new Vector();
 	  Note[] notesArray =null;
-	  for (int i=0; i<notes.length; i++) {
-		  if (notes[i].getStrictDuration()<aStrictDuration)
-			  shorterNotes.addElement(notes[i]);
-	  }
+      for (Note note : notes) {
+          if (note.getStrictDuration() < aStrictDuration)
+              shorterNotes.addElement(note);
+      }
 	  if (shorterNotes.size()>0) {
 		  notesArray = new Note[shorterNotes.size()];
 		  shorterNotes.toArray(notesArray);
@@ -174,10 +175,10 @@ public class MultiNote extends NoteAbstract implements Cloneable
   public static Note[] excludeTiesEndings(Note[] notes) {
 	  Vector withoutTiesEnding = new Vector();
 	  Note[] withoutTiesEndingArray = null;
-	  for (int i=0; i<notes.length; i++) {
-		  if (!notes[i].isEndingTie())
-			  withoutTiesEnding.addElement(notes[i]);
-	  }
+      for (Note note : notes) {
+          if (!note.isEndingTie())
+              withoutTiesEnding.addElement(note);
+      }
 	  if (withoutTiesEnding.size()>0) {
 		  withoutTiesEndingArray = new Note[withoutTiesEnding.size()];
 		  withoutTiesEnding.toArray(withoutTiesEndingArray);
@@ -224,7 +225,7 @@ public class MultiNote extends NoteAbstract implements Cloneable
 	  for (int i=0; i<m_notes.size(); i++) {
 		  currentDuration = ((Note)(m_notes.elementAt(i))).getStrictDuration();
 		  if (durations.indexOf(new Short(currentDuration))==-1)
-			  durations.addElement(new Short(currentDuration));
+			  durations.addElement(currentDuration);
 	  }
 	  if (durations.size()==0)
 		  return null;
@@ -234,15 +235,15 @@ public class MultiNote extends NoteAbstract implements Cloneable
 		  for (int i=0; i<durations.size(); i++) {
 			  int j=0;
 			  while (j<sortedDurations.size()
-					  && ((Short)sortedDurations.elementAt(j)).shortValue()<
-					  (((Short)durations.elementAt(i)).shortValue())
+					  && (Short) sortedDurations.elementAt(j) <
+					  ((Short) durations.elementAt(i))
 					  )
 				  j++;
 			  sortedDurations.insertElementAt(durations.elementAt(i),j);
 		  }
 		  short[] durationsAsArray = new short[sortedDurations.size()];
 		  for (int i=0; i<sortedDurations.size(); i++)
-			  durationsAsArray [i] = ((Short)sortedDurations.elementAt(i)).shortValue();
+			  durationsAsArray [i] = (Short) sortedDurations.elementAt(i);
 		  return durationsAsArray;
 	  }
   }
@@ -256,7 +257,7 @@ public class MultiNote extends NoteAbstract implements Cloneable
 	  Hashtable splitter = new Hashtable();
 	  for (int i=0; i<m_notes.size(); i++) {
 		  Note note = (Note)m_notes.elementAt(i);
-		  Short key = new Short(note.getStrictDuration());
+		  Short key = note.getStrictDuration();
 		  if (splitter.containsKey(key))
 			  ((Vector)splitter.get(key)).addElement(note);
 		  else {
@@ -320,19 +321,19 @@ public class MultiNote extends NoteAbstract implements Cloneable
   
 	protected void setNotes(Note[] notes) {
 		Vector v = new Vector(notes.length);
-		for (int i = 0; i < notes.length; i++) {
-			v.addElement(notes[i]);
-		}
+        for (Note note : notes) {
+            v.addElement(note);
+        }
 		m_notes = fromLowestToHighest(v);
 		byte y = 1;
-		for (Iterator it = m_notes.iterator(); it.hasNext();) {
-			((Note) it.next()).getReference().setY(y++);
-		}
+        for (Object m_note : m_notes) {
+            ((Note) m_note).getReference().setY(y++);
+        }
 	}
 
 
   public String toString() {
-		StringBuffer sb = new StringBuffer(super.toString());
+		StringBuilder sb = new StringBuilder(super.toString());
 		for (int i = 0; i < m_notes.size(); i++) {
 			if (i == 0) sb.append("[");
 			else sb.append(":");

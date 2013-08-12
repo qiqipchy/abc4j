@@ -1,3 +1,5 @@
+// modified by HHR 12-Aug-13
+
 // Copyright 2006-2008 Lionel Gueganton
 // This file is part of abc4j.
 //
@@ -22,7 +24,6 @@ class JSubtitle extends JText {
 
 	/** Constructor
 	 * @param mtrx The score metrics needed
-	 * @param text
 	 */
 	protected JSubtitle(ScoreMetrics mtrx, String text) {
 		super(mtrx, text, ScoreElements.TEXT_SUBTITLE);
