@@ -18,7 +18,7 @@ The current version `v` is `0.6.+`.
 
 ## building and running
 
-To build the project use sbt 0.12. E.g. `sbt test:compile`. To test `sbt test`. To run the main demo `sbt abc4j/run`. This creates images files `abc4j_demoJustified.jpg` and `abc4j_demoNotjustified.jpg` in your home or desktop folder. To run the Acynth application, use `sbt abc4j-abcynth/run`. Here you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
+To build the project use sbt 0.13. E.g. `sbt test:compile`. To test `sbt test`. To run the main demo `sbt abc4j/run`. This creates images files `abc4j_demoJustified.jpg` and `abc4j_demoNotjustified.jpg` in your home or desktop folder. To run the Acynth application, use `sbt abc4j-abcynth/run`. Here you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
 
 To generate the javadoc API: `sbt abc4j/doc`.
 

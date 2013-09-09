@@ -22,7 +22,9 @@ object Build extends sbt.Build {
       libraryDependencies ++= Seq(
         "org.parboiled" % "parboiled-java" % "0.10.0",  // Note: this was 0.9.9. most recent 1.1.5, but anything newer than 0.10.0 fails to compile
         "com.novocode" % "junit-interface" % "0.8" % "test"  // cf. http://www.scala-sbt.org/0.12.3/docs/Detailed-Topics/Testing
-      )
+      ),
+      javacOptions in Compile += "-g",        // this is passed to javadoc (WTF?!), so the following line is needed:
+      javacOptions in (Compile, doc) := Nil   // yeah right, sssssuckers
     )
   )
 

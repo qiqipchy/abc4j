@@ -1,4 +1,4 @@
-version in ThisBuild := "0.6.0-SNAPSHOT"
+version in ThisBuild := "0.6.0"
 
 organization in ThisBuild := "de.sciss"
 
