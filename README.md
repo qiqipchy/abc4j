@@ -44,7 +44,9 @@ There are currently 8 tests failing in these classes:
 
 This still has to be investigated...
 
-The applets probably don't have the right class paths at the moment. I cannot check, as Java in the browser is currently not installed on my OS X 10.6 / Java 6 system.
+## applets
+
+There there are two html files in the `applets` folder which embed abc4j as Java applets. They require that a compound jar has been created in the `target` folder using `sbt assembly`. `checkApplet.html` simply allows to enter an abc notated text and runs the parser to see if is valid code. `abcynthApplet` runs the tune book application. You might need to run it twice due to some null exceptions in configuration.
 
 ## overview
 

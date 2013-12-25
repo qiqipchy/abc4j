@@ -1,3 +1,5 @@
+import AssemblyKeys._
+
 lazy val commonSettings = Project.defaultSettings ++ Seq(
   version           := "0.6.1-SNAPSHOT",
   organization      := "de.sciss",
@@ -12,13 +14,16 @@ lazy val commonSettings = Project.defaultSettings ++ Seq(
 // ---- sub projects ----
 
 lazy val full = Project(
-  id        = "abc4j-full",
-  base      = file("."),
-  aggregate = Seq(abc, abcynth),
-  settings  = commonSettings ++ Seq(
+  id            = "abc4j-full",
+  base          = file("."),
+  aggregate     = Seq(abc, abcynth),
+  dependencies  = Seq(abc, abcynth),
+  settings      = commonSettings ++ assemblySettings ++ Seq(
     publishArtifact in (Compile, packageBin) := false, // there are no binaries
     publishArtifact in (Compile, packageDoc) := false, // there are no javadocs
-    publishArtifact in (Compile, packageSrc) := false  // there are no sources
+    publishArtifact in (Compile, packageSrc) := false, // there are no sources
+    test in assembly := (),  // because some currently fail
+    jarName in assembly := name.value + ".jar"
   )
 )
 
