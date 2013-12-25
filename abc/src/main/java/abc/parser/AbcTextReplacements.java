@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 /**
  * ABC text replacements resource bundle
  * <BR>
- * e.g.: <TT>\^a</TT> &rarr; <TT>â</TT>
+ * e.g.: <TT>\^a</TT> &rarr; <TT>Ã¢</TT>
  */
 public class AbcTextReplacements extends ResourceBundle {
 

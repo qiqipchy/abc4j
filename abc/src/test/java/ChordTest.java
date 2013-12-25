@@ -64,9 +64,9 @@ public class ChordTest extends TestCase {
 		assertEquals(Note.E, chord.getBass().getHeight());
 		
 		//other chars
-		chord = new Chord("EØ");
-		assertTrue("EØ", chord.isChord());
-		assertEquals("Ø", chord.getQuality());
+		chord = new Chord("EÃ˜");
+		assertTrue("EÃ˜", chord.isChord());
+		assertEquals("Ã˜", chord.getQuality());
 		chord = new Chord("%");
 		assertFalse("%", chord.isChord());
 		chord = new Chord("Bbo");

@@ -10,15 +10,27 @@ To contact Hanns Holger Rutz, send a mail to `contact@sciss.de`.
 
 ## linking
 
-Use the following artifact:
+Use the following artifact. Maven syntax:
 
-    "de.sciss" % "abc4j" % v
+    <dependency>
+      <groupId>de.sciss</groupId>
+      <artifactId>abc4j</artifactId>
+      <version>0.6.0</version>
+    </dependency>
 
-The current version `v` is `0.6.+`.
+sbt syntax:
+
+    "de.sciss" % "abc4j" % "0.6.+"
 
 ## building and running
 
-To build the project use sbt 0.13. E.g. `sbt test:compile`. To test `sbt test`. To run the main demo `sbt abc4j/run`. This creates images files `abc4j_demoJustified.jpg` and `abc4j_demoNotjustified.jpg` in your home or desktop folder. To run the Acynth application, use `sbt abc4j-abcynth/run`. Here you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
+A build file for [sbt](http://sbt.github.com/) version 0.13 is provided. If you have never used sbt, either follow the instructions on the sbt website for installation, or use (recommended) the [sbt-extras](https://github.com/paulp/sbt-extras) shell script. On OS X or Linux, this should be as simple as running the following line from a terminal:
+
+    curl -s https://raw.github.com/paulp/sbt-extras/master/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt
+
+It assumes you have directory `~/bin` and it is on your `PATH` (i.e., added to `~/.bash_profile`).
+
+After you have installed sbt, compiling is as simple as running `sbt test:compile`. To run the unit tests, use `sbt test`. To run the main demo, use `sbt abc4j/run`. This creates images files `abc4j_demoJustified.jpg` and `abc4j_demoNotjustified.jpg` in your home or desktop folder. To run the Acynth application, use `sbt abc4j-abcynth/run`. Here you may want to open the file `src/main/resources/abcynth/LGtunes.abc`.
 
 To generate the javadoc API: `sbt abc4j/doc`.
 

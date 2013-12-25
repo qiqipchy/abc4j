@@ -329,7 +329,7 @@ public class AbcNode extends PositionableInCharStream {
 	}
 
 	/** Returns the textual value of this node, transforms all
-	 * escaped chars (e.g. <TT>\'i</TT> => <TT>í</TT>)
+	 * escaped chars (e.g. <TT>\'i</TT> => <TT>Ã­</TT>)
 	 */
 	public String getTexTextValue() {
 		String text = value;
@@ -348,7 +348,7 @@ public class AbcNode extends PositionableInCharStream {
 	 * <p>
 	 * If this node is labelled "TexText",
 	 * use {@link #getTexTextValue()} which transforms all
-	 * escaped chars (e.g. <TT>\'i</TT> => <TT>í</TT>)
+	 * escaped chars (e.g. <TT>\'i</TT> => <TT>Ã­</TT>)
 	 */
 	public String getValue() {
 		return value;

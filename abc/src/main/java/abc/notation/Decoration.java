@@ -158,11 +158,11 @@ public class Decoration extends SymbolElement implements Cloneable
   public static final byte TRILL_START = 49;
   public static final byte TRILL_END = 50;
   
-  /** Guitar bend up (tirÈ in French) */
+  /** Guitar bend up (tir√© in French) */
   public static final byte BEND_PULL = 51;
-  /** Guitar bend down (rel‚chÈ in French) */
+  /** Guitar bend down (rel√¢ch√© in French) */
   public static final byte BEND_RELEASE = 52;
-  /** Guitar bend up and down (tirÈ-rel‚chÈ in French) */
+  /** Guitar bend up and down (tir√©-rel√¢ch√© in French) */
   public static final byte BEND_PULL_RELEASE = 53;
   
   public static final byte DOUBLE_UPPER_MORDANT = 54;

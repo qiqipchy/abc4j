@@ -56,7 +56,7 @@ public class NotationMarkerMessage extends MetaMessage
     int b = ((int)bytes[1]&0xFF)<<8;
     int c = ((int)bytes[2]&0xFF);
     if (a+b+c<0)
-      System.out.println("ca va péter !");
+      System.out.println("ca va pÃ©ter !");
     return a+b+c;
 
   }
