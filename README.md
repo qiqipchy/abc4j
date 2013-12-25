@@ -24,7 +24,7 @@ sbt syntax:
 
 ## building and running
 
-A build file for [sbt](http://sbt.github.com/) version 0.13 is provided. If you have never used sbt, either follow the instructions on the sbt website for installation, or use (recommended) the [sbt-extras](https://github.com/paulp/sbt-extras) shell script. On OS X or Linux, this should be as simple as running the following line from a terminal:
+A build file for [sbt](http://www.scala-sbt.org/) version 0.13 is provided. If you have never used sbt, either follow the instructions on the sbt website for installation, or use (recommended) the [sbt-extras](https://github.com/paulp/sbt-extras) shell script. On OS X or Linux, this should be as simple as running the following line from a terminal:
 
     curl -s https://raw.github.com/paulp/sbt-extras/master/sbt > ~/bin/sbt && chmod 0755 ~/bin/sbt
 
@@ -46,7 +46,7 @@ This still has to be investigated...
 
 ## applets
 
-There there are two html files in the `applets` folder which embed abc4j as Java applets. They require that a compound jar has been created in the `target` folder using `sbt assembly`. `checkApplet.html` simply allows to enter an abc notated text and runs the parser to see if is valid code. `abcynthApplet` runs the tune book application. You might need to run it twice due to some null exceptions in configuration.
+There there are two html files in the `applets` folder which embed abc4j as Java applets. They require that a compound jar has been created in the `target` folder using `sbt assembly`. `checkApplet.html` simply allows to enter an abc notated text and runs the parser to see if is valid code. `abcynthApplet.html` runs the tune book application. You might need to run it twice due to some null exceptions in configuration.
 
 ## overview
 
